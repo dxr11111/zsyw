@@ -1,0 +1,18 @@
+ /deep/ .confirmDialog .van-dialog__content .van-dialog__message {
+  text-align: left;
+  font-size: 16px;
+}
+ /deep/ .confirmDialog .van-dialog__footer {
+  padding: 10px;
+}
+ /deep/ .confirmDialog .van-dialog__footer .van-button__content {
+  width: 100px;
+  margin: 0 auto;
+  border-radius: 10px;
+}
+ /deep/ .confirmDialog .van-dialog__footer .van-dialog__confirm {
+  color: #1989fa;
+}
+ /deep/ .confirmDialog .van-dialog__footer .van-button::before {
+  background-color: transparent !important;
+}
