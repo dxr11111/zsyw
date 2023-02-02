@@ -19,44 +19,43 @@
 </template>
 
 <script>
-import { reqChangeDevFailReason } from '@/http/button'
+import { reqChangeDevFailReason } from "@/http/button";
 export default {
   name: "ChanegDevFailReason",
-  data () {
+  data() {
     return {
       headName: `换机失败原因(${this.$route.query.orderNum})`,
-      failureInfo: '', //失败说明
-      failureTime: '', //失败时间
-      failureNode: '', //失败环节
-    }
+      failureInfo: "", //失败说明
+      failureTime: "", //失败时间
+      failureNode: "", //失败环节
+    };
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.$router.go(-1);
     },
     // 获取失败原因
-    async getReason () {
+    async getReason() {
       try {
-        let result = await reqChangeDevFailReason(JSON.stringify({ changeSheetNo: this.$route.query.changeSheetNo }))
-        console.log('111', result)
+        let result = await reqChangeDevFailReason(
+          JSON.stringify({ changeSheetNo: this.$route.query.changeSheetNo })
+        );
+        console.log("失败原因结果", result);
         if (result.operationSuccessFlag) {
-          this.failureInfo = result.failureInfo
-          this.failureTime = result.failureTime
-          this.failureNode = result.failureNode
+          this.failureInfo = result.failureInfo;
+          this.failureTime = result.failureTime;
+          this.failureNode = result.failureNode;
         }
-
       } catch (error) {
-        console.log('err', error)
-
+        console.log("err", error);
       }
     },
   },
-  created () {
-    this.getReason()
-  }
-
-}
+  created() {
+    this.getReason();
+  },
+};
 </script>
 
 <style lang="less" scoped>
@@ -65,6 +64,11 @@ export default {
     .row {
       padding: 10px;
       text-align: left;
+      display: flex;
+      justify-content: space-between;
+      .content {
+        color: #918e8e;
+      }
     }
   }
 }

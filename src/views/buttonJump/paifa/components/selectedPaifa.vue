@@ -54,7 +54,7 @@
       <van-button type="info" block @click="clickPF">确认</van-button>
     </van-popup>
     <!-- 显示已选择的派发部门 -->
-    <van-popup v-model="isOK" style="border-radius: 5px; height: 380px">
+    <van-popup v-model="isOK" style="border-radius: 5px;">
       <div class="decp">
         <div>派发部门</div>
         <ul>
@@ -141,7 +141,7 @@ export default {
         this.currDom = event
       } else if (event.path[1].style.backgroundColor == 'rgb(88, 136, 226)') {
         this.isClick = false
-        event.path[1].style.backgroundColor = 'rgb(255, 255, 255)' || ''
+        event.path[1].style.backgroundColor = 'rgb(25isClick5, 255, 255)' || ''
         event.target.style.color = "#000"
         this.selectedList.splice(this.selectedList.indexOf(curr.name), 1)
         // console.log('filter', this.selectedList)

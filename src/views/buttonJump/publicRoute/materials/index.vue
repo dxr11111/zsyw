@@ -5,6 +5,7 @@
     <div class="main">
       <div class="row">
         <van-field
+          type="number"
           v-model="MaterialInfo.indoorLine"
           label="二芯室内线"
           placeholder="请输入"
@@ -14,6 +15,7 @@
       </div>
       <div class="row">
         <van-field
+          type="number"
           v-model="MaterialInfo.blackLine"
           label="铁芯电话线（黑皮）"
           placeholder="请输入"
@@ -24,6 +26,7 @@
       </div>
       <div class="row">
         <van-field
+          type="number"
           v-model="MaterialInfo.netLine"
           label="网线-五类线"
           placeholder="请输入"
@@ -34,6 +37,7 @@
       </div>
       <div class="row">
         <van-field
+          type="number"
           v-model="MaterialInfo.lightSkinIn"
           label="室内光皮线"
           placeholder="请输入"
@@ -44,6 +48,7 @@
       </div>
       <div class="row">
         <van-field
+          type="number"
           v-model="MaterialInfo.lightSkinOut"
           label="室外光皮线"
           placeholder="请输入"
@@ -54,6 +59,7 @@
       </div>
       <div class="row">
         <van-field
+          type="number"
           v-model="MaterialInfo.pigtail"
           label="光纤尾纤"
           placeholder="请输入"
@@ -65,6 +71,7 @@
 
       <div class="row">
         <van-field
+          type="number"
           v-model="MaterialInfo.coldPlug"
           label="冷接插头"
           placeholder="请输入"
@@ -75,6 +82,7 @@
       </div>
       <div class="row">
         <van-field
+          type="number"
           v-model="MaterialInfo.hotPlug"
           label="热熔插头"
           placeholder="请输入"
@@ -85,6 +93,7 @@
       </div>
       <div class="row">
         <van-field
+          type="number"
           v-model="MaterialInfo.crystalHead"
           label="水晶头"
           placeholder="请输入"
@@ -95,6 +104,7 @@
       </div>
       <div class="row">
         <van-field
+          type="number"
           v-model="MaterialInfo.opticalPatchCord"
           label="光跳线"
           placeholder="请输入"
@@ -110,51 +120,50 @@
 </template>
 
 <script>
-import { getItem, setItem } from '@/utils/sessionStorage'
+import { getItem, setItem } from "@/utils/sessionStorage";
 export default {
-  name: 'IomNewFinishMaterial',
-  data () {
+  name: "Materials",
+  data() {
     return {
       headName: `外包材料(${this.$route.query.orderNum})`,
       // 外包材料-输入的数据
       MaterialInfo: {
-        indoorLine: '', // 二芯室内线 米
-        blackLine: '', //铁芯电话线（黑皮） 米
-        netLine: '', // 网线-五类线 米
-        lightSkinIn: '', // 室内光皮线 米
-        lightSkinOut: '', // 室外光皮线 米
-        pigtail: '', // 光纤尾纤 套
-        coldPlug: '', // 冷接插头 个
-        hotPlug: '', // 热熔插头 个
-        crystalHead: '', // 水晶头 个
-        opticalPatchCord: '', // 光跳线 条
+        indoorLine: "", // 二芯室内线 米
+        blackLine: "", //铁芯电话线（黑皮） 米
+        netLine: "", // 网线-五类线 米
+        lightSkinIn: "", // 室内光皮线 米
+        lightSkinOut: "", // 室外光皮线 米
+        pigtail: "", // 光纤尾纤 套
+        coldPlug: "", // 冷接插头 个
+        hotPlug: "", // 热熔插头 个
+        crystalHead: "", // 水晶头 个
+        opticalPatchCord: "", // 光跳线 条
       },
-      fromName: '',
-    }
+      fromName: "",
+    };
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.$router.go(-1);
     },
     // 输入框回车自动聚焦下一行
-    nextFocus (tar) {
+    nextFocus(tar) {
       this.$refs[tar].focus();
     },
     // 保存材料
-    saveFn () {
-      setItem('saveMaterialInfo', this.MaterialInfo)
-      this.$router.go(-1)
-    }
+    saveFn() {
+      setItem("saveMaterialInfo", this.MaterialInfo);
+      this.$router.go(-1);
+    },
   },
 
-  created () {
-    if (getItem('saveMaterialInfo')) {
-      this.MaterialInfo = getItem('saveMaterialInfo')
+  created() {
+    if (getItem("saveMaterialInfo")) {
+      this.MaterialInfo = getItem("saveMaterialInfo");
     }
   },
-
-}
+};
 </script>
 
 <style scoped lang="less">

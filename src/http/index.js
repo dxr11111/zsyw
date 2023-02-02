@@ -85,7 +85,8 @@ export const reqTaskSum = (postData) => {
 }
 // 工单看板数
 export const reqSheetReportSum = (postData) => {
-  return requests({ method: 'post', url: '/list/sheetReportSum', data: `data=${postData}` })
+  // return requests({ method: 'post', url: '/list/sheetReportSum', data: `data=${postData}` })
+  return requests({ method: 'post', url: '/list/sheetKanBan', data: `data=${postData}` })
 }
 
 // 多功能查询
@@ -101,7 +102,8 @@ export const multiFunction = (postData) => {
 export const reqgetTaskBoard = (postData) => {
   return requests({
     method: "post",
-    url: "/list/homeUniTaskSum",
+    // url: "/list/homeUniTaskSum",
+    url: "/list/homeUniTaskSumWeb",
     data: `data=${postData}`,
   });
 };

@@ -1,5 +1,6 @@
 <template>
-  <!-- 回复 -->
+  <!-- 弃用 -->
+  <!-- 修机单-回复 -->
   <div class="finish">
     <keep-alive>
       <router-view></router-view>
@@ -9,22 +10,20 @@
 
 <script>
 export default {
-  name: 'Finish',
-  data () {
-    return {
+  name: "Finish",
+  data() {
+    return {};
+  },
+  beforeRouteLeave(to, from, next) {
+    if (to.name == "ListDetail") {
+      this.$destroy();
     }
+    next();
   },
-  beforeRouteLeave (to, from, next) {
-    if (to.name == 'ListDetail') {
-      this.$destroy()
-    }
-    next()
+  beforeDestroy() {
+    console.log("finish销毁");
   },
-  beforeDestroy () {
-    console.log('finish销毁')
-  },
-
-}
+};
 </script>
 
 <style scoped lang="less">

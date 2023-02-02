@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div class="bgc">
     <MyHeader
       :name="headName"
       left="arrow-left"
       @goBackEv="$emit('changeTerminal')"
     />
-    <div v-for="(item, index) in currData.zhuanYeLuYouList" :key="index">
+    <div class="content" v-for="(item, index) in currData.zhuanYeLuYouList" :key="index">
       <van-cell title="路由端的序列：" :value="item.changJia" />
       <van-cell title="接入端(目前都是网络段)：" :value="item.changJia" />
       <van-cell title="路由类型" :value="item.luyouLeiXing" />
@@ -44,4 +44,8 @@ export default {
 </script>
 
 <style>
+.content {
+  margin-bottom: 12px;
+  background-color: #fff;
+}
 </style>

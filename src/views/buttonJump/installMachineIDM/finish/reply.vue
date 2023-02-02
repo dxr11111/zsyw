@@ -1975,7 +1975,7 @@ export default {
       console.log('编辑外包材料')
 
       this.$router.push({
-        name: 'IomNewFinishMaterial',
+        name: 'Materials',
         query: {
           orderNum: this.orderNum,
         }

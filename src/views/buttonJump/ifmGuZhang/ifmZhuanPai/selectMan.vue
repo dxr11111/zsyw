@@ -38,40 +38,38 @@
 </template>
 
 <script>
-import { reqIfmReDiagnose } from '@/http/button'
+import { reqIfmReDiagnose } from "@/http/button";
 export default {
-  name: 'IfmZhuanPaiSelectMan',
-  data () {
+  name: "IfmZhuanPaiSelectMan",
+  data() {
     return {
       id: parseInt(this.$route.query.id),
       daiweiId: parseInt(this.$route.query.daiweiId),
       daiweiName: this.$route.query.daiweiName,
       quYuId: parseInt(this.$route.query.quYuId),
       quYuName: this.$route.query.quYuName,
-      dispchRemark: '', // 派修备注
+      dispchRemark: "", // 派修备注
 
       menActions: [],
-      menText: '',
+      menText: "",
       menShow: false,
 
-      menName: '',
+      menName: "",
       menId: -1,
-      crMobileNumber: '',
-
-
-
-    }
+      crMobileNumber: "",
+    };
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.destroyRoute(this);
+      this.$router.go(-1);
       // 改变路由跳转步数
-      this.$store.commit('changeRouteJumpStep', -1)
+      this.$store.commit("changeRouteJumpStep", -1);
     },
     // 提交
-    async onSubmit () {
-      if (this.dispchRemark == '') return this.$toast('请输入派修备注')
+    async onSubmit() {
+      if (this.dispchRemark == "") return this.$toast("请输入派修备注");
 
       let postData = {
         id: this.id,
@@ -83,62 +81,58 @@ export default {
         menId: this.menId,
         menName: this.menName,
         crMobileNumber: this.crMobileNumber,
-      }
-      let result = await reqIfmReDiagnose(JSON.stringify(postData))
-      console.log('提交转派结果', result)
-      this.apiResponse(result, '.selectMan', () => {
+      };
+      let result = await reqIfmReDiagnose(JSON.stringify(postData));
+      console.log("提交转派结果", result);
+      this.apiResponse(result, ".selectMan", () => {
         // 提交成功后返回详情/工作台并刷新
-        this.resetRouteJumpStep()
+        this.resetRouteJumpStep();
         // 只调用接口按钮操作成功 刷新工单详情/工作台
-        this.operationSuccessRefresh(true)
+        this.operationSuccessRefresh(true);
         // 返回到列表详情/工作台 → 销毁整个初诊页面
-        this.$store.commit('destroyView/changeDestroyZhuanPai', true)
-
-      })
-
+        this.$store.commit("destroyView/changeDestroyZhuanPai", true);
+      });
     },
     // 获取传递过来的维护人
-    getMan () {
-      let menList = JSON.parse(this.$route.query.diagnoseCfgRepairManList)
-      menList.forEach(man => {
-        let obj = {}
-        obj.name = `${man.crName}[${man.crMobileNumber}][${man.crCurBalkCount}]`
-        obj.crName = man.crName
-        obj.crId = man.crId
-        obj.crCurBalkCount = man.crCurBalkCount
-        obj.crMobileNumber = man.crMobileNumber
-        obj.crUserType = man.crUserType
-        this.menActions.push(obj)
+    getMan() {
+      let menList = JSON.parse(this.$route.query.diagnoseCfgRepairManList);
+      menList.forEach((man) => {
+        let obj = {};
+        obj.name = `${man.crName}[${man.crMobileNumber}][${man.crCurBalkCount}]`;
+        obj.crName = man.crName;
+        obj.crId = man.crId;
+        obj.crCurBalkCount = man.crCurBalkCount;
+        obj.crMobileNumber = man.crMobileNumber;
+        obj.crUserType = man.crUserType;
+        this.menActions.push(obj);
         if (man.status == 1) {
-          this.menText = `${man.crName}[${man.crMobileNumber}][${man.crCurBalkCount}]`
-          this.menName = man.crName
-          this.menId = man.crId
-          this.crMobileNumber = man.crMobileNumber
+          this.menText = `${man.crName}[${man.crMobileNumber}][${man.crCurBalkCount}]`;
+          this.menName = man.crName;
+          this.menId = man.crId;
+          this.crMobileNumber = man.crMobileNumber;
         }
       });
       // 指定默认维护人
       if (this.menActions.length > 0 && this.menId == -1) {
-        this.menText = this.menActions[0].name
-        this.menName = this.menActions[0].crName
-        this.menId = this.menActions[0].crId
-        this.crMobileNumber = this.menActions[0].crMobileNumber
+        this.menText = this.menActions[0].name;
+        this.menName = this.menActions[0].crName;
+        this.menId = this.menActions[0].crId;
+        this.crMobileNumber = this.menActions[0].crMobileNumber;
       }
     },
     // 挑选维护人
-    selectMan (action) {
-      this.menText = `${action.crName}[${action.crMobileNumber}][${action.crCurBalkCount}]`
-      this.menName = action.crName
-      this.menId = action.crId
-      this.crMobileNumber = action.crMobileNumber
-    }
-
-
+    selectMan(action) {
+      this.menText = `${action.crName}[${action.crMobileNumber}][${action.crCurBalkCount}]`;
+      this.menName = action.crName;
+      this.menId = action.crId;
+      this.crMobileNumber = action.crMobileNumber;
+    },
   },
-  created () {
+  created() {
     // 获取传递过来的维护人
-    this.getMan()
+    this.getMan();
   },
-}
+};
 </script>
 
 <style scoped lang="less">

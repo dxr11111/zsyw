@@ -56,45 +56,45 @@
 </template>
 
 <script>
-import { reqifmFinish } from '@/http/button'
+import { reqifmFinish } from "@/http/button";
 export default {
-  name: 'WarnReply',
-  data () {
+  name: "WarnReply",
+  data() {
     return {
       headName: `回复(${this.$route.query.orderId})`,
       // flowNode: this.$route.query.flowNode, // 判断是哪个单子
-      support: '',
-      message: '',      // 是否显示超时原因
+      support: "",
+      message: "", // 是否显示超时原因
       overTimeShow: false,
-      overTimeReason: '用户地址不详',//超时原因
+      overTimeReason: "用户地址不详", //超时原因
       overTimeReasonShow: false,
       overTimeReasonActions: [
-        { name: '用户地址不详' },
-        { name: '用户锁门无人' },
-        { name: '用户设备自维' },
-        { name: '用户违章' },
-        { name: '用户设备（话机坏等用户设备原因造成）' },
-        { name: '自然灾害造成的故障' },
-        { name: '外单位施工影响' },
-        { name: '电缆被盗' },
-        { name: '局端设备原因' },
-        { name: '局端设备原因' },
-        { name: '系统故障' },
-        { name: '人为因素' },
+        { name: "用户地址不详" },
+        { name: "用户锁门无人" },
+        { name: "用户设备自维" },
+        { name: "用户违章" },
+        { name: "用户设备（话机坏等用户设备原因造成）" },
+        { name: "自然灾害造成的故障" },
+        { name: "外单位施工影响" },
+        { name: "电缆被盗" },
+        { name: "局端设备原因" },
+        { name: "局端设备原因" },
+        { name: "系统故障" },
+        { name: "人为因素" },
       ],
-      overTiemContent: '', // 超时说明
-    }
+      overTiemContent: "", // 超时说明
+    };
   },
   methods: {
     // 选中超时原因
-    selectOverTimeReason (action) {
-      this.overTimeReason = action.name
+    selectOverTimeReason(action) {
+      this.overTimeReason = action.name;
     },
-    async confirm () {
-      if (this.support == '') return this.$toast('请输入技术支撑手段')
-      if (this.message == '') return this.$toast('请输入完成信息')
-      let params = null
-      // 预警单 
+    async confirm() {
+      if (this.support == "") return this.$toast("请输入技术支撑手段");
+      if (this.message == "") return this.$toast("请输入完成信息");
+      let params = null;
+      // 预警单
       // if (this.flowNode == 3) {
       //   params = { id: Number(this.$route.query.id), finishInfo: this.message, supportMeans: this.support }
       //   let data = await reqifmFinish(JSON.stringify(params))
@@ -103,31 +103,42 @@ export default {
       //   this.$router.go(-1)
       // } else {
       // 支撑单
-      params = { id: Number(this.$route.query.id), finishInfo: this.message, supportMeans: this.support }
+      params = {
+        id: Number(this.$route.query.id),
+        finishInfo: this.message,
+        supportMeans: this.support,
+      };
       console.log(params);
-      if (this.overTimeShow && this.overTiemContent == '') return this.$toast('请输入超时说明')
+      if (this.overTimeShow && this.overTiemContent == "")
+        return this.$toast("请输入超时说明");
       if (this.overTimeShow) {
-        params = { id: Number(this.$route.query.id), finishInfo: this.message, supportMeans: this.support, overTimeReason: this.overTimeReason, overTimeIntro: this.overTiemContent }
+        params = {
+          id: Number(this.$route.query.id),
+          finishInfo: this.message,
+          supportMeans: this.support,
+          overTimeReason: this.overTimeReason,
+          overTimeIntro: this.overTiemContent,
+        };
       }
-      let data = await reqifmFinish(JSON.stringify(params))
-      console.log(data)
+      let data = await reqifmFinish(JSON.stringify(params));
+      console.log(data);
       if (data.operationSuccessFlag) {
-        this.$toast.success('操作成功')
-        this.support = ''
-        this.message = ''
-        this.overTiemContent = ''
-        this.$router.push('/main/workBench')
-        this.operationSuccessRefresh(true)
+        this.$toast.success("操作成功");
+        this.support = "";
+        this.message = "";
+        this.overTiemContent = "";
+        this.$router.push("/main/workBench");
+        this.operationSuccessRefresh(true);
       } else {
         if (data.errorCode == 20) {
-          this.overTimeShow = true
+          this.overTimeShow = true;
         }
-        this.$toast.fail(data.errorMessage)
+        this.$toast.fail(data.errorMessage);
       }
       // }
-    }
+    },
   },
-}
+};
 </script>
 
 <style lang="less" scoped>

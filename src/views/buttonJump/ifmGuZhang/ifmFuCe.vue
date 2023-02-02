@@ -397,230 +397,226 @@
 </template>
 
 <script>
-import { reqIfmRetestQuery, reqIfmRetest } from '@/http/button'
-import terminal from '../jzIPRANCircuit/components/terminal.vue'
+import { reqIfmRetestQuery, reqIfmRetest } from "@/http/button";
+import terminal from "../jzIPRANCircuit/components/terminal.vue";
 export default {
   components: { terminal },
-  name: 'IfmFuCe',
-  data () {
+  name: "IfmFuCe",
+  data() {
     return {
       id: parseInt(this.$route.query.id),
 
       piaType: -1, // 障碍类型
-      piaTypeName: '',
+      piaTypeName: "",
       piaTypeShow: false,
       piaTypeActions: [],
 
       balkClassReasonList: [], // 故障分类，故障原因联动下拉菜单
       balkPoint: -1, // 故障分类
-      balkPointName: '',
+      balkPointName: "",
       balkPointShow: false,
       balkPointActions: [],
 
       balkSortName: -1, // 故障原因
-      balkSort: '',
+      balkSort: "",
       balkSortShow: false,
       balkSortActions: [],
 
       upgradeState: -1, // 升速降速
-      upgradeName: '',
+      upgradeName: "",
       upgradeShow: false,
       upgradeActions: [],
 
       speedError: 0, // 控制div显示隐藏
 
-      markedWords: '', // 提示语
+      markedWords: "", // 提示语
 
       idmLowHighLoadSolve: false,
 
       lowHighLoadSolveReason: -1, // 低端高载强回原因
-      lowHighLoadSolveReasonName: '',
+      lowHighLoadSolveReasonName: "",
       lowHighLoadSolveReasonShow: false,
       lowHighLoadSolveReasonActions: [],
 
-      lowHighLoadSolveInfo: '', // 低端高载强回说明
+      lowHighLoadSolveInfo: "", // 低端高载强回说明
 
       paBalkLoss: -1, // 赔付
-      paBalkLossName: '',
+      paBalkLossName: "",
       paBalkLossShow: false,
       paBalkLossActions: [],
 
       retrialType: -1, // 复测方式
-      retrialTypeName: '',
+      retrialTypeName: "",
       retrialTypeShow: false,
       retrialTypeActions: [],
 
-
-      retrialSpeed: '', // 复测速率
+      retrialSpeed: "", // 复测速率
 
       wifiType: -1, // wifi类型
-      wifiTypeName: '',
+      wifiTypeName: "",
       wifiTypeShow: false,
       wifiTypeActions: [],
 
       wifiQuality: -1, // wifi是否合格
-      wifiQualityName: '',
+      wifiQualityName: "",
       wifiQualityShow: false,
       wifiQualityActions: [],
 
-      wifiRate: '', // wifi速率
+      wifiRate: "", // wifi速率
 
-      rcsbdbRetrialTime: '', // 测试时间
+      rcsbdbRetrialTime: "", // 测试时间
       rcsbdbRetrialTimeShow: false,
       rcsbdbRetrialTimeCurrent: new Date(),
       minDate: new Date(2000, 0, 1),
       maxDate: new Date(2090, 10, 1),
 
-
       retrialResult: -1, // 复测结果
-      retrialResultName: '',
+      retrialResultName: "",
       retrialResultShow: false,
       retrialResultActions: [],
 
       balkSubSortId: -1,
 
       isVisit: -1, // 外线是否上门
-      isVisitName: '',
+      isVisitName: "",
       isVisitShow: false,
       isVisitActions: [],
 
       isExamDaiwei: -1, // 是否计入代维公司考核
-      remark: '', // 备注
+      remark: "", // 备注
       remarkShow: false,
 
-      placteResult: '', // 安抚结果
-      solveResult: '', // 解决结果
-      paAdIn: '', // 装机地址
+      placteResult: "", // 安抚结果
+      solveResult: "", // 解决结果
+      paAdIn: "", // 装机地址
       needPaAdIn: false,
       repairAction: [], // 修复动作
-    }
+    };
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.$router.go(-1);
     },
     // 选择障碍类型
-    selectPiaType (action) {
-      this.piaType = action.id
-      this.piaTypeName = action.name
+    selectPiaType(action) {
+      this.piaType = action.id;
+      this.piaTypeName = action.name;
     },
     //  选择故障分类
-    selectBalkPoint (action) {
-      this.balkPoint = action.id
-      this.balkPointName = action.name
+    selectBalkPoint(action) {
+      this.balkPoint = action.id;
+      this.balkPointName = action.name;
 
       // 更换对应故障原因下拉菜单
-      this.balkSortName = -1
+      this.balkSortName = -1;
       for (let balkClass of this.balkClassReasonList) {
-
         if (balkClass.id == action.id) {
-          this.balkSortActions = balkClass.sonDownBox
+          this.balkSortActions = balkClass.sonDownBox;
           for (let balkSort of this.balkSortActions) {
             if (balkSort.status == 1) {
               // 故障原因有默认值
-              this.balkSortName = balkSort.id
-              this.balkSort = balkSort.name
-              break
+              this.balkSortName = balkSort.id;
+              this.balkSort = balkSort.name;
+              break;
             }
           }
           //  故障原因无默认值
           if (this.balkSortActions.length > 0 && this.balkSortName == -1) {
-            this.balkSortName = this.balkSortActions[0].id
-            this.balkSort = this.balkSortActions[0].name
+            this.balkSortName = this.balkSortActions[0].id;
+            this.balkSort = this.balkSortActions[0].name;
           }
         }
       }
     },
     // 选择故障原因
-    selectBalkSort (action) {
-      this.balkSortName = action.id
-      this.balkSort = action.name
+    selectBalkSort(action) {
+      this.balkSortName = action.id;
+      this.balkSort = action.name;
     },
     // 选择升速降速
-    selectUpgrade (action) {
-      this.upgradeState = action.id
-      this.upgradeName = action.name
+    selectUpgrade(action) {
+      this.upgradeState = action.id;
+      this.upgradeName = action.name;
     },
     // 选择复测方式
-    selectRetrialType (action) {
-      this.retrialType = action.id
-      this.retrialTypeName = action.name
+    selectRetrialType(action) {
+      this.retrialType = action.id;
+      this.retrialTypeName = action.name;
     },
     // 选择赔付
-    selectPaBalkLoss (action) {
-      this.paBalkLoss = action.id
-      this.paBalkLossName = action.name
+    selectPaBalkLoss(action) {
+      this.paBalkLoss = action.id;
+      this.paBalkLossName = action.name;
     },
     // 选择wifi类型
-    selectWifiType (action) {
-      this.wifiType = action.id
-      this.wifiTypeName = action.name
+    selectWifiType(action) {
+      this.wifiType = action.id;
+      this.wifiTypeName = action.name;
     },
     // 选择wifi是否合格
-    selectWifiQuality (action) {
-      this.wifiQuality = action.id
-      this.wifiTypeName = action.name
+    selectWifiQuality(action) {
+      this.wifiQuality = action.id;
+      this.wifiQualityName = action.name;
     },
     // 选择复测结果
-    selectRetrialResult (action) {
-      this.retrialResult = action.id
-      this.retrialResultName = action.name
+    selectRetrialResult(action) {
+      this.retrialResult = action.id;
+      this.retrialResultName = action.name;
     },
     // 选择外线是否上门
-    selectIsVisit (action) {
-      this.isVisit = action.id
-      this.isVisitName = action.name
+    selectIsVisit(action) {
+      this.isVisit = action.id;
+      this.isVisitName = action.name;
     },
     // 选择低端高载强回原因
-    selectLowHighLoadSolveReason (action) {
-      this.lowHighLoadSolveReason = action.id
-      this.lowHighLoadSolveReasonName = action.name
+    selectLowHighLoadSolveReason(action) {
+      this.lowHighLoadSolveReason = action.id;
+      this.lowHighLoadSolveReasonName = action.name;
     },
-
 
     // 选择测试时间
-    confirmRcsbdbRetrialTime (value) {
-      this.rcsbdbRetrialTime = this.dataFormat(value)
-      this.rcsbdbRetrialTimeShow = false
+    confirmRcsbdbRetrialTime(value) {
+      this.rcsbdbRetrialTime = this.dataFormat(value);
+      this.rcsbdbRetrialTimeShow = false;
     },
     // 选择是否计入代维公司考核
-    clickIsExamDaiwei (bool) {
-      if (bool) this.isExamDaiwei = 1
-      else this.isExamDaiwei = 0
+    clickIsExamDaiwei(bool) {
+      if (bool) this.isExamDaiwei = 1;
+      else this.isExamDaiwei = 0;
     },
     // 选择安抚结果
-    clickPlacteResult (bool) {
-      if (bool) this.placteResult = '安抚成功'
-      else this.placteResult = '安抚不成功'
+    clickPlacteResult(bool) {
+      if (bool) this.placteResult = "安抚成功";
+      else this.placteResult = "安抚不成功";
     },
     // 选择解决结果
-    clickSolveResult (bool) {
-      if (bool) this.solveResult = '问题解决'
-      else this.solveResult = '问题未解决'
+    clickSolveResult(bool) {
+      if (bool) this.solveResult = "问题解决";
+      else this.solveResult = "问题未解决";
     },
 
     // 时间选择器格式化
-    formatter (type, val) {
-      if (type === 'year') {
-        return `${val}年`
-      } else if (type === 'month') {
+    formatter(type, val) {
+      if (type === "year") {
+        return `${val}年`;
+      } else if (type === "month") {
         return `${val}月`;
-      } else if (type === 'day') {
+      } else if (type === "day") {
         return `${val}日`;
-      } else if (type === 'hour') {
-        return `${val}时`
-      } else if (type === 'minute') {
-        return `${val}分`
+      } else if (type === "hour") {
+        return `${val}时`;
+      } else if (type === "minute") {
+        return `${val}分`;
       }
       return val;
     },
     // 补零
-    addZero (num) {
+    addZero(num) {
       return num < 10 ? "0" + num : num;
     },
     // 时间格式转换 → yyyy-mm-dd hh:mm:ss
-    dataFormat (value) {
+    dataFormat(value) {
       let y = new Date(value).getFullYear();
       let m = new Date(value).getMonth() + 1;
       let d = new Date(value).getDate();
@@ -637,222 +633,227 @@ export default {
         this.addZero(h.toString()) +
         ":" +
         this.addZero(min.toString()) +
-        ":00"
-      return newDate
+        ":00";
+      return newDate;
     },
 
-
     // 获取复测信息
-    async getFuCeInfo () {
-      let result = await reqIfmRetestQuery(JSON.stringify({ id: this.id }))
-      console.log('获取ifm复测信息', result)
-      this.apiResponse(result, '.ifmFuCe', () => {
+    async getFuCeInfo() {
+      let result = await reqIfmRetestQuery(JSON.stringify({ id: this.id }));
+      console.log("获取ifm复测信息", result);
+      this.apiResponse(result, ".ifmFuCe", () => {
         // 响应成功
-        this.remarkShow = true
+        this.remarkShow = true;
         // 返回piaTypeList有值时，显示障碍类型下拉框
-        let piaTypeList = result.piaTypeList
-        this.piaTypeActions = piaTypeList
+        let piaTypeList = result.piaTypeList;
+        this.piaTypeActions = piaTypeList;
         for (let piaType of piaTypeList) {
           if (piaType.status == 1) {
             // 有默认值
-            this.piaType = piaType.id
-            this.piaTypeName = piaType.name
-            break
+            this.piaType = piaType.id;
+            this.piaTypeName = piaType.name;
+            break;
           }
         }
         //  piaType没有默认值
         if (piaTypeList.length > 0 && this.piaType == -1) {
-          this.piaType = piaTypeList[0].id
-          this.piaTypeName = piaTypeList[0].name
+          this.piaType = piaTypeList[0].id;
+          this.piaTypeName = piaTypeList[0].name;
         }
 
         /* 返回balkClassReasonList有值时，显示故障分类和故障原因下拉框，
         返回的内容中有标记哪个是默认显示，如果都没有，就默认显示第一个。
         父级为故障分类，对应的下级为故障原因。同时取upgradeList，
         显示是否升速下拉框。 */
-        this.balkClassReasonList = result.balkClassReasonList
-        this.balkClassReasonList.forEach(balkPoint => {
+        this.balkClassReasonList = result.balkClassReasonList;
+        this.balkClassReasonList.forEach((balkPoint) => {
           // 故障分类
-          let obj = {}
-          obj.name = balkPoint.name
-          obj.id = balkPoint.id
-          this.balkPointActions.push(obj)
+          let obj = {};
+          obj.name = balkPoint.name;
+          obj.id = balkPoint.id;
+          this.balkPointActions.push(obj);
           if (balkPoint.status == 1) {
             // 有默认值
-            this.balkPoint = balkPoint.id
-            this.balkPointName = balkPoint.name
+            this.balkPoint = balkPoint.id;
+            this.balkPointName = balkPoint.name;
             // 获取下级故障原因
-            this.balkSortActions = balkPoint.sonDownBox
-            this.balkSortName = balkPoint.sonDownBox[0].id
-            this.balkSort = balkPoint.sonDownBox[0].name
+            this.balkSortActions = balkPoint.sonDownBox;
+            this.balkSortName = balkPoint.sonDownBox[0].id;
+            this.balkSort = balkPoint.sonDownBox[0].name;
           }
-
-        })
+        });
         //  balkPoint没有默认值
         if (this.balkClassReasonList.length > 0 && this.balkPoint == -1) {
-          this.balkPoint = this.balkClassReasonList[0].id
-          this.balkPointName = this.balkClassReasonList[0].name
+          this.balkPoint = this.balkClassReasonList[0].id;
+          this.balkPointName = this.balkClassReasonList[0].name;
           // 下级故障原因
-          let balkSortActions = this.balkClassReasonList[0].sonDownBox
+          let balkSortActions = this.balkClassReasonList[0].sonDownBox;
           if (balkSortActions.length > 0) {
-            this.balkSortActions = balkSortActions
-            this.balkSortName = balkSortActions[0].id
-            this.balkSort = balkSortActions[0].name
+            this.balkSortActions = balkSortActions;
+            this.balkSortName = balkSortActions[0].id;
+            this.balkSort = balkSortActions[0].name;
           }
         }
 
         if (this.balkClassReasonList.length > 0) {
           //  获取升速下拉框内容
-          this.upgradeActions = result.upgradeList
+          this.upgradeActions = result.upgradeList;
           for (let upgrade of this.upgradeActions) {
             if (upgrade.status == 1) {
-              this.upgradeState = upgrade.id
-              this.upgradeName = upgrade.name
-              break
+              this.upgradeState = upgrade.id;
+              this.upgradeName = upgrade.name;
+              break;
             }
           }
           if (this.upgradeActions.length > 0 && this.upgradeState == -1) {
-            this.upgradeState = this.upgradeActions[0].id
-            this.upgradeName = this.upgradeActions[0].name
+            this.upgradeState = this.upgradeActions[0].id;
+            this.upgradeName = this.upgradeActions[0].name;
           }
         }
 
         // 返回的speedError等于1的时候，
         if (result.speedError == 1) {
-          this.speedError = 1
+          this.speedError = 1;
+          this.markedWords = result.markedWords;
           // 取retrialTypeList，显示复测方式下拉框
-          this.retrialTypeActions = result.retrialTypeList
+          this.retrialTypeActions = result.retrialTypeList;
           for (let retrial of this.retrialTypeActions) {
             if (retrial.status == 1) {
-              this.retrialType = retrial.id
-              this.retrialTypeName = retrial.name
-              break
+              this.retrialType = retrial.id;
+              this.retrialTypeName = retrial.name;
+              break;
             }
           }
           if (this.retrialTypeActions.length > 0 && this.retrialType == -1) {
-            this.retrialType = this.retrialTypeActions[0].id
-            this.retrialTypeName = this.retrialTypeActions[0].name
+            this.retrialType = this.retrialTypeActions[0].id;
+            this.retrialTypeName = this.retrialTypeActions[0].name;
           }
 
           // 取balkLossList，显示赔付下拉框
-          this.paBalkLossActions = result.balkLossList
+          this.paBalkLossActions = result.balkLossList;
           for (let item of this.paBalkLossActions) {
             if (item.status == 1) {
-              this.paBalkLoss = item.id
-              this.paBalkLossName = item.name
-              break
+              this.paBalkLoss = item.id;
+              this.paBalkLossName = item.name;
+              break;
             }
           }
           if (this.paBalkLossActions.length > 0 && this.paBalkLoss == -1) {
-            this.paBalkLoss = this.paBalkLossActions[0].id
-            this.paBalkLossName = this.paBalkLossActions[0].name
+            this.paBalkLoss = this.paBalkLossActions[0].id;
+            this.paBalkLossName = this.paBalkLossActions[0].name;
           }
 
           // 取wifiTypeList，显示wifi类型下拉框
-          this.wifiTypeActions = result.wifiTypeList
+          this.wifiTypeActions = result.wifiTypeList;
           for (let item of this.wifiTypeActions) {
             if (item.status == 1) {
-              this.wifiType = item.id
-              this.wifiTypeName = item.name
-              break
+              this.wifiType = item.id;
+              this.wifiTypeName = item.name;
+              break;
             }
           }
           if (this.wifiTypeActions.length > 0 && this.wifiType == -1) {
-            this.wifiType = this.wifiTypeActions[0].id
-            this.wifiTypeName = this.wifiTypeActions[0].name
+            this.wifiType = this.wifiTypeActions[0].id;
+            this.wifiTypeName = this.wifiTypeActions[0].name;
           }
 
           // 取yesNoList，显示wifi是否合格下拉框
-          this.wifiQualityActions = result.yesNoList
+          this.wifiQualityActions = result.yesNoList;
           for (let item of this.wifiQualityActions) {
             if (item.status == 1) {
-              this.wifiQuality = item.id
-              this.wifiTypeName = item.name
-              break
+              this.wifiQuality = item.id;
+              this.wifiQualityName = item.name;
+              break;
             }
           }
           if (this.wifiQualityActions.length > 0 && this.wifiQuality == -1) {
-            this.wifiQuality = this.wifiQualityActions[0].id
-            this.wifiTypeName = this.wifiQualityActions[0].name
+            this.wifiQuality = this.wifiQualityActions[0].id;
+            this.wifiQualityName = this.wifiQualityActions[0].name;
           }
         }
 
         // 返回的retrialResultList有值时，显示复测结果下拉框
-        this.retrialResultActions = result.retrialResultList
+        this.retrialResultActions = result.retrialResultList;
         for (let item of this.retrialResultActions) {
           if (item.status == 1) {
-            this.retrialResult = item.id
-            this.retrialResultName = item.name
-            break
+            this.retrialResult = item.id;
+            this.retrialResultName = item.name;
+            break;
           }
         }
         if (this.retrialResultActions.length > 0 && this.retrialResult == -1) {
-          this.retrialResult = this.retrialResultActions[0].id
-          this.retrialResultName = this.retrialResultActions[0].name
+          this.retrialResult = this.retrialResultActions[0].id;
+          this.retrialResultName = this.retrialResultActions[0].name;
         }
 
         // balkSubSortId等于1026的的时候，
         if (result.balkSubSortId == 1026) {
-          this.balkSubSortId = 1026
+          this.balkSubSortId = 1026;
           // 取isVisitEndList，显示外线是否上门下拉框
-          this.isVisitActions = result.isVisitEndList
+          this.isVisitActions = result.isVisitEndList;
           for (let item of this.isVisitActions) {
             if (item.status == 1) {
-              this.isVisit = item.id
-              this.isVisitName = item.name
-              break
+              this.isVisit = item.id;
+              this.isVisitName = item.name;
+              break;
             }
           }
           if (this.isVisitActions.length > 0 && this.isVisit == -1) {
-            this.isVisit = this.isVisitActions[0].id
-            this.isVisitName = this.isVisitActions[0].name
+            this.isVisit = this.isVisitActions[0].id;
+            this.isVisitName = this.isVisitActions[0].name;
           }
         }
 
         // 返回的isIdmLowHighLoadSolve等于true时，显示低端高载强回说明输入框
-        this.idmLowHighLoadSolve = result.idmLowHighLoadSolve
+        this.idmLowHighLoadSolve = result.idmLowHighLoadSolve;
         if (this.idmLowHighLoadSolve) {
-          this.lowHighLoadSolveReasonActions = result.lowHighLoadSolveReasonList
+          this.lowHighLoadSolveReasonActions =
+            result.lowHighLoadSolveReasonList;
           for (let item of this.lowHighLoadSolveReasonActions) {
             if (item.status == 1) {
-              this.lowHighLoadSolveReason = item.id
-              this.lowHighLoadSolveReasonName = item.name
-              break
+              this.lowHighLoadSolveReason = item.id;
+              this.lowHighLoadSolveReasonName = item.name;
+              break;
             }
           }
-          if (this.lowHighLoadSolveReasonActions.length > 0 && this.lowHighLoadSolveReason == -1) {
-            this.lowHighLoadSolveReason = this.lowHighLoadSolveReasonActions[0].id
-            this.lowHighLoadSolveReasonName = this.lowHighLoadSolveReasonActions[0].name
+          if (
+            this.lowHighLoadSolveReasonActions.length > 0 &&
+            this.lowHighLoadSolveReason == -1
+          ) {
+            this.lowHighLoadSolveReason =
+              this.lowHighLoadSolveReasonActions[0].id;
+            this.lowHighLoadSolveReasonName =
+              this.lowHighLoadSolveReasonActions[0].name;
           }
         }
 
-        this.needPaAdIn = result.needPaAdIn
-
-
-      })
-
-
+        this.needPaAdIn = result.needPaAdIn;
+      });
+      // 响应失败
+      if (!result.operationSuccessFlag) this.$router.go(-1);
     },
     // 提交复测信息
-    async onSubmit () {
+    async onSubmit() {
       // 校验
-      if (this.remark == '') return this.$toast('请输入备注')
+      if (this.remark == "") return this.$toast("请输入备注");
       if (this.speedError == 1) {
-        if (this.retrialSpeed == '') return this.$toast('请输入复测速率')
-        if (this.rcsbdbRetrialTime == '') return this.$toast('请选择测试时间')
-        if (this.wifiRate == '') return this.$toast('请输入wifi速率')
+        if (this.retrialSpeed == "") return this.$toast("请输入复测速率");
+        if (this.rcsbdbRetrialTime == "") return this.$toast("请选择测试时间");
+        if (this.wifiRate == "") return this.$toast("请输入wifi速率");
       }
-      if (this.isExamDaiwei == -1) return this.$toast('请选择是否计入代维公司考核')
+      if (this.isExamDaiwei == -1)
+        return this.$toast("请选择是否计入代维公司考核");
       if (this.balkSubSortId == 1026) {
-        if (this.placteResult == '') return this.$toast('请选择安抚结果')
-        if (this.solveResult == '') return this.$toast('请选择解决结果')
-        if (this.repairAction.length == 0) return this.$toast('请选择修复动作')
+        if (this.placteResult == "") return this.$toast("请选择安抚结果");
+        if (this.solveResult == "") return this.$toast("请选择解决结果");
+        if (this.repairAction.length == 0) return this.$toast("请选择修复动作");
       }
       if (this.idmLowHighLoadSolve) {
-        if (this.lowHighLoadSolveInfo == '') return this.$toast('请输入低端高载强回说明')
+        if (this.lowHighLoadSolveInfo == "")
+          return this.$toast("请输入低端高载强回说明");
       }
       if (this.needPaAdIn) {
-        if (this.paAdIn == '') return this.$toast('请输入装机地址')
+        if (this.paAdIn == "") return this.$toast("请输入装机地址");
       }
 
       let postData = {
@@ -879,21 +880,22 @@ export default {
         solveResult: this.solveResult,
         paAdIn: this.paAdIn,
         repairAction: this.repairAction,
-      }
-      let result = await reqIfmRetest(JSON.stringify(postData))
-      console.log('提交结果', result)
-      this.apiResponse(result, '.ifmFuCe', () => {
+      };
+      let result = await reqIfmRetest(JSON.stringify(postData));
+      console.log("提交结果", result);
+      this.apiResponse(result, ".ifmFuCe", () => {
         // 操作成功 返回上一个页面并刷新
-      })
-
+        this.$router.go(-1);
+        // 只调用接口按钮操作成功 刷新工单详情/工作台
+        this.operationSuccessRefresh(true);
+      });
     },
   },
-  created () {
+  created() {
     // 获取复测信息
-    this.getFuCeInfo()
-  }
-
-}
+    this.getFuCeInfo();
+  },
+};
 </script>
 
 <style scoped lang="less">

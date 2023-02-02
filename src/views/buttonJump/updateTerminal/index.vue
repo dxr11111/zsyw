@@ -22,6 +22,7 @@
 
 <script>
 import { JndCircuitInfoApi } from '@/http/button'
+import bus from "@/utils/eventBus";
 export default {
   name: 'UpdateTerminal',
   components: { 
@@ -37,6 +38,12 @@ export default {
     }
   },
   created () {
+    bus.$on('updatePage', data => {
+      if (data) {
+        this.isShow = true
+        this.getTerminalList()
+      }
+    })
     this.getTerminalList()
   },
   methods: {

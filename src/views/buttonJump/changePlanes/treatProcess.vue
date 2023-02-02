@@ -12,53 +12,50 @@
 </template>
 
 <script>
-import { reqChangeDevProc } from '@/http/button'
+import { reqChangeDevProc } from "@/http/button";
 export default {
-  name: 'ChanegDevTreatProcess',
-  data () {
+  name: "ChanegDevTreatProcess",
+  data() {
     return {
       headName: `换机处理过程(${this.$route.query.orderNum})`,
       processList: [],
-
-    }
+    };
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.$router.go(-1);
     },
     // 处理过程
-    async getProcess () {
+    async getProcess() {
       try {
-        let result = await reqChangeDevProc(JSON.stringify({ changeSheetNo: this.$route.query.changeSheetNo }))
-        console.log('333', result)
+        let result = await reqChangeDevProc(
+          JSON.stringify({ changeSheetNo: this.$route.query.changeSheetNo })
+        );
+        console.log("处理过程结果", result);
         if (result.operationSuccessFlag) {
-          this.processList = result.proc
+          this.processList = result.proc;
         }
-
       } catch (error) {
-        console.log('err', error)
-
+        console.log("err", error);
       }
-    }
+    },
   },
-  created () {
-    this.getProcess()
-  }
-
-}
+  created() {
+    this.getProcess();
+  },
+};
 </script>
 
 <style scoped lang="less">
 .treatProcess {
   background-color: #f8f7fc;
-  header {
-    z-index: 1;
-    position: fixed;
-    top: 0;
-    width: 100%;
-  }
-
+  // header {
+  //   z-index: 1;
+  //   position: fixed;
+  //   top: 0;
+  //   width: 100%;
+  // }
   .main {
     margin-top: 48px;
     .row {
@@ -79,7 +76,7 @@ export default {
         border-radius: 4px;
         background-color: aquamarine;
         &::after {
-          content: '';
+          content: "";
           position: absolute;
           border-left: 2px solid #e0e0e0;
           height: 54px;

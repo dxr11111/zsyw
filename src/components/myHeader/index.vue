@@ -25,33 +25,35 @@
 export default {
   name: "MyHeader",
   props: ["name", "right", "left", "rightText"],
-  data () {
+  data() {
     return {
-      headerHeight: '48px',
-      headTextMargin: '',
+      headerHeight: "48px",
+      headTextMargin: "",
     };
   },
   methods: {
     // 回退
-    goBack () {
+    goBack() {
       this.$emit("goBackEv");
     },
     // 点击搜索按钮
-    clickRight () {
+    clickRight() {
       this.$emit("rightEv");
     },
   },
-  created () {
-
-    // 建设报表是旋转的屏幕 不需要增加高度
-    if (this.$route.name !== 'ReportSheet') {
+  created() {
+    // 建设报表，签名页面是旋转的屏幕 不需要增加高度
+    if (
+      this.$route.name !== "ReportSheet" &&
+      this.$route.name !== "Signature"
+    ) {
       // 获取头部尺寸
-      if (localStorage.getItem('Addhead') == 'true') {
-        this.headerHeight = '78px'
-        this.headTextMargin = '30px'
+      if (localStorage.getItem("Addhead") == "true") {
+        this.headerHeight = "78px";
+        this.headTextMargin = "30px";
       }
     }
-  }
+  },
 };
 </script>
 

@@ -13,7 +13,7 @@
           <div class="title" v-if="item.resType == 4">IPTV</div>
           <div class="title" v-if="item.resType == 6">沃家产品</div>
           <div class="content">
-            <span>厂{{ '\u3000\u3000' }}家：{{ item.supplierName }}</span>
+            <span>厂{{ "\u3000\u3000" }}家：{{ item.supplierName }}</span>
             <span>终端串码：{{ item.sn }}</span>
             <span>终端MAC：{{ item.mac }}</span>
             <span>终端型号：{{ item.resModelName }}</span>
@@ -21,7 +21,7 @@
         </div>
         <div class="right">
           <van-button type="danger" @click="changeDev(item)">{{
-            item.canChange === 1 ? '更换' : '更换中'
+            item.canChange === 1 ? "更换" : "更换中"
           }}</van-button>
           <van-button
             type="danger"
@@ -196,273 +196,318 @@
 </template>
 
 <script>
-import { reqChangeDevDispatch, reqDevZy, reqDevSubmit } from '@/http/button'
-import { mapGetters } from 'vuex'
+import {
+  reqChangeDevDispatch,
+  reqDevZy,
+  reqDevSubmit,
+  reqQueryChangeDevStage,
+} from "@/http/button";
+import { mapGetters } from "vuex";
 export default {
-  name: 'ChangeDevDispatch',
-  data () {
+  name: "ChangeDevDispatch",
+  data() {
     return {
       headName: `更换设备(${this.$route.query.orderNum})`,
       devList: [], // 设备列表
       showEnter: false, // 录入新设备/更换弹出层
       isChange: true, // 确认点击的是更换还是录入新设备
       // 更换时点击的设备终端串码和mac地址
-      changeSn: '',
-      changeMAC: '',
+      changeSn: "",
+      changeMAC: "",
       // 点击的更换设备
       devSeq: -1,
-      changeSheetNo: '',
+      changeSheetNo: "",
       // 弹出层终端型号
       selectType: [
-        { name: 'ONU', value: 1 },
-        { name: 'IPTV', value: 4 },
-        { name: '沃家产品', value: 6 },
+        { name: "ONU", value: 1 },
+        { name: "IPTV", value: 4 },
+        { name: "沃家产品", value: 6 },
       ],
       // 录入新设备及更换 弹出框内容
       resType: 1, // 按钮-终端类型 1：ONU  4：IPTV  6：沃家产品
-      ysSN: '', // 应收终端串码
-      ysMAC: '', // 应收MAC地址
-      ssSN: '', // 实收终端串码
-      ssMAC: '', // 实收MAC地址
-      newSN: '', // 新占用终端串码
-      newMAC: '', // 新占用MAC地址
+      ysSN: "", // 应收终端串码
+      ysMAC: "", // 应收MAC地址
+      ssSN: "", // 实收终端串码
+      ssMAC: "", // 实收MAC地址
+      newSN: "", // 新占用终端串码
+      newMAC: "", // 新占用MAC地址
       // 确认新旧设备数据-换机查询资源
       newMsg: {},
       oldMsg: {},
-      changJing: '', // 换机场景错误提示
-      tiShi: '', // 提示信息
+      changJing: "", // 换机场景错误提示
+      tiShi: "", // 提示信息
       showNewOldData: false, // 确认新旧设备数据弹出层
       // 换机查询资源响应回来有用的数据
       sheetType: 0, // 0：掌上运维起换机单  1：沃易售起换机单
-
-    }
+    };
   },
   computed: {
-    ...mapGetters(["getLoginInfo"])
+    ...mapGetters(["getLoginInfo"]),
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.$router.go(-1);
+      // 销毁换机路由
+      this.$store.commit("destroyView/changeDestroyHuanJi", true);
     },
     // 换机前查询
-    async getChangeDevDispatch () {
-      let id = parseInt(this.$route.query.id)
+    async getChangeDevDispatch() {
+      let id = parseInt(this.$route.query.id);
       try {
-        let result = await reqChangeDevDispatch(JSON.stringify({ id }))
-        console.log('换机前查询结果', result)
+        let result = await reqChangeDevDispatch(JSON.stringify({ id }));
+        console.log("换机前查询结果", result);
         if (result.operationSuccessFlag) {
-
           // 设备列表
-          this.devList = result.onuIptvList
+          this.devList = result.onuIptvList;
           // 将空值替换成--
-          this.devList.forEach(dev => {
-            Object.keys(dev).forEach(key => {
-              if (dev[key] === '') {
-                dev[key] = '--'
+          this.devList.forEach((dev) => {
+            Object.keys(dev).forEach((key) => {
+              if (dev[key] === "") {
+                dev[key] = "--";
               }
-            })
-          })
+            });
+          });
         }
       } catch (error) {
-        console.log('err', error)
-
+        console.log("err", error);
       }
-
     },
     // 点击换机记录
-    changeRecord (devSeq) {
+    changeRecord(devSeq) {
       // 跳转到换机记录界面
       this.$router.push({
-        name: 'ChangeDevHis',
+        name: "ChangeDevHis",
         query: {
           devSeq,
           orderNum: this.$route.query.orderNum,
           id: this.$route.query.id,
-        }
-      })
+        },
+      });
     },
     // 点击录入新设备
-    enterNewDev () {
+    enterNewDev() {
       // 重置按钮-终端类型
-      this.resType = 1
+      this.resType = 1;
       // 确认点击是新设备
-      this.isChange = false
-      this.showEnter = true
-
+      this.isChange = false;
+      this.showEnter = true;
     },
     // 点击更换
-    changeDev (item) {
+    async changeDev(item) {
       // 更换中无法点击
       if (item.canChange === 1) {
         // 更换
         // 先清空输入框内容
-        this.ssSN = ''
-        this.ssMAC = ''
-        this.newSN = ''
-        this.newMAC = ''
+        this.ssSN = "";
+        this.ssMAC = "";
+        this.newSN = "";
+        this.newMAC = "";
 
         // 记录更换的设备信息
-        this.resType = item.resType
-        this.changeSn = item.sn
-        this.changeMAC = item.mac
-        this.devSeq = item.devSeq
-        this.changeSheetNo = item.sheetNo
+        this.resType = item.resType;
+        this.changeSn = item.sn;
+        this.changeMAC = item.mac;
+        this.devSeq = item.devSeq;
+        this.changeSheetNo = item.sheetNo;
         // 标识当前弹框点击的是更换按钮
-        this.isChange = true
-        this.showEnter = true
-
+        this.isChange = true;
+        this.showEnter = true;
       } else {
-        // 更换中
-        return
+        // 更换中-查询对应的设备换机进度
+        let changeSheetNo = item.sheetNo;
+        let result = await reqQueryChangeDevStage(
+          JSON.stringify({ changeSheetNo })
+        );
+        console.log("查询对应设备的换机进度", result);
       }
-
     },
     // 点击弹出框里的终端类型
-    clickType (item) {
+    clickType(item) {
       // 只有录入新设备时才可点击切换终端型号
-      if (!this.isChange) this.resType = item.value
+      if (!this.isChange) this.resType = item.value;
     },
     // 确认录入新设备/更换
-    async confirmDev () {
+    async confirmDev() {
       // 判断输入框值是否填写正确
-      if (this.newSN === '' && this.newMAC === '') {
-        return this.$toast('新占用终端串码和MAC地址不能同时为空!')
+      if (this.newSN.trim() === "" && this.newMAC.trim() === "") {
+        return this.$toast("新占用终端串码和MAC地址不能同时为空!");
       }
-      if (this.ysSN === '' && this.ysMAC === '' && this.ssSN === '' && this.ssMAC === '') {
-        return this.$toast('应收串码和MAC与实收串码和MAC不能同时为空')
+      if (
+        (this.ysSN === "" && this.ysMAC === "") ||
+        (this.ssSN === "" && this.ssMAC === "")
+      ) {
+        return this.$toast("应收串码和MAC与实收串码和MAC不能同时为空");
       }
       if (this.newSN === this.ssSN || this.newSN === this.ysSN) {
-        if (this.newSN !== '') {
-          return this.$toast('新占用的串码不能与应收或实收的串码相同')
+        if (this.newSN !== "") {
+          return this.$toast("新占用的串码不能与应收或实收的串码相同");
         }
       }
       if (this.newMAC === this.ssMAC || this.newMAC === this.ysMAC) {
         // 都为空的不算
-        if (this.newMAC !== '') {
-          return this.$toast('新占用的MAC不能与应收或实收的MAC相同')
-
+        if (this.newMAC !== "") {
+          return this.$toast("新占用的MAC不能与应收或实收的MAC相同");
         }
       }
+      // 验证是否填写中文
+      let str =
+        this.ysSN +
+        this.ysMAC +
+        this.ssSN +
+        this.ssMAC +
+        this.newSN +
+        this.newMAC;
+      let regular = new RegExp("[\\u4E00-\\u9FFF]+", "g");
+      if (regular.test(str)) {
+        return this.$toast(
+          "MAC地址或终端串码格式不正确，请重新扫码或手动填写!"
+        );
+      }
       // 关闭录入新设备/更换弹出层
-      this.showEnter = false
+      this.showEnter = false;
       // 拿到录入新设备/更换信息
       let onuIptvChangeInfoItem = {
         resType: this.resType,
-        seq: '',
-        oldSeq: '',
-        ysSN: this.ysSN,
-        ysMAC: this.ysMAC,
-        ssSN: this.ssSN,
-        ssMAC: this.ssMAC,
-        newSN: this.newSN,
-        newMAC: this.newMAC,
-      }
+        seq: "",
+        oldSeq: "",
+        ysSN: this.ysSN.trim(),
+        ysMAC: this.ysMAC.trim(),
+        ssSN: this.ssSN.trim(),
+        ssMAC: this.ssMAC.trim(),
+        newSN: this.newSN.trim(),
+        newMAC: this.newMAC.trim(),
+      };
       // ONU点击确认调用接口换机查询资源-弹出框显示确认新设备数据（点击确认再调用接口换机提交）
       if (this.resType === 1) {
         // onu
         // 判断点击的是更换还是录入新设备
         if (this.isChange) {
           // 更换
-          onuIptvChangeInfoItem.oldSeq = this.devSeq
+          onuIptvChangeInfoItem.oldSeq = this.devSeq;
           // ysSN和ysMAC要取换机前查询的值
-          onuIptvChangeInfoItem = { ...onuIptvChangeInfoItem, ysSN: this.changeSn, ysMAC: this.changeMAC }
+          onuIptvChangeInfoItem = {
+            ...onuIptvChangeInfoItem,
+            ysSN: this.changeSn,
+            ysMAC: this.changeMAC,
+          };
         }
         try {
-          let result = await reqDevZy(JSON.stringify({ onuIptvChangeInfoItem }))
-          console.log('确认新旧设备数据', result)
+          let result = await reqDevZy(
+            JSON.stringify({ onuIptvChangeInfoItem })
+          );
+          console.log("确认新旧设备数据", result);
           if (result.operationSuccessFlag) {
             // 得到新旧设备数据
-            this.newMsg = result.newMsg
-            this.oldMsg = result.oldMsg
+            this.newMsg = result.newMsg;
+            this.oldMsg = result.oldMsg;
             // 显示新旧设备弹出框
-            this.showNewOldData = true
-            this.changJing = result.changJing
+            this.showNewOldData = true;
+            this.changJing = result.changJing;
             // changJing当值为-1时，提示换机场景错误，无法换机，确定按钮失效，显示提示信息（为-1时无法点击确认按钮，页面显示提示信息）
             if (result.changJing === -1) {
               // 显示提示信息
-              this.tiShi = result.tiShi
+              this.tiShi = result.tiShi;
               // 确认按钮失效
             }
             // sheetType为1时弹出框'请到沃易售起草换机单'
             if (result.sheetType === 1) {
-              this.$toast('请到沃易售起草换机单')
+              this.$toast("请到沃易售起草换机单");
             }
           } else {
-            this.$toast(result.errorMessage)
+            this.$toast(result.errorMessage);
           }
-
         } catch (error) {
-          console.log('err', error)
-
+          console.log("err", error);
         }
       } else {
         // iptv和沃家产品点击确认直接调用换机提交
-        this.newOldDataConfirm()
+        this.newOldDataConfirm();
       }
-
     },
     // onu确认新旧设备数据-点击确认换机提交/iptv，沃家产品直接提交
-    async newOldDataConfirm () {
+    async newOldDataConfirm() {
       // 当changJing值为-1时，确定按钮失效
-      if (this.changJing === '-1') {
-        return this.$toast('无法确认提交')
+      if (this.changJing === "-1") {
+        return this.$toast("无法确认提交");
       }
-      let id = parseInt(this.$route.query.id)
-      let changeType = this.resType // 当前resType的值
-      let oldMsg = this.oldMsg // onu时传
-      let newMsg = this.newMsg // onu时传
-      let changeSheetNo = '' // 点击录入新设备传空
-      let devSeq = '' // 点击录入新设备传空
-      let sheetType = this.sheetType
+      let id = parseInt(this.$route.query.id);
+      let changeType = this.resType; // 当前resType的值
+      let oldMsg = this.oldMsg; // onu时传
+      let newMsg = this.newMsg; // onu时传
+      let changeSheetNo = ""; // 点击录入新设备传空
+      let devSeq = ""; // 点击录入新设备传空,录入设备或更换时onu查询获取devSeq提交时用到；iptv或沃家产品传空
+      let sheetType = this.sheetType;
       let onuIptvChangeInfoItem = {
         resType: this.resType,
-        seq: '',
-        oldSeq: '',
+        seq: "",
+        oldSeq: "",
         ysSN: this.ysSN,
         ysMAC: this.ysMAC,
         ssSN: this.ssSN,
         ssMAC: this.ssMAC,
         newSN: this.newSN,
         newMAC: this.newMAC,
-      } // iptv时传
-      let changJing = this.changJing // iptv和沃家产品穿空
-      let ysMAC = this.ysMAC
-      let ysSN = this.ysSN
+      }; // iptv时传
+      let changJing = this.changJing; // iptv和沃家产品穿空
+      let ysMAC = this.ysMAC;
+      let ysSN = this.ysSN;
       // 判断点击的是更换还是录入新设备
       if (this.isChange) {
         // 更换-传换机前查询里选中的值
-        onuIptvChangeInfoItem.oldSeq = this.devSeq
-        devSeq = this.devSeq
-        changeSheetNo = this.changeSheetNo
+        onuIptvChangeInfoItem.oldSeq = this.devSeq;
+        devSeq = this.devSeq;
+        changeSheetNo = this.changeSheetNo;
         // ysSN和ysMAC要取换机前查询的值
-        onuIptvChangeInfoItem = { ...onuIptvChangeInfoItem, ysSN: this.changeSn, ysMAC: this.changeMAC }
+        onuIptvChangeInfoItem = {
+          ...onuIptvChangeInfoItem,
+          ysSN: this.changeSn,
+          ysMAC: this.changeMAC,
+        };
       }
 
-      let postData = {}
+      let postData = {};
       if (this.resType == 1) {
         // onu
-        postData = { id, changeType, oldMsg, newMsg, changeSheetNo, devSeq, sheetType, changJing, ysMAC, ysSN }
+        postData = {
+          id,
+          changeType,
+          oldMsg,
+          newMsg,
+          changeSheetNo,
+          devSeq,
+          sheetType,
+          changJing,
+          ysMAC,
+          ysSN,
+        };
       } else {
         // iptv/沃家产品 需要传onuIptvChangeInfoItem
-        postData = { id, changeType, changeSheetNo, devSeq, sheetType, onuIptvChangeInfoItem, changJing: '', ysMAC, ysSN }
+        postData = {
+          id,
+          changeType,
+          changeSheetNo,
+          devSeq,
+          sheetType,
+          onuIptvChangeInfoItem,
+          changJing: "",
+          ysMAC,
+          ysSN,
+        };
       }
       try {
-        let result = await reqDevSubmit(JSON.stringify(postData))
-        console.log('换机提交结果', result)
-
-
+        let result = await reqDevSubmit(JSON.stringify(postData));
+        console.log("换机提交结果", result);
       } catch (error) {
-        console.log('err', error)
-
+        console.log("err", error);
       }
     },
   },
-  created () {
+  created() {
     // 换机前查询
     this.getChangeDevDispatch();
   },
-}
+};
 </script>
 
 <style scoped lang="less">
@@ -508,6 +553,7 @@ export default {
           flex-direction: column;
           align-self: center;
           text-align: left;
+          font-size: 12px;
           span {
             white-space: nowrap;
           }

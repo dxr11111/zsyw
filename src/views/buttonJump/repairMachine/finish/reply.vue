@@ -1,4 +1,5 @@
 <template>
+  <!-- 修机单-回复 -->
   <!-- 回复主页面 -->
   <div class="reply">
     <MyHeader :name="headName" left="arrow-left" @goBackEv="goBackFn" />
@@ -144,6 +145,7 @@
             label="复测速率"
             placeholder="请输入复测速率（必填）"
             class="borderTop inputRegion"
+            :rules="[{ required: true }]"
           />
           <!-- 复测方式 -->
           <div class="selectButton">
@@ -173,6 +175,7 @@
             arrow-direction="down"
             readonly
             class="textRight"
+            :rules="[{ required: true }]"
           />
           <van-action-sheet
             v-model="wifiTypeShow"
@@ -189,6 +192,7 @@
               label="WIFI速率"
               placeholder="请输入WIFI速率（必填）"
               class="borderTop inputRegion"
+              :rules="[{ required: true }]"
             />
             <!-- WIFI是否合格 -->
             <div class="selectButton">
@@ -430,181 +434,181 @@
 </template>
 
 <script>
-import { reqFinishQuery, reqifmFinish } from '@/http/button'
-import { getItem, removeItem } from '@/utils/sessionStorage';
+import { reqFinishQuery, reqifmFinish } from "@/http/button";
+import { getItem, removeItem } from "@/utils/sessionStorage";
 
 export default {
-  name: 'ifmFinish',
-  data () {
+  name: "RepairMachineFinish",
+  data() {
     return {
       headName: `回复(${this.$route.query.orderNum})`,
       finishGoWhere: 1, // 工单去向（0：客服，1：工单中心）
       finishGoWhereIsTest: 0, // 回客服或回工单中心时，是否试点（0：非试点，1：试点）（是否显示工单去向）
       finishGoService: 0, // 0:不允许回客服 1:允许回客服
-      finishNoGoServiceRemark: '', // 不允许回客服说明
+      finishNoGoServiceRemark: "", // 不允许回客服说明
       // 障碍类别
       barrierCateShow: false,
-      barrierCate: '',
+      barrierCate: "",
       balkType: -1, // 传参-障碍类别
       barrierCateActions: [
-        { name: 'PSTN', value: 1 },
-        { name: 'ISDN', value: 2 },
-        { name: 'ADSL', value: 3 },
-        { name: '模拟专线', value: 4 },
-        { name: '单宽', value: 5 },
-        { name: 'IPTV', value: 6 },
-        { name: '延伸服务', value: 7 },
-        { name: '京东服务', value: 8 },
-        { name: '客户感知', value: 9 },
+        { name: "PSTN", value: 1 },
+        { name: "ISDN", value: 2 },
+        { name: "ADSL", value: 3 },
+        { name: "模拟专线", value: 4 },
+        { name: "单宽", value: 5 },
+        { name: "IPTV", value: 6 },
+        { name: "延伸服务", value: 7 },
+        { name: "京东服务", value: 8 },
+        { name: "客户感知", value: 9 },
       ],
       // 故障分类
       faultCateShow: false,
-      faultCate: '用户侧原因',
-      buwei: '600', // 传参-故障分类
+      faultCate: "用户侧原因",
+      buwei: "600", // 传参-故障分类
       faultCateActions: [
-        { name: '用户侧原因', value: '600' },
-        { name: '线路侧原因', value: '650' },
-        { name: '网络侧原因', value: '700' },
-        { name: '非网络质量问题', value: '800' },
+        { name: "用户侧原因", value: "600" },
+        { name: "线路侧原因", value: "650" },
+        { name: "网络侧原因", value: "700" },
+        { name: "非网络质量问题", value: "800" },
       ],
       // 故障原因
       faultReasonShow: false,
-      faultReason: '用户自有设备问题',
-      leibie: '601', // 传参-故障原因
+      faultReason: "用户自有设备问题",
+      leibie: "601", // 传参-故障原因
       // 用户侧原因
       faultReasonActions: [
-        { name: '用户自有设备问题', value: '601' },
-        { name: '用户侧其他问题', value: '602' },
-        { name: 'wifi信号覆盖问题造成视频感知差', value: '603' },
-        { name: '申告网速慢但测速正常', value: '604' },
-        { name: '查中自恢复', value: '605' },
-        { name: '用户操作问题', value: '606' },
-        { name: '户内线路故障', value: '607' },
-        { name: '光猫类终端故障', value: '608' },
-        { name: '机顶盒类故障', value: '609' },
-        { name: '路由器、交换设备故障', value: '610' },
-        { name: '低端高载', value: '611' },
-        { name: '路由器等能力不匹配', value: '612' },
+        { name: "用户自有设备问题", value: "601" },
+        { name: "用户侧其他问题", value: "602" },
+        { name: "wifi信号覆盖问题造成视频感知差", value: "603" },
+        { name: "申告网速慢但测速正常", value: "604" },
+        { name: "查中自恢复", value: "605" },
+        { name: "用户操作问题", value: "606" },
+        { name: "户内线路故障", value: "607" },
+        { name: "光猫类终端故障", value: "608" },
+        { name: "机顶盒类故障", value: "609" },
+        { name: "路由器、交换设备故障", value: "610" },
+        { name: "低端高载", value: "611" },
+        { name: "路由器等能力不匹配", value: "612" },
       ],
-      materialsInfo: '', // 选择的外包材料内容-展示
-      rightAddress: '', // 标准地址是否有误
-      inputRightAddress: '', // 手工输入标准地址内容
-      repairExplain: '', // 修理情况说明
+      materialsInfo: "", // 选择的外包材料内容-展示
+      rightAddress: "", // 标准地址是否有误
+      inputRightAddress: "", // 手工输入标准地址内容
+      repairExplain: "", // 修理情况说明
       // 绑定光纤尾码
       showFiber: false,
       // 不需要绑定光纤尾码
       needFiberNo: -1, // 0：不需要回填光纤尾码，1：需要回填光纤尾码
       noBindingReason: -1, // 不需要回填光纤尾码的原因
-      noBindingReasonName: 'FTTB\铜线\ADSL\AG\ISDN\PON+D', // 不需要回填光纤尾码的原因
+      noBindingReasonName: "FTTB铜线ADSLAGISDNPON+D", // 不需要回填光纤尾码的原因
       noBindingReasonShow: false,
       noBindingReasonActions: [
-        { name: 'FTTB\铜线\ADSL\AG\ISDN\PON+D' },
-        { name: '物业锁门' },
-        { name: '光分过高' },
-        { name: '无需上门' },
-        { name: '其他' },
+        { name: "FTTB铜线ADSLAGISDNPON+D" },
+        { name: "物业锁门" },
+        { name: "光分过高" },
+        { name: "无需上门" },
+        { name: "其他" },
       ],
-      noBingReamrk: '',  //不需要回填光纤尾码的说明
+      noBingReamrk: "", //不需要回填光纤尾码的说明
       // 需要绑定
-      fiberNo: '', // 光纤尾码
+      fiberNo: "", // 光纤尾码
       photoIdList: [], // 光纤尾码照片在数据库的ID集合
       // 是否显示超时原因
       overTimeShow: false,
-      overTimeReason: '用户地址不详',//超时原因
+      overTimeReason: "用户地址不详", //超时原因
       overTimeReasonShow: false,
       overTimeReasonActions: [
-        { name: '用户地址不详' },
-        { name: '用户锁门无人' },
-        { name: '用户设备自维' },
-        { name: '用户违章' },
-        { name: '用户设备（话机坏等用户设备原因造成）' },
-        { name: '自然灾害造成的故障' },
-        { name: '外单位施工影响' },
-        { name: '电缆被盗' },
-        { name: '局端设备原因' },
-        { name: '局端设备原因' },
-        { name: '系统故障' },
-        { name: '人为因素' },
+        { name: "用户地址不详" },
+        { name: "用户锁门无人" },
+        { name: "用户设备自维" },
+        { name: "用户违章" },
+        { name: "用户设备（话机坏等用户设备原因造成）" },
+        { name: "自然灾害造成的故障" },
+        { name: "外单位施工影响" },
+        { name: "电缆被盗" },
+        { name: "局端设备原因" },
+        { name: "局端设备原因" },
+        { name: "系统故障" },
+        { name: "人为因素" },
       ],
-      overTiemContent: '', // 超时说明
+      overTiemContent: "", // 超时说明
       // 传给签名页面的参数
       isMustUploadPhoto: 2, // 回单是否必须上传现场照片 1：必须，2：不必须
       speedError: this.$route.query.speedError, // 测速是否达标 1否，0是
       // 复测时间
       fCDateTimeShow: false,
-      fCDateTime: '',
+      fCDateTime: "",
       minDate: new Date(2000, 0, 1),
       maxDate: new Date(2090, 10, 1),
       currentDate: new Date(),
       // 复测速率
-      fCSpeed: '',
+      fCSpeed: "",
       // 复测方式
-      fCType: '0', // 0：用户自测 1：局方上门复测
+      fCType: "0", // 0：用户自测 1：局方上门复测
       // WIFI类型
       wifiType: -1, // 1.无;2.黄金;3.白金;4.钻石
-      wifiTypeName: '',
+      wifiTypeName: "",
       wifiTypeShow: false,
       wifiTypeActions: [
-        { name: '无WIFI', value: 1 },
-        { name: '黄金', value: 2 },
-        { name: '白金', value: 3 },
-        { name: '钻石', value: 4 },
+        { name: "无WIFI", value: 1 },
+        { name: "黄金", value: 2 },
+        { name: "白金", value: 3 },
+        { name: "钻石", value: 4 },
       ],
-      wifiRate: '', // WIFI速率
+      wifiRate: "", // WIFI速率
       wifiQuality: 1, // WIFI是否合格
       // 评价设备好坏
       ifmChangeInfoHisItem: [], // 回单前查询返回的
-      isDevEvaluate: '', // 是否进行评价，评价完显示'已评价'
+      isDevEvaluate: "", // 是否进行评价，评价完显示'已评价'
       devEvaluateShow: false, // 设备评价弹出框
-      devEvaluateResultList: [],// 提交的设备评价结果 isBreak 1：好 2：坏
+      devEvaluateResultList: [], // 提交的设备评价结果 isBreak 1：好 2：坏
       ifmChangeInfoHisItem: [], // 设备评价弹出框内容
       // speedError 测速不达标弹框
       speedErrorShow: false,
-
-    }
+    };
   },
   computed: {
-    materialsValue () {
+    materialsValue() {
       // 外包材料是否有值-表单验证
       if (this.materialsInfo) {
         // 外包材料有值
-        return '请编辑外包材料'
+        return "请编辑外包材料";
       } else {
-        return ''
+        return "";
       }
-    }
+    },
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.destroyRoute(this);
+      this.$router.go(-1);
     },
     // 时间选择器格式化
-    formatter (type, val) {
-      if (type === 'year') {
-        return `${val}年`
-      } else if (type === 'month') {
+    formatter(type, val) {
+      if (type === "year") {
+        return `${val}年`;
+      } else if (type === "month") {
         return `${val}月`;
-      } else if (type === 'day') {
+      } else if (type === "day") {
         return `${val}日`;
-      } else if (type === 'hour') {
-        return `${val}时`
-      } else if (type === 'minute') {
-        return `${val}分`
+      } else if (type === "hour") {
+        return `${val}时`;
+      } else if (type === "minute") {
+        return `${val}分`;
       }
       return val;
     },
     // 补零
-    addZero (num) {
+    addZero(num) {
       return num < 10 ? "0" + num : num;
     },
     // 选择复测时间
-    confirmFCDate (value) {
+    confirmFCDate(value) {
       // 获取当前时间戳
-      let nowData = Date.now()
+      let nowData = Date.now();
       // 获取选择的时间戳
       if (nowData > Date.parse(value)) {
-        return this.$toast('不能小于当前时间')
+        return this.$toast("不能小于当前时间");
       }
       let y = new Date(value).getFullYear();
       let m = new Date(value).getMonth() + 1;
@@ -622,327 +626,343 @@ export default {
         this.addZero(h.toString()) +
         ":" +
         this.addZero(min.toString()) +
-        ":00"
+        ":00";
 
-      this.fCDateTimeShow = false
-
-
+      this.fCDateTimeShow = false;
     },
     // 选中复测方式
-    clickFCType (bool) {
-      if (bool) this.fCType = '0'
-      else this.fCType = '1'
+    clickFCType(bool) {
+      if (bool) this.fCType = "0";
+      else this.fCType = "1";
     },
     // 选中wifi类型
-    selectWifiType (action) {
-      this.wifiTypeName = action.name
-      this.wifiType = action.value
+    selectWifiType(action) {
+      this.wifiTypeName = action.name;
+      this.wifiType = action.value;
     },
     // 选中WIFI是否合格
-    clickWifiQuality (bool) {
-      if (bool) this.wifiQuality = 1
-      else this.wifiQuality = 0
+    clickWifiQuality(bool) {
+      if (bool) this.wifiQuality = 1;
+      else this.wifiQuality = 0;
     },
     // 选中设备评价好坏
-    clickDevEvaluateResult (index, bool) {
+    clickDevEvaluateResult(index, bool) {
       if (bool) {
-        this.$set(this.devEvaluateResultList[index], 'isBreak', 1)
-      }
-      else {
-        this.$set(this.devEvaluateResultList[index], 'isBreak', 2)
-
+        this.$set(this.devEvaluateResultList[index], "isBreak", 1);
+      } else {
+        this.$set(this.devEvaluateResultList[index], "isBreak", 2);
       }
     },
     // 确定评价设备好坏
-    confirmDevEvaluate () {
-      this.devEvaluateShow = false
-      this.isDevEvaluate = '已评价'
+    confirmDevEvaluate() {
+      this.devEvaluateShow = false;
+      this.isDevEvaluate = "已评价";
     },
     // 得到回单前查询内容
-    getFinishQuery () {
+    getFinishQuery() {
       // 详情传过来的speedError为1时，一进入页面就显示弹出框
       if (this.$route.query.speedError == 1) {
-        this.speedErrorShow = true
+        this.speedErrorShow = true;
       }
-      let result = JSON.parse(this.$route.query.res)
+      let result = JSON.parse(this.$route.query.res);
       if (result.operationSuccessFlag) {
         // 展示评价设备好坏
-        this.ifmChangeInfoHisItem = result.ifmChangeInfoHisItem
+        this.ifmChangeInfoHisItem = result.ifmChangeInfoHisItem;
         // 是否显示工单去向
-        this.finishGoWhereIsTest = result.finishGoWhereIsTest
+        this.finishGoWhereIsTest = result.finishGoWhereIsTest;
         // 是否允许回客服
-        this.finishGoService = result.finishGoService
+        this.finishGoService = result.finishGoService;
         // 不允许回客服说明
-        this.finishNoGoServiceRemark = result.finishNoGoServiceRemark
+        this.finishNoGoServiceRemark = result.finishNoGoServiceRemark;
         // 激活工单去向-客服
-        if (this.finishGoService === 1) this.finishGoWhere = 0
+        if (this.finishGoService === 1) this.finishGoWhere = 0;
         // hasFiber 0:没有尾码，需要扫码 1:有尾码，不要扫码
         // hasFiber为0时显示绑定光纤尾码
         if (result.hasFiber == 0) {
-          this.showFiber = true
+          this.showFiber = true;
         }
         // 得到障碍类别
         // 1:PSTN,2:ISDN,3:ADSL,4:模拟专线,5:单宽,6:IPTV,7:延伸服务,8:京东服务,9:客户感知
-        this.barrierCate = this.barrierCateActions[result.piaType - 1].name
-        this.balkType = result.piaType
+        this.barrierCate = this.barrierCateActions[result.piaType - 1].name;
+        this.balkType = result.piaType;
         // 获取回单前是否必须上传现场照片
-        this.isMustUploadPhoto = result.isMustUploadPhoto
+        this.isMustUploadPhoto = result.isMustUploadPhoto;
         // 详情传过来的speedError为1时，不显示障碍类别和故障分类，故障原因为测速不达标
         if (this.$route.query.speedError == 1) {
-          this.faultReason = '测速不达标'
-          this.leibie = '22'
-          this.faultReasonActions = [
-            { name: '测速不达标', value: '22' }
-          ]
+          this.faultReason = "测速不达标";
+          this.leibie = "22";
+          this.faultReasonActions = [{ name: "测速不达标", value: "22" }];
         } else {
           // speedError 不等于1时再判断ischangeOnu和ischangeIptv
           // ischangeOnu为true时，故障原因默认为光猫类终端故障
           if (result.ischangeOnu) {
-            this.faultReason = '光猫类终端故障'
-            this.leibie = '608'
+            this.faultReason = "光猫类终端故障";
+            this.leibie = "608";
           }
           // ischangeIptv为true时，障碍类别为IPTV，故障原因默认为 机顶盒类故障
           if (result.ischangeIptv) {
-            this.barrierCate = 'IPTV'
-            this.balkType = 6
-            this.faultReason = '机顶盒类故障'
-            this.leibie = '609'
+            this.barrierCate = "IPTV";
+            this.balkType = 6;
+            this.faultReason = "机顶盒类故障";
+            this.leibie = "609";
           }
         }
 
         // rightAddress=1时，页面新增现实标准地址输入框和提示
-        this.rightAddress = result.rightAddress
+        this.rightAddress = result.rightAddress;
 
         // 获取设备评价弹出框内容
-        this.ifmChangeInfoHisItem = result.ifmChangeInfoHisItem
+        this.ifmChangeInfoHisItem = result.ifmChangeInfoHisItem;
         // 根据ifmChangeInfoHisItem生成回复提交的devEvaluateResultList
         if (this.ifmChangeInfoHisItem.length > 0) {
           this.ifmChangeInfoHisItem.forEach((item, index) => {
-            let obj = {}
-            obj.resType = item.resType
-            obj.mac = item.newMac
-            obj.sn = item.newSn
-            obj.isBreak = 1 // 1好 2 坏
-            this.devEvaluateResultList.push(obj)
-          })
+            let obj = {};
+            obj.resType = item.resType;
+            obj.mac = item.newMac;
+            obj.sn = item.newSn;
+            obj.isBreak = 1; // 1好 2 坏
+            this.devEvaluateResultList.push(obj);
+          });
         }
       }
     },
     // 选中工单去向
-    clickFinishGoWhere (bool) {
-      if (bool) this.finishGoWhere = 0
-      else this.finishGoWhere = 1
+    clickFinishGoWhere(bool) {
+      if (bool) this.finishGoWhere = 0;
+      else this.finishGoWhere = 1;
     },
     // 选中障碍类别
-    selectBarrierCate (action) {
+    selectBarrierCate(action) {
       if (action.value !== this.balkType) {
         // 是否修改故障类型
-        this.$dialog.confirm({
-          title: '您确认是否要修改故障类型？',
-        })
+        this.$dialog
+          .confirm({
+            title: "您确认是否要修改故障类型？",
+          })
           .then(() => {
             // 修改故障类型
-            this.balkType = action.value
-            this.barrierCate = action.name
+            this.balkType = action.value;
+            this.barrierCate = action.name;
             // 重置故障分类和故障原因
-            this.faultCate = '用户侧原因'
-            this.buwei = '600'
-            this.faultReason = '用户自有设备问题'
-            this.leibie = '601'
+            this.faultCate = "用户侧原因";
+            this.buwei = "600";
+            this.faultReason = "用户自有设备问题";
+            this.leibie = "601";
           })
           .catch(() => {
             // on cancel
           });
       }
-
     },
     // 选中故障分类
-    selectFaultCate (action) {
-      this.faultCate = action.name
-      this.buwei = action.value
-      if (this.buwei === '600') {
+    selectFaultCate(action) {
+      this.faultCate = action.name;
+      this.buwei = action.value;
+      if (this.buwei === "600") {
         // 用户侧原因
-        this.faultReason = '用户自有设备问题'
-        this.leibie = '601'
+        this.faultReason = "用户自有设备问题";
+        this.leibie = "601";
         this.faultReasonActions = [
-          { name: '用户自有设备问题', value: '601' },
-          { name: '用户侧其他问题', value: '602' },
-          { name: 'wifi信号覆盖问题造成视频感知差', value: '603' },
-          { name: '申告网速慢但测速正常', value: '604' },
-          { name: '查中自恢复', value: '605' },
-          { name: '用户操作问题', value: '606' },
-          { name: '户内线路故障', value: '607' },
-          { name: '光猫类终端故障', value: '608' },
-          { name: '路由器、交换设备故障', value: '610' },
-          { name: '低端高载', value: '611' },
-          { name: '路由器等能力不匹配', value: '612' },
-        ]
-      } else if (this.buwei === '650') {
+          { name: "用户自有设备问题", value: "601" },
+          { name: "用户侧其他问题", value: "602" },
+          { name: "wifi信号覆盖问题造成视频感知差", value: "603" },
+          { name: "申告网速慢但测速正常", value: "604" },
+          { name: "查中自恢复", value: "605" },
+          { name: "用户操作问题", value: "606" },
+          { name: "户内线路故障", value: "607" },
+          { name: "光猫类终端故障", value: "608" },
+          { name: "路由器、交换设备故障", value: "610" },
+          { name: "低端高载", value: "611" },
+          { name: "路由器等能力不匹配", value: "612" },
+        ];
+      } else if (this.buwei === "650") {
         // 线路侧原因
-        this.faultReason = '分光器/分纤盒以下光纤故障'
-        this.leibie = '651'
+        this.faultReason = "分光器/分纤盒以下光纤故障";
+        this.leibie = "651";
         this.faultReasonActions = [
-          { name: '分光器/分纤盒以下光纤故障', value: '651' },
-          { name: '分光器/分纤盒故障', value: '652' },
-          { name: '冷接故障', value: '653' },
-          { name: '热熔接头故障', value: '654' },
-          { name: '分光器及以下市政施工/供电故障', value: '655' },
-          { name: '分光器以下割接改造', value: '656' },
-          { name: '铜线/网线故障', value: '657' },
-          { name: '主干光缆故障', value: '658' },
-          { name: '分光器以上市政施工/供电故障', value: '659' },
-          { name: '分光器以上割接改造', value: '660' },
-          { name: 'QLT以上线路故障', value: '661' },
-        ]
-      } else if (this.buwei === '700') {
+          { name: "分光器/分纤盒以下光纤故障", value: "651" },
+          { name: "分光器/分纤盒故障", value: "652" },
+          { name: "冷接故障", value: "653" },
+          { name: "热熔接头故障", value: "654" },
+          { name: "分光器及以下市政施工/供电故障", value: "655" },
+          { name: "分光器以下割接改造", value: "656" },
+          { name: "铜线/网线故障", value: "657" },
+          { name: "主干光缆故障", value: "658" },
+          { name: "分光器以上市政施工/供电故障", value: "659" },
+          { name: "分光器以上割接改造", value: "660" },
+          { name: "QLT以上线路故障", value: "661" },
+        ];
+      } else if (this.buwei === "700") {
         // 网络侧原因
-        this.faultReason = '平台、支撑系统故障(非IPTV)'
-        this.leibie = '702'
+        this.faultReason = "平台、支撑系统故障(非IPTV)";
+        this.leibie = "702";
         this.faultReasonActions = [
-          { name: '平台、支撑系统故障(IPTV)', value: '701' },
-          { name: '平台、支撑系统故障(非IPTV)', value: '702' },
-          { name: 'IPTV节目源、网站服务器故障', value: '703' },
-          { name: 'QLT及以下网络设备故障', value: '704' },
-          { name: 'QLT以上网络设备故障', value: '705' },
-        ]
-      } else if (this.buwei === '800') {
+          { name: "平台、支撑系统故障(IPTV)", value: "701" },
+          { name: "平台、支撑系统故障(非IPTV)", value: "702" },
+          { name: "IPTV节目源、网站服务器故障", value: "703" },
+          { name: "QLT及以下网络设备故障", value: "704" },
+          { name: "QLT以上网络设备故障", value: "705" },
+        ];
+      } else if (this.buwei === "800") {
         // 非网络质量原因
-        this.faultReason = '欠费、业务咨询等非网络质量问题'
-        this.leibie = '801'
+        this.faultReason = "欠费、业务咨询等非网络质量问题";
+        this.leibie = "801";
         this.faultReasonActions = [
-          { name: '欠费、业务咨询等非网络质量问题', value: '801' },
-          { name: '非固网问题', value: '802' },
-          { name: '其他运营商问题', value: '803' },
-        ]
+          { name: "欠费、业务咨询等非网络质量问题", value: "801" },
+          { name: "非固网问题", value: "802" },
+          { name: "其他运营商问题", value: "803" },
+        ];
       }
     },
     // 选中故障原因
-    selectFaultReason (action) {
-      this.faultReason = action.name
+    selectFaultReason(action) {
+      this.faultReason = action.name;
     },
     // 编辑外包材料
-    editMaterials () {
-      console.log('编辑外包材料')
+    editMaterials() {
+      console.log("编辑外包材料");
 
       this.$router.push({
-        name: 'Materials',
+        name: "Materials",
         query: {
           orderNum: this.$route.query.orderNum,
-        }
-      })
+        },
+      });
     },
     // 获取外包材料-显示页面
-    getMaterialInfo () {
-      if (getItem('saveMaterialInfo')) {
-        let MaterialInfo = getItem('saveMaterialInfo')
-        let MaterialValues = Object.values(MaterialInfo)
-        let MaterialNames = ['二芯室内线:米', '铁芯电话线(黑皮):米', '网线-五类线:米', '室内光皮线:米', '室外光皮线:米', '光纤尾纤:套', '冷接插头:个', '热熔插头:个', '水晶头:个', '光跳线:条']
-        let str = ''
+    getMaterialInfo() {
+      if (getItem("saveMaterialInfo")) {
+        let MaterialInfo = getItem("saveMaterialInfo");
+        let MaterialValues = Object.values(MaterialInfo);
+        let MaterialNames = [
+          "二芯室内线:米",
+          "铁芯电话线(黑皮):米",
+          "网线-五类线:米",
+          "室内光皮线:米",
+          "室外光皮线:米",
+          "光纤尾纤:套",
+          "冷接插头:个",
+          "热熔插头:个",
+          "水晶头:个",
+          "光跳线:条",
+        ];
+        let str = "";
         MaterialValues.forEach((value, index) => {
-          if (value !== '') {
-            let name = MaterialNames[index].split(':')[0]
-            let va = value
-            let unit = MaterialNames[index].split(':')[1]
-            str += `[${name}:${va}${unit}]`
+          if (value !== "") {
+            let name = MaterialNames[index].split(":")[0];
+            let va = value;
+            let unit = MaterialNames[index].split(":")[1];
+            str += `[${name}:${va}${unit}]`;
           }
-
-        })
-        this.materialsInfo = str
+        });
+        this.materialsInfo = str;
       }
     },
     // 是否需要绑定光纤尾码
-    clickNeedFiber (bool) {
-      if (bool) this.needFiberNo = 0
-      else this.needFiberNo = 1
+    clickNeedFiber(bool) {
+      if (bool) this.needFiberNo = 0;
+      else this.needFiberNo = 1;
     },
     // 选中光纤不绑定原因
-    selectNoBindingReason (action) {
-      this.noBindingReasonName = action.name
+    selectNoBindingReason(action) {
+      this.noBindingReasonName = action.name;
     },
     //需要绑定光纤尾码上传图片
     // 图片读取完成
-    afterRead (file) {
-      console.log('file', file)
+    afterRead(file) {
+      console.log("file", file);
     },
     // 选中超时原因
-    selectOverTimeReason (action) {
-      this.overTimeReason = action.name
+    selectOverTimeReason(action) {
+      this.overTimeReason = action.name;
     },
     // 点击确定-跳转到签名页面
-    skipSign () {
+    skipSign() {
       // 判断rightAddress是否符合填写要求
       // 1.如果回单前参数rightAddress=1，并且“工单去向”选择为“回客服”时，需要验证标准地址输入框，不能为空，且长度大于5小于1000。
       if (this.rightAddress == 1 && this.finishGoWhere == 0) {
         if (this.inputRightAddress == "") {
           // 选择回客服时，标准地址为空，提示“选择回客服时，标准地址不能为空“
-          return this.$dialog.alert({
-            message: '选择回客服时，标准地址不能为空',
-            getContainer: '.reply',
-            className: 'errorDialog',
-          }).then(() => {
-            // on close
-          });
-        } else {
-          // 选择回客服时，标准地址不为空但长度不符合规则时，提示“标准地址长度需大于5小于1000 “
-          if (this.inputRightAddress.length > 1000 || this.inputRightAddress.length < 5) {
-            return this.$dialog.alert({
-              message: '标准地址长度需大于5小于1000',
-              getContainer: '.reply',
-              className: 'errorDialog',
-            }).then(() => {
+          return this.$dialog
+            .alert({
+              message: "选择回客服时，标准地址不能为空",
+              getContainer: ".reply",
+              className: "errorDialog",
+            })
+            .then(() => {
               // on close
             });
+        } else {
+          // 选择回客服时，标准地址不为空但长度不符合规则时，提示“标准地址长度需大于5小于1000 “
+          if (
+            this.inputRightAddress.length > 1000 ||
+            this.inputRightAddress.length < 5
+          ) {
+            return this.$dialog
+              .alert({
+                message: "标准地址长度需大于5小于1000",
+                getContainer: ".reply",
+                className: "errorDialog",
+              })
+              .then(() => {
+                // on close
+              });
           }
         }
-
       }
       // 2.如果回单前参数rightAddress=1，并且“工单去向”选择为“工单中心”时，无需验证标准地址，但如果输入了，必须要符合长度大于5小于1000的规则。
       if (this.rightAddress == 1 && this.finishGoWhere == 1) {
         if (this.inputRightAddress.length > 0) {
-          if (this.inputRightAddress.length > 1000 || this.inputRightAddress.length < 5) {
-            return this.$dialog.alert({
-              message: '回工单中心时，标准地址无需填写，需要填写时长度需大于5小于1000',
-              getContainer: '.reply',
-              className: 'errorDialog',
-            }).then(() => {
-              // on close
-            });
+          if (
+            this.inputRightAddress.length > 1000 ||
+            this.inputRightAddress.length < 5
+          ) {
+            return this.$dialog
+              .alert({
+                message:
+                  "回工单中心时，标准地址无需填写，需要填写时长度需大于5小于1000",
+                getContainer: ".reply",
+                className: "errorDialog",
+              })
+              .then(() => {
+                // on close
+              });
           }
         }
       }
-      let id = this.$route.query.id
-      let materialInfoItems = [getItem('saveMaterialInfo')]
-      let useMaterial = 0 // 是否使用了外包材料（0：未使用，1：使用）
-      let remark = this.repairExplain // 修理情况说明
-      let balkType = this.balkType // 障碍类别
-      let buwei = this.buwei // 故障分类
-      let leibie = this.leibie // 故障原因
-      let needFiberNo = this.needFiberNo // 是否需要绑定光纤尾码
-      let noBindingReason = this.noBindingReason // 不需要回填光纤尾码的原因
-      let noBingReamrk = this.noBingReamrk // 不需要回填光纤尾码的说明
-      let fiberNo = this.fiberNo // 光纤尾码
-      let photoIdList = this.photoIdList // 光纤尾码照片在数据库的ID集合
-      let finishGoWhere = this.finishGoWhere // 回单去向（0：回客服，1：回工单中心）
-      let ifmDeviceEvaluateList = this.devEvaluateResultList // 设备评价好坏结果
-      let fCDateTime = this.fCDateTime // 复测时间
-      let fCSpeed = this.fCSpeed // 复测速率
-      let fCType = this.fCType // 复测方式
-      let overTiemContent = this.overTiemContent // 超时说明
-      let overTimeReason = this.overTimeReason // 超时原因
-      let wifiQuality = this.wifiQuality // wifi是否合格
-      let wifiRate = this.wifiRate // WIFI速率
-      let wifiType = this.wifiType // WIFI类型
+      let id = this.$route.query.id;
+      let materialInfoItems = [getItem("saveMaterialInfo")];
+      let useMaterial = 0; // 是否使用了外包材料（0：未使用，1：使用）
+      let remark = this.repairExplain; // 修理情况说明
+      let balkType = this.balkType; // 障碍类别
+      let buwei = this.buwei; // 故障分类
+      let leibie = this.leibie; // 故障原因
+      let needFiberNo = this.needFiberNo; // 是否需要绑定光纤尾码
+      let noBindingReason = this.noBindingReason; // 不需要回填光纤尾码的原因
+      let noBingReamrk = this.noBingReamrk; // 不需要回填光纤尾码的说明
+      let fiberNo = this.fiberNo; // 光纤尾码
+      let photoIdList = this.photoIdList; // 光纤尾码照片在数据库的ID集合
+      let finishGoWhere = this.finishGoWhere; // 回单去向（0：回客服，1：回工单中心）
+      let ifmDeviceEvaluateList = this.devEvaluateResultList; // 设备评价好坏结果
+      let fCDateTime = this.fCDateTime; // 复测时间
+      let fCSpeed = this.fCSpeed; // 复测速率
+      let fCType = this.fCType; // 复测方式
+      let overTiemContent = this.overTiemContent; // 超时说明
+      let overTimeReason = this.overTimeReason; // 超时原因
+      let wifiQuality = this.wifiQuality; // wifi是否合格
+      let wifiRate = this.wifiRate; // WIFI速率
+      let wifiType = this.wifiType; // WIFI类型
 
       if (this.showFiber === true && needFiberNo === -1) {
-        return this.$toast('请选择是否绑定光纤尾码')
+        return this.$toast("请选择是否绑定光纤尾码");
       }
 
       let config = {
-        "balkContent": "",
-        "newOnuIptvItems": [], // 录入新设备信息
-        "reason": 0,
-      }
-      if (this.materialsInfo.length > 0) useMaterial = 1
+        balkContent: "",
+        newOnuIptvItems: [], // 录入新设备信息
+        reason: 0,
+      };
+      if (this.materialsInfo.length > 0) useMaterial = 1;
 
       let postData = {
         id,
@@ -967,10 +987,10 @@ export default {
         wifiQuality,
         wifiRate,
         wifiType,
-        ...config
-      }
+        ...config,
+      };
       this.$router.push({
-        name: 'Signature',
+        name: "Signature",
         // 将接口参数传到签名页面
         params: {
           postData,
@@ -979,46 +999,43 @@ export default {
           id: this.$route.query.id,
           orderNum: this.$route.query.orderNum,
           isMustUploadPhoto: this.isMustUploadPhoto,
-        }
-      })
+        },
+      });
     },
   },
-  created () {
-    console.log('reply创建')
+  created() {
+    console.log("reply创建");
     // 获取回单前查询结果
-    this.getFinishQuery()
-
+    this.getFinishQuery();
   },
-  activated () {
+  activated() {
     // 获取外包材料
-    this.getMaterialInfo()
+    this.getMaterialInfo();
     // 获取是否填写超时原因
-    if (this.$route.params.overTimeShow) this.overTimeShow = true
-    console.log('reply激活')
-
+    if (this.$route.params.overTimeShow) this.overTimeShow = true;
+    console.log("reply激活");
   },
-  deactivated () {
-    console.log('reply失活')
-
+  deactivated() {
+    console.log("reply失活");
   },
-  beforeDestroy () {
-    console.log('reply销毁')
-    removeItem('saveMaterialInfo') // 销毁
+  beforeDestroy() {
+    console.log("reply销毁");
+    removeItem("saveMaterialInfo"); // 销毁
   },
-  beforeRouteLeave (to, from, next) {
-    if (to.name == 'ListDetail') {
-      this.$destroy()
+  beforeRouteLeave(to, from, next) {
+    if (to.name == "ListDetail") {
+      this.$destroy();
     }
-    next()
-  }
-
-}
+    next();
+  },
+};
 </script>
 
 <style scoped lang="less">
 .reply {
   width: 100%;
   height: 100%;
+  background-color: #f8f7fc;
   /deep/.errorDialog {
     .van-dialog__content {
       .van-dialog__message {

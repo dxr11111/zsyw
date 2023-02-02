@@ -137,31 +137,29 @@ export default {
     },
     // 提交密码重置
     async submitPwdReset () {
-      if (this.resetLoginNo == "" || this.resetMobile == "") {
-        this.$toast("账号或手机号不能为空")
-      } else {
-        //调用接口
-        let loginNo = this.resetLoginNo
-        let mobile = this.resetMobile
-        // let loginNo = "yangyp";
-        // let mobile = "18600099891";
-        let postData = { loginNo, mobile }
-        try {
-          let result = await this.$store.dispatch(
-            "getpwdReset",
-            JSON.stringify(postData)
-          )
-          if (result.operationSuccessFlag) {
-            // 接口返回成功
-            this.$toast(result.successMessage)
-            this.pwdResetShow = false
-          } else {
-            // 接口返回失败
-            this.$toast(result.errorMessage)
-          }
-        } catch (error) {
-          console.log("err", error)
+      if (this.resetLoginNo == "" || this.resetMobile == "") return this.$toast("账号或手机号不能为空")
+      if (this.resetMobile.length !== 11) return this.$toast('手机号长度不正确')
+      //调用接口
+      let loginNo = this.resetLoginNo
+      let mobile = this.resetMobile
+      // let loginNo = "yangyp";
+      // let mobile = "18600099891";
+      let postData = { loginNo, mobile }
+      try {
+        let result = await this.$store.dispatch(
+          "getpwdReset",
+          JSON.stringify(postData)
+        )
+        if (result.operationSuccessFlag) {
+          // 接口返回成功
+          this.$toast(result.successMessage)
+          this.pwdResetShow = false
+        } else {
+          // 接口返回失败
+          this.$toast(result.errorMessage)
         }
+      } catch (error) {
+        console.log("err", error)
       }
     },
   },

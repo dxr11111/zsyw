@@ -54,100 +54,110 @@
 </template>
 
 <script>
-import { reqChangeDevHis, reqretryChangeDev } from '@/http/button'
+import { reqChangeDevHis, reqretryChangeDev } from "@/http/button";
 export default {
-  name: 'ChangeDevHis',
-  data () {
+  name: "ChangeDevHis",
+  data() {
     return {
       headName: `换机记录(${this.$route.query.orderNum})`,
       recordList: [],
       isNeedRetry: 0, // 是否需要重试 1：显示”重试”按钮 0：不显示
-      changeSheetNo: '', // 重试时提供的换机单号
-    }
+      changeSheetNo: "", // 重试时提供的换机单号
+    };
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.$router.go(-1);
+      this.destroyRoute(this);
     },
     // 获取换机记录
-    async getHistory () {
+    async getHistory() {
       try {
-        let result = await reqChangeDevHis(JSON.stringify({ devSeq: this.$route.query.devSeq }))
-        console.log('换机记录', result)
+        let result = await reqChangeDevHis(
+          JSON.stringify({ devSeq: this.$route.query.devSeq })
+        );
+        console.log("换机记录", result);
         if (result.operationSuccessFlag) {
           // 是否需要重试
-          this.isNeedRetry = result.isNeedRetry
+          this.isNeedRetry = result.isNeedRetry;
           // 重试时提供的换机单号
-          this.changeSheetNo = result.changeSheetNo
+          this.changeSheetNo = result.changeSheetNo;
           // 换机记录
-          this.recordList = result.res
-          this.recordList.forEach(item => {
-            Object.keys(item).forEach(key => {
-              if (item[key] === '' || item[key] === null) {
-                item[key] = '-'
+          this.recordList = result.res;
+          this.recordList.forEach((item) => {
+            Object.keys(item).forEach((key) => {
+              if (item[key] === "" || item[key] === null) {
+                item[key] = "-";
               }
-            })
-          })
+            });
+          });
         }
-
       } catch (error) {
-        console.log('err', error)
-
+        console.log("err", error);
       }
     },
     // 跳转处理过程
-    treatProcess (changeSheetNo) {
+    treatProcess(changeSheetNo) {
       this.$router.push({
-        name: 'ChanegDevTreatProcess',
-        query: { changeSheetNo, orderNum: this.$route.query.orderNum }
-      })
+        name: "ChanegDevTreatProcess",
+        query: { changeSheetNo, orderNum: this.$route.query.orderNum },
+      });
     },
     // 跳转失败原因
-    failReason (changeSheetNo) {
+    failReason(changeSheetNo) {
       this.$router.push({
-        name: 'ChanegDevFailReason',
-        query: { changeSheetNo, orderNum: this.$route.query.orderNum }
-      })
+        name: "ChanegDevFailReason",
+        query: { changeSheetNo, orderNum: this.$route.query.orderNum },
+      });
     },
     // 点击重试
-    async clickRetry () {
-      let changeSheetNo = this.changeSheetNo
-      let id = this.$route.query.id
-      let result = await reqretryChangeDev(JSON.stringify({ id, changeSheetNo }))
+    async clickRetry() {
+      let changeSheetNo = this.changeSheetNo;
+      let id = this.$route.query.id;
+      let result = await reqretryChangeDev(
+        JSON.stringify({ id, changeSheetNo })
+      );
       if (result.operationSuccessFlag) {
-        this.$toast(result.successMessage)
+        this.$toast(result.successMessage);
       }
     },
   },
-  created () {
+  created() {
     // 获取换机记录
     this.getHistory();
   },
-  beforeRouteLeave (to, from, next) {
-    if (to.name == 'ChangeDevDispatch') {
-      this.$destroy()
-    }
-    next()
-  }
-}
+  // mounted() {
+  //   // 部分手机顶部会被设备遮挡，所以加高一点
+  //   if (localStorage.getItem("Addhead")) {
+  //     document.querySelector(".main").style.marginTop = "88px";
+  //   }
+  // },
+  // beforeRouteLeave(to, from, next) {
+  //   if (to.name == "ChangeDevDispatch") {
+  //     this.$destroy();
+  //   }
+  //   next();
+  // },
+};
 </script>
 
 <style scoped lang="less">
 .changeDevHis {
-  header {
-    z-index: 1;
-    position: fixed;
-    top: 0;
-    width: 100%;
-  }
+  // header {
+  //   z-index: 1;
+  //   position: fixed;
+  //   top: 0;
+  //   width: 100%;
+  // }
   .main {
-    margin-top: 48px;
+    // margin-top: 48px;
+    padding-bottom: 45px;
     background-color: #f8f7fc;
     .contentInfo {
       background-color: #fff;
       margin-top: 10px;
-      margin-bottom: 45px;
+      margin-bottom: 20px;
       .finish {
         .van-cell__value {
           color: skyblue;

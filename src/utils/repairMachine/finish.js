@@ -1,13 +1,14 @@
 import { reqFinishQuery } from '@/http/button'
 import vue from '@/main'
+import apiResponse from '../public/apiResponse'
+
 
 // 回复-回单前查询
 let finishQuery = async (buttonInfo) => {
     try {
         let result = await reqFinishQuery(JSON.stringify({ id: buttonInfo.id }))
         console.log('回单前查询', result)
-
-        if (result.operationSuccessFlag) {
+        apiResponse(result, '#app', () => {
             // 无法跳转页面的情况
             if (result.cansubmit) {
                 // 回复是否可以提交 false 可以提交，true 不可以提交
@@ -34,8 +35,8 @@ let finishQuery = async (buttonInfo) => {
                 // 没有预约记录-判断是否弹出用户二维码信息标识
                 IsAlertQRCode(buttonInfo, result)
             }
+        })
 
-        }
 
     } catch (error) {
         console.log('err', error)
@@ -48,9 +49,9 @@ let IsAlertQRCode = (buttonInfo, result) => {
     let skipPage = () => {
         let res = JSON.stringify(result)
         return vue.$router.push({
-            name: 'Finish',
+            name: 'RepairMachineFinish',
             query: {
-                orderNum: buttonInfo.orderNum,
+                orderNum: buttonInfo.orderId,
                 id: buttonInfo.id,
                 speedError: buttonInfo.speedError,
                 res

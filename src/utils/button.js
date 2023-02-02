@@ -22,7 +22,6 @@ import {
 } from '@/http/button'
 import { getLocation } from './positionLoaction'
 import vue from '@/main'
-import button from '@/store/modules/button'
 // 装机单回复前查询
 import { IomNewFinishQuery } from '@/utils/iomNew/finish'
 // 修机单回复前查询
@@ -60,14 +59,22 @@ export const matchButton = async (buttonInfo, buttonId) => {
             vue.$dialog.confirm({
                 title: '提示',
                 message: '您确认提交CRIS测试？',
-                getContainer: '.listDetail',
+                getContainer: '#app',
                 className: 'confirmDialog',
             })
                 .then(async () => {
                     // on confirm
                     let data = await IfmCrisTestApi(JSON.stringify({ id: buttonInfo.id }))
                     console.log(data);
-                    data.operationSuccessFlag ? vue.$toast.success(data.successMessage) : vue.$toast.fail(data.errorMessage)
+                    if (data.operationSuccessFlag){
+                        vue.$toast.success(data.successMessage)
+                        if (vue.$route.path !== '/main/workBench') {
+                            vue.$router.push('/main/workBench')
+                        }
+                        vue.operationSuccessRefresh(true)
+                    } else {
+                        vue.$toast.fail(data.errorMessage)
+                    }
                 })
                 .catch();
             break
@@ -105,7 +112,12 @@ export const matchButton = async (buttonInfo, buttonId) => {
             }
             console.log('自动调度参数', params);
             var data = await IdmDispatchAutoApi(JSON.stringify(params))
-            data.operationSuccessFlag ? vue.$toast.success(data.successMessage) : vue.$toast.fail(data.errorMessage)
+            if (data.operationSuccessFlag){
+                vue.$toast.success(data.successMessage)
+                vue.operationSuccessRefresh(true)
+            } else {
+                vue.$toast.fail(data.errorMessage)
+            }
             break
         // 基站 作废
         case ('CANCEL'):
@@ -204,12 +216,29 @@ export const matchButton = async (buttonInfo, buttonId) => {
         // 局内 确认撤单
         case ('repealConfirm'):
             var data = await JndRepealConfirmApi(JSON.stringify({ id: buttonInfo.id }))
-            data.operationSuccessFlag ? vue.$toast.success(data.successMessage) : vue.$toast.fail(data.errorMessage)
+            if (data.operationSuccessFlag){
+                vue.$toast.success(data.successMessage)
+                if (vue.$route.path !== '/main/workBench') {
+                    vue.$router.push('/main/workBench')
+                }
+                vue.operationSuccessRefresh(true)
+            } else {
+                vue.$toast.fail(data.errorMessage)
+            }
             break
         // 局内 已阅
         case ('haveRead'):
-            var data = await JndHaveReadApi(JSON.stringify({ id: buttonInfo.id }))
-            data.operationSuccessFlag ? vue.$toast.success(data.successMessage) : vue.$toast.fail(data.errorMessage)
+            // var data = await JndHaveReadApi(JSON.stringify({ id: buttonInfo.id }))
+            var data = {operationSuccessFlag:true}
+            if (data.operationSuccessFlag){
+                vue.$toast.success(data.successMessage)
+                if (vue.$route.path !== '/main/workBench') {
+                    vue.$router.push('/main/workBench')
+                }
+                vue.operationSuccessRefresh(true)
+            } else {
+                vue.$toast.fail(data.errorMessage)
+            }
             break
         // 开始计时
         case ('startTime'):
@@ -244,19 +273,18 @@ export const matchButton = async (buttonInfo, buttonId) => {
                         message: '是否回复当前任务？',
                         confirmButtonText: '是',
                         cancelButtonText: '否',
-                        getContainer: '.listDetail',
+                        getContainer: '#app',
                         className: 'confirmDialog',
                     }).then(async () => {
                         // 调接口
                         var data = await reqifmFinish(JSON.stringify({ id: buttonInfo.id }))
-                        if (data.operationSuccessFlag == false) return vue.$toast(data.errorMessage)
                         if (data.operationSuccessFlag == true) {
                             vue.$dialog.confirm({
                                 title: '提示',
                                 message: '回复任务成功，是否直接回复工单？',
                                 confirmButtonText: '是',
                                 cancelButtonText: '否',
-                                getContainer: '.listDetail',
+                                getContainer: '#app',
                                 className: 'confirmDialog',
                             }).then(() => {
                                 // 点击是，跳转到回复页面
@@ -267,7 +295,12 @@ export const matchButton = async (buttonInfo, buttonId) => {
                                         id: buttonInfo.id,
                                     }
                                 })
-                            }).catch()
+                            }).catch(() => {
+                                if (vue.$route.path !== '/main/workBench') {
+                                    vue.$router.push('/main/workBench')
+                                }
+                                vue.operationSuccessRefresh(true)
+                            })
                         } else {
                             vue.$toast.fail(data.errorMessage)
                         }
@@ -284,13 +317,13 @@ export const matchButton = async (buttonInfo, buttonId) => {
                     vue.$dialog.alert({
                         title: '提示',
                         message: '开始处理操作只能提交一次，系统将记录经纬度坐标和地址，请确认到达指定地点后再操作，操作成功之后将无法修改或重复提交',
-                        getContainer: '.listDetail',
+                        getContainer: '#app',
                         className: 'confirmDialog',
                     }).then(() => {
                         vue.$dialog.confirm({
                             title: '提示',
                             message: '确认开始操作嘛？',
-                            getContainer: '.listDetail',
+                            getContainer: '#app',
                             className: 'confirmDialog',
                         })
                             .then(() => {
@@ -306,6 +339,9 @@ export const matchButton = async (buttonInfo, buttonId) => {
                                     let data = await GoSiteApi(JSON.stringify(params))
                                     if (data.operationSuccessFlag) {
                                         vue.$toast.success(data.successMessage)
+                                        if (vue.$route.path !== '/main/workBench') {
+                                            vue.$router.push('/main/workBench')
+                                        }
                                         vue.operationSuccessRefresh(true)
                                     } else {
                                         vue.$toast.fail(data.errorMessage)
@@ -318,7 +354,15 @@ export const matchButton = async (buttonInfo, buttonId) => {
             } else if (buttonInfo.sysId == 7) {
                 // 局内 任务-开始处理
                 var data = await JndChuLiApi(JSON.stringify({ id: buttonInfo.id }))
-                data.operationSuccessFlag ? vue.$toast.success(data.successMessage) : vue.$toast.fail(data.errorMessage)
+                if (data.operationSuccessFlag) {
+                    vue.$toast.success(data.successMessage)
+                    if (vue.$route.path !== '/main/workBench') {
+                        vue.$router.push('/main/workBench')
+                    }
+                    vue.operationSuccessRefresh(true)
+                } else {
+                    vue.$toast.fail(data.errorMessage)
+                }
             }
             break
 
@@ -395,13 +439,13 @@ export const matchButton = async (buttonInfo, buttonId) => {
             vue.$dialog.alert({
                 title: '提示',
                 message: '上站操作只能提交一次，系统将记录经纬度坐标和地址，请确认到达指定地点后再操作，操作成功之后将无法修改或重复提交',
-                getContainer: '.listDetail',
+                getContainer: '#app',
                 className: 'confirmDialog',
             }).then(() => {
                 vue.$dialog.confirm({
                     title: '提示',
                     message: '确认上站操作嘛？',
-                    getContainer: '.listDetail',
+                    getContainer: '#app',
                     className: 'confirmDialog',
                 })
                     .then(async () => {
@@ -417,6 +461,9 @@ export const matchButton = async (buttonInfo, buttonId) => {
                             let data = await GoSiteApi(JSON.stringify(params))
                             if (data.operationSuccessFlag) {
                                 vue.$toast.success(data.successMessage)
+                                if (vue.$route.path !== '/main/workBench') {
+                                    vue.$router.push('/main/workBench')
+                                }
                                 vue.operationSuccessRefresh(true)
                             } else {
                                 vue.$toast.fail(data.errorMessage)
@@ -982,6 +1029,9 @@ export const matchButton = async (buttonInfo, buttonId) => {
                     resourcecode: buttonInfo.businessInfo.resourcecode,
                 }
             })
+            break
+        default:
+            if (buttonId !== 'more') vue.$toast('当前工单暂不支持该功能')
             break
 
 

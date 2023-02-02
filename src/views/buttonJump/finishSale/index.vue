@@ -198,7 +198,7 @@ export default {
         id: Number(this.$route.query.id),
         contactUser: this.userSituation,
         userSituation: this.isContact,
-        contactTime: this.currDate,
+        contactTime: this.currDate || '',
         businessList: this.businessList,
         deviceList: this.deviceList
       }

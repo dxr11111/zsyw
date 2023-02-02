@@ -295,6 +295,11 @@ export const reqDevSubmit = (postData) => {
 export const reqretryChangeDev = (postData) => {
     return requests({ method: 'post', url: '/operation/ifm/retryChangeDev', data: `data=${postData}` })
 }
+// 查询对应的设备换机记录
+export const reqQueryChangeDevStage = (postData) => {
+    return requests({ method: 'post', url: '/operation/ifm/queryChangeDevStage', data: `data=${postData}` })
+}
+
 
 // 强制回单
 // 端到端强制回单前查询

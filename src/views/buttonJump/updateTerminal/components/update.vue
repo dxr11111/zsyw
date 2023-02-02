@@ -67,7 +67,7 @@
         </van-uploader>
       </div>
       <div class="position">
-        <p>连接位置：（请选择2个连接位置）</p>
+        <p>连接位置：（请选择{{ selNubmer }}个连接位置）</p>
         <div class="content">
           <div
             class="position-item"
@@ -93,6 +93,7 @@ import { JndSpecLineRouteTerminalApi, JndUpdateerminalApi } from '@/http/button'
 import url from '@/http/img'
 import axios from 'axios'
 import { getItem } from '@/utils/sessionStorage'
+import bus from '@/utils/eventBus'
 export default {
   props: {
     currData: {
@@ -121,10 +122,14 @@ export default {
       currPos: '', // 连接位置
       selectPos: [],
       params: {},
-      option: ''
+      option: '',
+      selNubmer: 0, // 可选连接位置数量
     }
   },
   created () {
+    var arr = this.currData.weiZhiId.split('/')
+    this.selNubmer = arr.length
+    console.log(arr);
     this.getSpeclineRoute()
   },
   computed: {
@@ -161,7 +166,7 @@ export default {
       if (this.intro == '') return this.$toast('请输入修改说明')
       if (this.updateFile.length == 0) return this.$toast('至少上传一张图片')
       if (this.selectPos.length == 0) return this.$toast('请选择连接位置')
-      if (this.selectPos.length > 0 && this.selectPos.length !== 2) return this.$toast('连接位置选择数量不对，请选择两个连接位置')
+      if (this.selectPos.length > 0 && this.selectPos.length !== this.selNubmer) return this.$toast(`连接位置选择数量不对，请选择${this.selNubmer}个连接位置`)
       let str = ''
       for (let i = 0; i < this.selectPos.length; i++) {
         const ele = this.selectPos[i]
@@ -185,7 +190,7 @@ export default {
       }
       console.log('接口参数', this.params)
       this.getFileId()
-      this.sendApi()
+      // this.sendApi(this.params)
     },
     async getFileId () {
       let ids = []
@@ -220,7 +225,9 @@ export default {
       let data = await JndUpdateerminalApi(JSON.stringify(params))
       console.log('data', data)
       data.operationSuccessFlag ? this.$toast.success(data.successMessage) : this.$toast.fail(data.errorMessage)
-      if (data.operationSuccessFlag) return this.$router.go(-1)
+      if (data.operationSuccessFlag) {
+        bus.$emit('updatePage', true)
+      }
     },
     choosePos (item, index) {
       if (item.childTag == '1') {

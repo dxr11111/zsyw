@@ -167,27 +167,11 @@ export default [
                     keepAlive: true,
                 }
             },
-            {
-                path: 'materials',
-                name: 'Materials',
-                component: () => import('@/views/buttonJump/constraintFinish/materials'),
-                meta: {
-                    myKeepAlive: false,
-                }
-            },
-            {
-                path: 'signature',
-                name: 'Signature',
-                component: () => import('@/views/buttonJump/constraintFinish/signature'),
-                meta: {
-                    myKeepAlive: false,
-                }
-            }
         ]
     },
     {
         // 修机单回复
-        path: '/finish',
+        /* path: '/finish',
         name: 'Finish',
         component: () => import('@/views/buttonJump/repairMachine/finish'),
         redirect: '/finish/reply',
@@ -203,7 +187,13 @@ export default [
                     myKeepAlive: true,
                 }
             }
-        ]
+        ] */
+        path: '/repairMachineFinish',
+        name: 'RepairMachineFinish',
+        component: () => import('@/views/buttonJump/repairMachine/finish/reply'),
+        meta: {
+            myKeepAlive: true,
+        }
     },
     {
         // 退转派
@@ -465,14 +455,6 @@ export default [
                     myKeepAlive: false,
                 }
             },
-            {
-                path: 'iomNewFinishMaterial',
-                name: 'IomNewFinishMaterial',
-                component: () => import('@/views/buttonJump/installMachineIDM/finish/material'),
-                meta: {
-                    myKeepAlive: false,
-                }
-            },
         ],
     },
     {
@@ -698,4 +680,22 @@ export default [
             myKeepAlive: false,
         }
     },
+    {
+        // 公共路由-外包材料
+        path: '/materials',
+        name: 'Materials',
+        component: () => import('@/views/buttonJump/publicRoute/materials'),
+        meta: {
+            myKeepAlive: false,
+        }
+    },
+    {
+        // 公共路由-签名
+        path: '/signature',
+        name: 'Signature',
+        component: () => import('@/views/buttonJump/publicRoute/signature'),
+        meta: {
+            myKeepAlive: false,
+        }
+    }
 ]

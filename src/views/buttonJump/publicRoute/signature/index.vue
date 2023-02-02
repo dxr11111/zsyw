@@ -5,7 +5,7 @@
     <div class="canvas-box" ref="canvasRef" v-show="!userReceiptShow">
       <canvas ref="canvasMapRef"></canvas>
     </div>
-    <div class="signature">
+    <div class="signature" ref="signature">
       <MyHeader :name="headName" left="arrow-left" @goBackEv="goBackFn" />
       <!-- 用户回执 -->
       <div class="userReceipt" @click="userReceiptShow = true">
@@ -97,18 +97,18 @@
 </template>
 
 <script>
-import $ from 'jquery'
-import axios from 'axios'
-import SignaturePad from 'signature_pad'
-import { rotateBase64Img } from '@/utils/common'
-import { reqifmFinish } from '@/http/button';
-import url from '@/http/img'
-import { getItem } from '@/utils/sessionStorage'
+import $ from "jquery";
+import axios from "axios";
+import SignaturePad from "signature_pad";
+import { rotateBase64Img } from "@/utils/common";
+import { reqifmFinish } from "@/http/button";
+import url from "@/http/img";
+import { getItem } from "@/utils/sessionStorage";
 export default {
-  name: 'Signature',
-  data () {
+  name: "Signature",
+  data() {
     return {
-      loginNo: getItem('loginNo'), // 登录人
+      loginNo: getItem("loginNo"), // 登录人
       sheetId: this.$route.query.id, // 工单号
       headName: `签名(${this.$route.query.orderNum})`,
       canvasNode: null,
@@ -119,23 +119,23 @@ export default {
       buildImageList: [], // 上传用户现场照片
       cfgCustPhotoIds: [], // 上传用户现场照片id
       pictureId: -1, // 签名图片id
-      fromName: '', // 前一个页面名称
-      isMustUploadPhoto: this.$route.query.isMustUploadPhoto,// 回单是否必须上传现场照片 1：必须，2：不必须
-    }
+      fromName: "", // 前一个页面名称
+      isMustUploadPhoto: this.$route.query.isMustUploadPhoto, // 回单是否必须上传现场照片 1：必须，2：不必须
+    };
   },
   computed: {
-    tipsShow () {
+    tipsShow() {
       // 是否显示提示
-      return this.canvasNode?._data.length || false
-    }
+      return this.canvasNode?._data.length || false;
+    },
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.$router.go(-1);
     },
     // 旋转屏幕后修改div尺寸
-    setLandScape () {
+    setLandScape() {
       var width = document.documentElement.clientWidth;
       var height = document.documentElement.clientHeight;
       if (width < height) {
@@ -147,126 +147,144 @@ export default {
       }
     },
     // 初始化画布
-    initalHandle () {
-      const _canvasBox = this.$refs.canvasRef
-      const _canvas = this.$refs.canvasMapRef
+    initalHandle() {
+      const _canvasBox = this.$refs.canvasRef;
+      const _canvas = this.$refs.canvasMapRef;
       if (!_canvasBox || !_canvas) {
-        return false
+        return false;
       }
 
       // _canvas.width = _canvasBox.clientWidth
       // _canvas.height = _canvasBox.clientHeight
 
-      _canvas.width = _canvasBox.clientWidth
-      _canvas.height = _canvasBox.clientHeight
+      _canvas.width = _canvasBox.clientWidth;
+      _canvas.height = _canvasBox.clientHeight;
 
-      this.clearCanvasHandle()
+      this.clearCanvasHandle();
       this.canvasNode = new SignaturePad(_canvas, {
         minWidth: 2,
         maxWidth: 2,
-        penColor: 'rgb(0, 0, 0)'
-      })
+        penColor: "rgb(0, 0, 0)",
+      });
     },
     // 清空画布
-    clearCanvasHandle () {
+    clearCanvasHandle() {
       if (this.canvasNode) {
-        this.canvasNode.clear()
-        this.previewImage = null
+        this.canvasNode.clear();
+        this.previewImage = null;
       }
     },
     // 点击确定-得到画布图案 => 得到图片id => 提交
-    async makeCanvasHandle () {
-      const canvasNode = this.canvasNode
+    async makeCanvasHandle() {
+      const canvasNode = this.canvasNode;
       // 重新初始化画布
       if (!canvasNode) {
-        this.initalHandle()
+        this.initalHandle();
       }
 
       // 是否签字
       if (canvasNode.isEmpty()) {
-        this.$toast('您还没有签名')
-        return false
+        this.$toast("您还没有签名");
+        return false;
       }
 
       // 图像旋转二次处理
       // 获取屏幕宽高
-      const _boxWidth = window.innerWidth
-      const _boxHeight = window.innerHeight
-      const _signImg = canvasNode.toDataURL('image/png', 0.6)
+      const _boxWidth = window.innerWidth;
+      const _boxHeight = window.innerHeight;
+      const _signImg = canvasNode.toDataURL("image/png", 0.6);
       if (_boxWidth < _boxHeight) {
         rotateBase64Img(_signImg, -90, (imgUrlRes) => {
-          this.previewImage = imgUrlRes
-          this.getPictureId()
-        })
-
+          this.previewImage = imgUrlRes;
+          this.getPictureId();
+        });
       } else {
-        this.previewImage = _signImg
-        this.getPictureId()
+        this.previewImage = _signImg;
+        this.getPictureId();
       }
-
     },
     // 提交强制回单/回复 请求
-    async onSubmit () {
-      let satisfied = this.satisfied // 满意度
-      let isBuildImage = this.isBuildImage // 是否上传施工照片
-      let pictureId = this.pictureId // 签字图片id
-      let cfgCustPhotoIds = this.cfgCustPhotoIds // 外线回单用户现场图片id-回复
-      let postData = this.$route.params.postData // 强制回单页面传过来的请求参数
-      postData = { ...postData, satisfied, isBuildImage, pictureId, cfgCustPhotoIds }
+    async onSubmit() {
+      let satisfied = this.satisfied; // 满意度
+      let isBuildImage = this.isBuildImage; // 是否上传施工照片
+      let pictureId = this.pictureId; // 签字图片id
+      let cfgCustPhotoIds = this.cfgCustPhotoIds; // 外线回单用户现场图片id-回复
+      let postData = this.$route.params.postData; // 强制回单页面传过来的请求参数
+      postData = {
+        ...postData,
+        satisfied,
+        isBuildImage,
+        pictureId,
+        cfgCustPhotoIds,
+      };
 
       try {
-        let result = await reqifmFinish(JSON.stringify(postData))
-        console.log('提交结果', result)
+        let result = await reqifmFinish(JSON.stringify(postData));
+        console.log("提交结果", result);
         if (result.operationSuccessFlag) {
           // 成功
+          if (result?.successMessage.length > 0)
+            this.$toast(result.successMessage);
         } else {
-          this.$toast(result.errorMessage)
+          // 失败
+          if (result?.errorMessage.length > 0) {
+            // 当messageModul = 1 时，页面出现弹窗窗口，需用户点击确定关闭提示框
+            if (result.messageModul == 1) {
+              this.$refs.signature.style.zIndex = "200";
+              this.$dialog
+                .alert({
+                  title: "提示",
+                  message: result.errorMessage,
+                  getContainer: ".signature",
+                })
+                .then(() => {
+                  // on close
+                  this.$refs.signature.style.zIndex = "0";
+                });
+            } else if (result.messageModul == 0) {
+              this.$toast(result.errorMessage);
+            }
+          }
           if (result.errorCode === 20) {
             // 请填写超时原因-跳转到前一个页面
             this.$router.push({
               name: this.fromName, // 前一个页面 回复/强制回单
-              params: { overTimeShow: true }
-            })
-
+              params: { overTimeShow: true },
+            });
           }
         }
-
       } catch (error) {
-        console.log('err', error)
-
+        console.log("err", error);
       }
-
     },
     // 保存画布图案到本地
-    saveImg () {
+    saveImg() {
       let a = document.createElement("a");
-      a.href = this.previewImage
+      a.href = this.previewImage;
       a.download = "sign";
       a.click(); //保存
     },
     // 获取签名图片id
-    async getPictureId () {
-
+    async getPictureId() {
       // 发送请求前判断 回单是否必须上传现场照片
-      if (this.fromName === 'Reply') {
+      if (this.fromName === "RepairMachineFinish") {
         // 必须上传现场照片且未上传照片-提示上传照片
         if (this.isBuildImage === 0 && this.buildImageList.length !== 3) {
-          return this.$toast('请上传用户现场照片')
+          return this.$toast("请上传用户现场照片");
         }
         // template里判断 无法点击 上传用户现场照片-拒绝
       }
 
-
       // 签名base64 => formdata
-      const [imageBlob, imageType] = this.base64ToBlob(this.previewImage);  // 获取处理好的Blob 和文件类型
+      const [imageBlob, imageType] = this.base64ToBlob(this.previewImage); // 获取处理好的Blob 和文件类型
       const formData = new FormData();
-      formData.append('file', imageBlob); // 添加到表单
+      formData.append("file", imageBlob); // 添加到表单
       // formData.append('file', imageBlob, `${Date.now()}.${imageType}`); // 添加到表单，传入文件名
 
-      formData.append("loginNo", this.loginNo)
-      formData.append("sheetId", this.sheetId)
-      formData.append("pictype", 3)
-      formData.append("picName", 'sign')
+      formData.append("loginNo", this.loginNo);
+      formData.append("sheetId", this.sheetId);
+      formData.append("pictype", 3);
+      formData.append("picName", "sign");
 
       // 地址不同
       // let url = 'img/saveImage'
@@ -274,103 +292,101 @@ export default {
 
       // 发送图片id请求
       axios({
-        method: 'post',
+        method: "post",
         url: url,
         data: formData,
-      }).then(res => {
-        console.log('图片id结果', res)
-        // 获取签名图片id
-        this.pictureId = parseInt(res.data.id)
-
-        // 获取用户回执照片图片id
-        if (this.isBuildImage === 0) {
-          // 有上传照片
-          this.buildImageList.forEach((item, index) => {
-            // 上传 form-data格式 图片
-            let formData = new FormData();
-            formData.append("loginNo", this.loginNo)
-            formData.append("sheetId", this.sheetId)
-            formData.append("pictype", 3)
-            formData.append("picName", `${this.sheetId}-${index}`)
-            formData.append("file", item.file)
-
-            // 地址不同
-            // let url = 'img/saveImage'
-            // if (process.env === 'production') url = 'http://132.91.203.143:7010/img/saveImage'
-
-            // 发送图片id请求
-            axios({
-              method: 'post',
-              url: url,
-              data: formData,
-            }).then(res => {
-              console.log('图片id结果', res)
-              // 获取图片id
-              this.cfgCustPhotoIds.push(parseInt(res.data.id))
-              // 判断如果是最后一次图片请求，则发送强制回单/回复 请求
-              if (index === this.buildImageList.length - 1) {
-                // 发送强制回单/回复 请求
-                this.onSubmit()
-                console.log('最后一次图片id', index)
-              }
-
-            }).catch((err) => {
-              console.log(err);
-            })
-          })
-        } else {
-          // 未上传照片
-          // 发送强制回单/回复 请求
-          this.onSubmit()
-        }
-
-      }).catch((err) => {
-        console.log(err);
       })
+        .then((res) => {
+          console.log("图片id结果", res);
+          // 获取签名图片id
+          this.pictureId = parseInt(res.data.id);
 
+          // 获取用户回执照片图片id
+          if (this.isBuildImage === 0) {
+            // 有上传照片
+            this.buildImageList.forEach((item, index) => {
+              // 上传 form-data格式 图片
+              let formData = new FormData();
+              formData.append("loginNo", this.loginNo);
+              formData.append("sheetId", this.sheetId);
+              formData.append("pictype", 3);
+              formData.append("picName", `${this.sheetId}-${index}`);
+              formData.append("file", item.file);
+
+              // 地址不同
+              // let url = 'img/saveImage'
+              // if (process.env === 'production') url = 'http://132.91.203.143:7010/img/saveImage'
+
+              // 发送图片id请求
+              axios({
+                method: "post",
+                url: url,
+                data: formData,
+              })
+                .then((res) => {
+                  console.log("图片id结果", res);
+                  // 获取图片id
+                  this.cfgCustPhotoIds.push(parseInt(res.data.id));
+                  // 判断如果是最后一次图片请求，则发送强制回单/回复 请求
+                  if (index === this.buildImageList.length - 1) {
+                    // 发送强制回单/回复 请求
+                    this.onSubmit();
+                    console.log("最后一次图片id", index);
+                  }
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
+            });
+          } else {
+            // 未上传照片
+            // 发送强制回单/回复 请求
+            this.onSubmit();
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
     // 点击用户回执-满意度
-    clickSatisfied (bool) {
-      if (bool) this.satisfied = 1
-      else this.satisfied = 2
+    clickSatisfied(bool) {
+      if (bool) this.satisfied = 1;
+      else this.satisfied = 2;
     },
     // 点击用户回执-上传用户现场照片
-    clickIsBuildImage (bool) {
+    clickIsBuildImage(bool) {
       // 判断isMustUploadPhoto=1无法点击拒绝
       if (bool) {
-        this.isBuildImage = 0
-      }
-      else {
+        this.isBuildImage = 0;
+      } else {
         // 判断是否可以点击拒绝-不上传照片
         if (this.isMustUploadPhoto === 1) {
-          return this.$toast('必须上传用户现场照片')
+          return this.$toast("必须上传用户现场照片");
         }
-        this.isBuildImage = 1
+        this.isBuildImage = 1;
       }
     },
     // 用户回执-上传的图片
-    afterRead (file) {
+    afterRead(file) {
       // 此时可以自行将文件上传至服务器
       console.log(file);
     },
     // 确认用户回执部分
-    confirmUserReceipt () {
+    confirmUserReceipt() {
       // 选择同意上传用户现场照片时必须上传3张照片
       if (this.isBuildImage === 0) {
         if (this.buildImageList.length === 3) {
-          this.userReceiptShow = false
-
+          this.userReceiptShow = false;
         } else {
-          this.$toast('必须上传三张照片')
+          this.$toast("必须上传三张照片");
         }
       } else {
-        this.userReceiptShow = false
+        this.userReceiptShow = false;
       }
     },
     // base64 => blob
-    base64ToBlob (base64Data) {
-
-      const dataArr = base64Data.split(','); // 根据,来分隔
+    base64ToBlob(base64Data) {
+      const dataArr = base64Data.split(","); // 根据,来分隔
 
       const imageType = dataArr[0].match(/:(.*?);/)[1]; // 获取文件类型。使用正则捕获 image/jpeg
 
@@ -382,27 +398,25 @@ export default {
       }
 
       return [new Blob([arrayBuffer], { type: imageType }), imageType.slice(6)]; // 返回两个值，一个Blob对象，一个图片格式（如jpeg）
-    }
-
+    },
   },
-  created () {
+  created() {
     // 判断isMustUploadPhoto=1
     if (this.isMustUploadPhoto === 1) {
       // 必须上传现场照片
-      this.isBuildImage = 0
+      this.isBuildImage = 0;
     }
   },
-  mounted () {
+  mounted() {
     this.setLandScape(); // 旋转屏幕
-    this.initalHandle() // 初始化画布
+    this.initalHandle(); // 初始化画布
   },
-  beforeRouteEnter (to, from, next) {
+  beforeRouteEnter(to, from, next) {
     next((vm) => {
-      vm.fromName = from.name
-    })
+      vm.fromName = from.name;
+    });
   },
-
-}
+};
 </script>
 
 <style scoped lang="less">
@@ -442,7 +456,7 @@ export default {
       color: red;
     }
     .userReceipt {
-      z-index: 1;
+      z-index: 100;
       position: fixed;
       top: 15px;
       right: 10px;
@@ -460,7 +474,7 @@ export default {
         margin-right: 10px;
         &::before,
         &::after {
-          content: '';
+          content: "";
           width: 3px; // 对钩粗细
           border-radius: 10px; // 对钩边缘圆角
           background: #228b22;
@@ -551,6 +565,29 @@ export default {
       width: 100%;
       .van-button {
         width: 40%;
+      }
+    }
+    /deep/.van-dialog {
+      .van-dialog__content {
+        .van-dialog__message {
+          text-align: left;
+          font-size: 16px;
+        }
+      }
+      .van-dialog__footer {
+        padding: 10px;
+        .van-button__content {
+          width: 100px; // 80px
+          margin: 0 auto;
+          border-radius: 10px;
+        }
+
+        .van-dialog__confirm {
+          color: #1989fa;
+        }
+        .van-button::before {
+          background-color: transparent !important;
+        }
       }
     }
   }

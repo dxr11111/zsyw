@@ -351,21 +351,21 @@
 
 
 <script>
-import { setWaterMark, removeWatermark } from "@/utils/waterMark"
-import { mapState, mapGetters } from "vuex"
-import { setItem, getItem, removeItem } from "@/utils/sessionStorage"
-import { matchButton } from '@/utils/button'
-import { reqgetYwjsDetail, reqTsxqDetail } from '@/http'
-import { reqArrive } from '@/http/button'
-import { reqHuJiaoCall } from '@/http/tools';
-import PhoneIcon from '@/components/selectCallNumber/phoneIcon.vue'
-import Progress from '@/components/progress'
-import $ from 'jquery'
+import { setWaterMark, removeWatermark } from "@/utils/waterMark";
+import { mapState, mapGetters } from "vuex";
+import { setItem, getItem, removeItem } from "@/utils/sessionStorage";
+import { matchButton } from "@/utils/button";
+import { reqgetYwjsDetail, reqTsxqDetail } from "@/http";
+import { reqArrive } from "@/http/button";
+import { reqHuJiaoCall } from "@/http/tools";
+import PhoneIcon from "@/components/selectCallNumber/phoneIcon.vue";
+import Progress from "@/components/progress";
+import $ from "jquery";
 
 export default {
   name: "ListDetail",
   components: { PhoneIcon, Progress },
-  data () {
+  data() {
     return {
       refreshFlag: false, // 刷新标识
 
@@ -388,17 +388,14 @@ export default {
       //底部按钮
       buttonPopover: false,
       // 底部更多按钮右侧箭头指向
-      moreIcon: 'arrow-down',
+      moreIcon: "arrow-down",
       // 通过 actions 属性来定义菜单选项
       buttonActions: [],
       treatProcessActiveNames: [], // 处理过程折叠面板激活名称
       treaetProcessCollapseShow: false, // 处理过程是否折叠显示
       // 基站定位
       jizhanShow: false,
-      jizhanActions: [
-        { name: '高德地图' },
-        { name: '百度地图' },
-      ],
+      jizhanActions: [{ name: "高德地图" }, { name: "百度地图" }],
       sysId: -1,
       tabMarginTop: "", // tab栏margin-top
 
@@ -406,158 +403,149 @@ export default {
 
       // 网管告警维修方案弹出层
       networkManagePlanShow: false,
-      solvePlan: '',
+      solvePlan: "",
       // 网管告警历史弹出层
       networkManageHistoryShow: false,
       networkManageHistory: {
-        totalNumDay90: '',
-        elecNumDay90: '',
-        optNumDay90: '',
-        lastAlarmTime: '',
-        lastFaultReason: '',
-      }
-
-    }
+        totalNumDay90: "",
+        elecNumDay90: "",
+        optNumDay90: "",
+        lastAlarmTime: "",
+        lastFaultReason: "",
+      },
+    };
   },
-  provide () {
-    return { confirmEvent: this.confirmEvent }
+  provide() {
+    return { confirmEvent: this.confirmEvent };
   },
   computed: {
     ...mapGetters(["getLoginInfo"]),
     ...mapState("home", ["listDetail"]),
     // 标题详情id
-    titleName () {
-      if (this.titleId == '') return '详情'
-      else return `详情(${this.titleId})`
+    titleName() {
+      if (this.titleId == "") return "详情";
+      else return `详情(${this.titleId})`;
     },
   },
   watch: {
     // 监测按钮是否操作成功
-    '$store.state.operationSuccessFlag': {
-      handler (newVal, oldVal) {
-        console.log('刷新标识发生变化', newVal);
+    "$store.state.operationSuccessFlag": {
+      handler(newVal, oldVal) {
+        console.log("刷新标识发生变化", newVal);
         if (newVal) {
           // 按钮操作成功 → 重新调用接口
           // 判断路由是否在当前页 是→直接刷新 不是→存储标识在激活本路由时刷新
-          if (this.$route.name == 'ListDetail') {
+          if (this.$route.name == "ListDetail") {
             // 直接刷新
-            this.operationSuccessRefresh(false)
-            this.refreshFn()
-
+            this.operationSuccessRefresh(false);
+            this.refreshFn();
           } else {
-            this.refreshFlag = true
+            this.refreshFlag = true;
           }
-
-
         }
       },
-
     },
     // 监测更多选项是否弹出
-    buttonPopover (value) {
+    buttonPopover(value) {
       if (value) {
         // 将更多右侧的箭头改成向上
-        this.moreIcon = 'arrow-up'
+        this.moreIcon = "arrow-up";
       } else {
-        this.moreIcon = 'arrow-down'
+        this.moreIcon = "arrow-down";
       }
-
-    }
+    },
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.$router.go(-1);
     },
     // sysId=3时点击网管告警名称或网管告警时间
-    clickJzInfo (arrItem) {
+    clickJzInfo(arrItem) {
       if (this.sysId == 3) {
-        if (arrItem.name == '网管告警名称') {
-          this.solvePlan = arrItem.jsonObject.solvePlan
+        if (arrItem.name == "网管告警名称") {
+          this.solvePlan = arrItem.jsonObject.solvePlan;
           // 展示网管告警维修方案弹出层
           if (this.solvePlan.length > 0) {
-            this.networkManagePlanShow = true
+            this.networkManagePlanShow = true;
           }
-
         }
-        if (arrItem.name == '网管告警时间') {
+        if (arrItem.name == "网管告警时间") {
           // 展示网管告警历史弹出层
-          let jsonObject = arrItem.jsonObject
-          this.networkManageHistory.totalNumDay90 = jsonObject.totalNumDay90
-          this.networkManageHistory.elecNumDay90 = jsonObject.elecNumDay90
-          this.networkManageHistory.optNumDay90 = jsonObject.optNumDay90
-          this.networkManageHistory.lastAlarmTime = jsonObject.lastAlarmTime
-          this.networkManageHistory.lastFaultReason = jsonObject.lastFaultReason
-          this.networkManageHistoryShow = true
-
+          let jsonObject = arrItem.jsonObject;
+          this.networkManageHistory.totalNumDay90 = jsonObject.totalNumDay90;
+          this.networkManageHistory.elecNumDay90 = jsonObject.elecNumDay90;
+          this.networkManageHistory.optNumDay90 = jsonObject.optNumDay90;
+          this.networkManageHistory.lastAlarmTime = jsonObject.lastAlarmTime;
+          this.networkManageHistory.lastFaultReason =
+            jsonObject.lastFaultReason;
+          this.networkManageHistoryShow = true;
         }
       }
     },
 
     // 判断arrInfo中value的颜色
-    judgeArrInfoColor (arrItem) {
+    judgeArrInfoColor(arrItem) {
       // 网管告警的颜色类名
-      let networkManage = ''
+      let networkManage = "";
       // 基站状态的颜色类名
-      let status = ''
+      let status = "";
       if (this.sysId == 3) {
-        if (arrItem.name == '网管告警名称' || arrItem.name == '网管告警时间') {
-          networkManage = 'networkManage'
+        if (arrItem.name == "网管告警名称" || arrItem.name == "网管告警时间") {
+          networkManage = "networkManage";
         }
       }
 
-      if (arrItem.name == '基站状态') {
-        if (arrItem.content == '已修复') status = 'statusRecovered'
-        else status = 'statusUnRepaired'
+      if (arrItem.name == "基站状态") {
+        if (arrItem.content == "已修复") status = "statusRecovered";
+        else status = "statusUnRepaired";
       }
-      return networkManage + ' ' + status
+      return networkManage + " " + status;
     },
 
     // 判断sysId=2时资源信息下的新专线号样式
-    judgeNewLineNumStyle (item) {
-      if (this.sysId == 2 && item.name == '新专线号') {
-        return 'newLineNum'
+    judgeNewLineNumStyle(item) {
+      if (this.sysId == 2 && item.name == "新专线号") {
+        return "newLineNum";
       }
     },
     // 点击sysId=2时资源信息下的新专线号
-    clickNewLineNum (item) {
-      if (this.sysId == 2 && item.name == '新专线号') {
+    clickNewLineNum(item) {
+      if (this.sysId == 2 && item.name == "新专线号") {
         // 展示专线路由结果
-        console.log('专线路由号码', item.content)
+        console.log("专线路由号码", item.content);
         this.$router.push({
-          path: '/speclineInfo',
+          path: "/speclineInfo",
           query: {
             zhuanXianHao: item.content,
-            type: 'detail'
-          }
-        })
-
+            type: "detail",
+          },
+        });
       }
     },
 
     // 切换tab栏
-    changeTab (name, title) {
-      if (title == '处理过程' && this.treaetProcessCollapseShow) {
+    changeTab(name, title) {
+      if (title == "处理过程" && this.treaetProcessCollapseShow) {
         // 处理过程下的内容为折叠面板展示
         // 拿到折叠面板元素
         this.$nextTick(() => {
-          let collapseItem = document.querySelector('.collapseItem')?.firstElementChild
+          let collapseItem =
+            document.querySelector(".collapseItem")?.firstElementChild;
           if (collapseItem) {
-            collapseItem.style = 'background:#1989fa'
+            collapseItem.style = "background:#1989fa";
           }
-        })
-
+        });
       }
     },
 
-
     // 刷新
-    refreshFn () {
+    refreshFn() {
       // 清空buttonList
-      this.buttonList = []
-      this.buttonActions = []
+      this.buttonList = [];
+      this.buttonActions = [];
       // 重新获取列表详情
-      this.getListDetail()
+      this.getListDetail();
       // this.$router.go(0); // 刷新整个页面
       // 刷新当前路由
       /* this.$router.replace({
@@ -567,56 +555,57 @@ export default {
       // document.body.scrollTop = document.documentElement.scrollTop = 0;
     },
     // 点击arrInfo内的基站定位
-    clickJiZhanDingWei () {
-      this.jizhanShow = true
+    clickJiZhanDingWei() {
+      this.jizhanShow = true;
     },
     // 点击底部按钮更多的选项
-    selectButton (action) {
-      this.clickButton(action.id)
+    selectButton(action) {
+      this.clickButton(action.id);
     },
     // 点击按钮选项
-    async clickButton (buttonId) {
+    async clickButton(buttonId) {
       // 我已到达需要在页面展示弹出框
-      if (buttonId == 'arrive') {
+      if (buttonId == "arrive") {
         // 弹出提示
-        this.$dialog.confirm({
-          title: '您是否操作我已到达？',
-          className: 'confirmDialog',
-          getContainer: '.listDetail'
-        })
+        this.$dialog
+          .confirm({
+            title: "您是否操作我已到达？",
+            className: "confirmDialog",
+            getContainer: ".listDetail",
+          })
           .then(async () => {
-            let id = this.listDetail.id // 工单唯一标识
-            let longitude = '' // 经度
-            let latitude = '' // 纬度
-            let address = '' // 所属地址
+            let id = this.listDetail.id; // 工单唯一标识
+            let longitude = ""; // 经度
+            let latitude = ""; // 纬度
+            let address = ""; // 所属地址
             try {
-              let result = await reqArrive(JSON.stringify({ id, longitude, latitude, address }))
-              this.apiResponse(result, '.listDetail', () => {
+              let result = await reqArrive(
+                JSON.stringify({ id, longitude, latitude, address })
+              );
+              this.apiResponse(result, ".listDetail", () => {
                 // 操作成功刷新页面并跳转到沃推荐
-              })
+              });
             } catch (error) {
-              console.log('err', error)
+              console.log("err", error);
             }
           })
           .catch(() => {
             // on cancel
           });
-
       } else {
-        let isOperate = await matchButton(this.listDetail, buttonId)
+        let isOperate = await matchButton(this.listDetail, buttonId);
         // 按钮操作成功 刷新当前页面和上一个页面
         if (isOperate) {
           // 只调用接口按钮操作成功 刷新工单详情/工作台
-          this.operationSuccessRefresh(true)
+          this.operationSuccessRefresh(true);
         }
       }
-
     },
     // 获取列表详情
-    async getListDetail () {
+    async getListDetail() {
       try {
         // 建设单获取详情接口不一样
-        if (getItem('workOrderDetail')?.sysId == 11) {
+        if (getItem("workOrderDetail")?.sysId == 11) {
           // this.sysId = 11
           // // 获取标题
           // this.titleId = this.$route.query.uniqueIdentification
@@ -632,7 +621,6 @@ export default {
           // console.log('基站工单列表详情', result)
           // if (result.operationSuccessFlag) {
           //   this.$store.commit('home/GETLISTDETAIL', result)
-
           //   // 获取工单详情数据
           //   this.baseInfo = result.data.baseInfo
           //   // 获取modelInfo
@@ -662,9 +650,7 @@ export default {
           //     this.$router.go(-1)
           //   }
           // }
-
-
-        } else if (getItem('workOrderDetail')?.sysId == 12) {
+        } else if (getItem("workOrderDetail")?.sysId == 12) {
           // // 投诉需求单
           // this.sysId = 12
           // // 获取标题
@@ -678,7 +664,6 @@ export default {
           // console.log('投诉需求单列表详情', result)
           // if (result.operationSuccessFlag) {
           //   this.$store.commit('home/GETLISTDETAIL', result)
-
           //   // 获取工单详情数据
           //   this.baseInfo = result.data.baseInfo
           //   // 获取modelInfo
@@ -709,242 +694,234 @@ export default {
           //   }
           // }
         } else {
-          let id = parseInt(this.$route.query.id)
+          let id = parseInt(this.$route.query.id);
           // hasTaskList 只有 sysId=3,IFM工单,故障单才用这个标识判断是否是工程师,用于判断是否有领单按钮
           // sysId为3时 点击列表详情需要传参hasTaskList,否则只传id
-          let hasTaskList
-          let userIds = this.getLoginInfo.userIds
+          let hasTaskList;
+          let userIds = this.getLoginInfo.userIds;
           userIds.forEach((item) => {
-            if (item.sysId == 3) hasTaskList = item.hasTaskList
-          })
+            if (item.sysId == 3) hasTaskList = item.hasTaskList;
+          });
           // 提供列表详情页的参数
           if (typeof hasTaskList == "number") {
-            this.paramsData = { id, hasTaskList }
+            this.paramsData = { id, hasTaskList };
           } else {
-            this.paramsData = { id }
+            this.paramsData = { id };
           }
           await this.$store.dispatch(
             "home/getListDetail",
             JSON.stringify(this.paramsData)
-          )
+          );
           // 请求成功
           if (this.listDetail.operationSuccessFlag) {
             // 获取sysId
             // 清空buttonList,防止用户连续点击请求，请求结果返回慢造成重复按钮
-            this.buttonList = []
-            this.buttonActions = []
-            this.sysId = this.listDetail.sysId
+            this.buttonList = [];
+            this.buttonActions = [];
+            this.sysId = this.listDetail.sysId;
             // 获取标识颜色及名称
-            this.getTag(this.listDetail.sheetLogo)
+            this.getTag(this.listDetail.sheetLogo);
 
             // 获取标题
-            this.titleId = this.listDetail.orderId || this.listDetail.id
+            this.titleId = this.listDetail.orderId || this.listDetail.id;
             // 获取工单详情数据
-            this.baseInfo = this.listDetail.data.baseInfo
+            this.baseInfo = this.listDetail.data.baseInfo;
             // 判断数据的key为处理过程时候的数据结构 → 控制折叠 or 展开 显示信息
             for (let base of this.baseInfo) {
-              if (base.key == '处理过程') {
+              if (base.key == "处理过程") {
                 for (let treat of base.value) {
-                  if (treat.hasOwnProperty('key')) {
+                  if (treat.hasOwnProperty("key")) {
                     // value里含有key属性的应该折叠显示
-                    this.treaetProcessCollapseShow = true
+                    this.treaetProcessCollapseShow = true;
                     // 将flagActive的结果加到上一级列表内
                     for (let thirdItem of treat.value) {
-                      if (thirdItem.flagActive == '1') {
-                        this.$set(treat, 'flagActive', '1')
-                        break
+                      if (thirdItem.flagActive == "1") {
+                        this.$set(treat, "flagActive", "1");
+                        break;
                       }
                     }
-
                   }
                 }
               }
             }
             // 将arrInfo中key与baseInfo相等的数据追加到baseInfo中
-            let arrInfo = this.listDetail.data.arrInfo
-            arrInfo.forEach(arr => {
-              this.baseInfo.forEach(base => {
+            let arrInfo = this.listDetail.data.arrInfo;
+            arrInfo.forEach((arr) => {
+              this.baseInfo.forEach((base) => {
                 if (arr.key == base.key) {
                   // 将arrInfo中的value追加到baseInfo上
-                  this.$set(base, 'arrInfo', arr.value)
+                  this.$set(base, "arrInfo", arr.value);
                 }
-              })
-            })
+              });
+            });
             // 获取按钮数据
             this.listDetail.buttonList.forEach((button) => {
-              let obj = {}
-              obj.actionText = button.actionText
-              obj.actionId = button.actionId
-              this.buttonList.push(obj)
-            })
+              let obj = {};
+              obj.actionText = button.actionText;
+              obj.actionId = button.actionId;
+              this.buttonList.push(obj);
+            });
             // 按钮如果大于四个就显示更多选项
             if (this.buttonList?.length > 4) {
-              let [...buttonList2] = this.buttonList
-              buttonList2 = buttonList2.splice(3, buttonList2.length)
+              let [...buttonList2] = this.buttonList;
+              buttonList2 = buttonList2.splice(3, buttonList2.length);
               buttonList2.forEach((item) => {
-                let obj = {}
-                obj.text = item.actionText
-                obj.id = item.actionId
-                this.buttonActions.push(obj)
-              })
+                let obj = {};
+                obj.text = item.actionText;
+                obj.id = item.actionId;
+                this.buttonActions.push(obj);
+              });
             }
           } else {
             // 请求失败
             if (this.listDetail.errorMessage.length > 0) {
-              this.$toast(this.listDetail.errorMessage)
-              this.$destroy()
-              this.$router.go(-1)
+              this.$toast(this.listDetail.errorMessage);
+              this.$destroy();
+              this.$router.go(-1);
             }
           }
         }
-
       } catch (error) {
-        console.log("err", error)
+        console.log("err", error);
       }
-
     },
     // 获取标识字段及颜色
-    getTag (sheetLogo) {
+    getTag(sheetLogo) {
       // e.g. 1,svip|2,测速
-      let tag = sheetLogo
+      let tag = sheetLogo;
       if (tag?.length > 0) {
-        let arr1 = tag.split('|')
-        let arr = []
-        arr1.forEach(item => {
-          let obj = {}
-          obj.color = item.split(',')[0]
-          obj.name = item.split(',')[1]
+        let arr1 = tag.split("|");
+        let arr = [];
+        arr1.forEach((item) => {
+          let obj = {};
+          obj.color = item.split(",")[0];
+          obj.name = item.split(",")[1];
           // 判断tag颜色
-          obj.class = this.judgeSheetLogoColor(item.split(',')[0])
-          arr.push(obj)
+          obj.class = this.judgeSheetLogoColor(item.split(",")[0]);
+          arr.push(obj);
         });
-        this.tagArr = arr
+        this.tagArr = arr;
       } else {
         // 没有标识字段
-        this.tagArr = []
+        this.tagArr = [];
       }
       // 获取进度条数值
-      this.getRatioNum()
-
+      this.getRatioNum();
     },
     // 根据自定义序号判断tag颜色
-    judgeSheetLogoColor (num) {
+    judgeSheetLogoColor(num) {
       switch (num) {
-        case '1':
-          return 'tag colTitle1'
-        case '2':
-          return 'tag colTitle2';
-        case '3':
-          return 'tag colTitle3';
-        case '4':
-          return 'tag colTitle4';
-        case '5':
-          return 'tag colTitle5';
-        case '6':
-          return 'tag colTitle6';
+        case "1":
+          return "tag colTitle1";
+        case "2":
+          return "tag colTitle2";
+        case "3":
+          return "tag colTitle3";
+        case "4":
+          return "tag colTitle4";
+        case "5":
+          return "tag colTitle5";
+        case "6":
+          return "tag colTitle6";
       }
     },
     // 获取进度条数值
-    getRatioNum () {
-      let ratio = this.listDetail.ratio
+    getRatioNum() {
+      let ratio = this.listDetail.ratio;
       // 0-79当前颜色即可，80-99为黄色，100为红色
       if (ratio >= 80 && ratio <= 99) {
         // this.percentColor = '#dede7d'
       } else if (ratio >= 100) {
-        ratio = 100
+        ratio = 100;
         // this.percentColor = "#ee0a24"
       }
-      if (ratio < 0) ratio = 0
-      if (ratio) this.percentage = Math.ceil(ratio)
+      if (ratio < 0) ratio = 0;
+      if (ratio) this.percentage = Math.ceil(ratio);
     },
     // 电话图标移动
-    iconMove (status) {
+    iconMove(status) {
       // 禁止页面滚轴滑动
-      document.querySelector('.listDetail').style.overflowY = status
+      document.querySelector(".listDetail").style.overflowY = status;
     },
 
     // 点击选中的单个号码
-    async judgeSelectPhone (phone) {
-      this.cloudCall(phone, '手工拨号', false)
+    async judgeSelectPhone(phone) {
+      this.cloudCall(phone, "手工拨号", false);
     },
     // 点击确认键
-    async confirmEvent (res, dialFlagChecked) {
-      console.log('确认键：', res);
+    async confirmEvent(res, dialFlagChecked) {
+      console.log("确认键：", res);
       // 判断号码格式是否正确 请求云入户
-      this.cloudCall(res, '手工拨号', dialFlagChecked)
+      this.cloudCall(res, "手工拨号", dialFlagChecked);
     },
 
     // 云入户呼叫
-    async cloudCall (num, type, dialFlagChecked) {
+    async cloudCall(num, type, dialFlagChecked) {
       if (num.length == 8 || num.length == 11) {
-        this.$store.commit('workBench/CHANGECALLNUMBERSTATE', {
+        this.$store.commit("workBench/CHANGECALLNUMBERSTATE", {
           callNumberShow: false,
           keyShow: false,
-        })
+        });
         // 请求云入户呼叫
-        let id = parseInt(this.$route.query.id)
-        let called = num
-        let callNumberType = type
-        let hujiaoFlag = 1
-        let dialFlag = 0
+        let id = parseInt(this.$route.query.id);
+        let called = num;
+        let callNumberType = type;
+        let hujiaoFlag = 1;
+        let dialFlag = 0;
         if (dialFlagChecked) {
-          dialFlag = 1
+          dialFlag = 1;
         }
-        let result = await reqHuJiaoCall(JSON.stringify({ id, called, callNumberType, hujiaoFlag, dialFlag }))
-        console.log('云入户呼叫结果', result)
-        this.apiResponse(result, '.changeAppoint', () => {
-
-        })
+        let result = await reqHuJiaoCall(
+          JSON.stringify({ id, called, callNumberType, hujiaoFlag, dialFlag })
+        );
+        console.log("云入户呼叫结果", result);
+        this.apiResponse(result, ".changeAppoint", () => {});
       } else {
-        this.$toast('格式不正确，需要8位或者11位')
+        this.$toast("格式不正确，需要8位或者11位");
       }
-
-    }
-
+    },
   },
-  mounted () {
-    setWaterMark(this.getLoginInfo.userName)
-    this.tabMarginTop = this.$refs.static.offsetHeight - 1 + 'px'
-
+  mounted() {
+    setWaterMark(this.getLoginInfo.userName);
+    this.tabMarginTop = this.$refs.static.offsetHeight - 1 + "px";
   },
-  created () {
+  created() {
     // 获取列表详情
-    this.getListDetail()
-    console.log('listDetail已创建', this.listDetail)
-
+    this.getListDetail();
+    console.log("listDetail已创建", this.listDetail);
   },
-  activated () {
-    console.log('listDetail已激活')
+  activated() {
+    console.log("listDetail已激活");
     // 激活后判断是否要刷新接口
     if (this.refreshFlag) {
-      this.refreshFn()
-      this.refreshFlag = false
-      this.operationSuccessRefresh(false)
+      this.refreshFn();
+      this.refreshFlag = false;
+      this.operationSuccessRefresh(false);
     }
     // 添加水印
-    setWaterMark(getItem('loginInfo').userName) // 添加水印
+    setWaterMark(getItem("loginInfo").userName); // 添加水印
   },
-  deactivated () {
-    removeWatermark() // 删除水印
+  deactivated() {
+    removeWatermark(); // 删除水印
   },
-  beforeDestroy () {
-    removeWatermark() // 删除水印
+  beforeDestroy() {
+    removeWatermark(); // 删除水印
   },
-  beforeRouteLeave (to, from, next) {
+  beforeRouteLeave(to, from, next) {
     // 进入上一个页面 即不是刷新当前路由 则删除本地存储的列表传参
     // 销毁清单
-    let destroyList = ['MessageDetail', 'WorkBench']
-    let that = this
-    let destroyFn = () => { removeItem("listDetail") }
-    this.destroyKeepAlive(to, from, next, destroyList, that, destroyFn)
+    let destroyList = ["MessageDetail", "WorkBench"];
+    let that = this;
+    let destroyFn = () => {
+      removeItem("listDetail");
+    };
+    this.destroyKeepAlive(to, from, next, destroyList, that, destroyFn);
   },
-
-
 };
 </script>
 
 <style scoped lang="less">
-@import '@/assets/css/confirmDialog.less';
+@import "@/assets/css/confirmDialog.less";
 @theme-color: #1989fa;
 .listDetail {
   // position: relative;
@@ -1107,7 +1084,7 @@ export default {
       .van-collapse {
         width: 100%;
         .van-collapse-item {
-          &[class*='van-hairline']::after {
+          &[class*="van-hairline"]::after {
             border: 0;
           }
           /deep/.van-cell {
@@ -1118,7 +1095,7 @@ export default {
             text-align: left;
           }
         }
-        &[class*='van-hairline']::after {
+        &[class*="van-hairline"]::after {
           border: 0;
         }
       }

@@ -1,10 +1,15 @@
 const state = {
-    destroyZhuanPai: false,
+    destroyZhuanPai: false, // 转派
+    destroyHuanJi: false, // 换机
 }
 const mutations = {
-    changeDestroyZhuanPai (state, result) {
+    changeDestroyZhuanPai(state, result) {
         state.destroyZhuanPai = result
+    },
+    changeDestroyHuanJi(state, result) {
+        state.destroyHuanJi = result
     }
+
 }
 const actions = {
 
