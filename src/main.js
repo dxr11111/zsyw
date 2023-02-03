@@ -48,9 +48,9 @@ Vue.prototype.resetRouteJumpStep = resetRouteJumpStep
 
 
 // 引入 Vconsole
-// import Vconsole from 'vconsole'
+import Vconsole from 'vconsole'
 // 所有环境均使用
-// new Vconsole()
+new Vconsole()
 // 在 test 环境才使用
 // process.env.NODE_ENV === 'test' ? new Vconsole() : ''
 

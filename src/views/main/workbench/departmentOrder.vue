@@ -90,20 +90,20 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex"
-import { reqSheetReportSum, reqChangeDefaultGroup } from '@/http'
+import { mapGetters, mapState } from "vuex";
+import { reqSheetReportSum, reqChangeDefaultGroup } from "@/http";
 
 export default {
-  name: 'DepartmentOrder',
-  props: ['workOrderDetail', 'showDataSummary'],
-  data () {
+  name: "DepartmentOrder",
+  props: ["workOrderDetail", "showDataSummary"],
+  data() {
     return {
-      dataSummaryBgHeight: '', // div-dataSummaryBg高度
+      dataSummaryBgHeight: "", // div-dataSummaryBg高度
       boardList1: [],
       boardList2: [],
       cutBoardList1: [], // 只取sheetSumInfoList前四项
       cutBoardList2: [],
-      groupName: '', // 当前选中的工作组名称
+      groupName: "", // 当前选中的工作组名称
       groupId: -1, // 当前选中的工作组
       currentGroupList: [], // 当前工作组列表-不同工单工作组不一致
       groupNameColumns: [],
@@ -115,9 +115,8 @@ export default {
       bigBoard: {},
       // cutBigBoard: {}, // 截取sheetSumInfoList首位
 
-      dataSummaryBgDisplay: 'block', // dataSummaryBg是否显示
-
-    }
+      dataSummaryBgDisplay: "block", // dataSummaryBg是否显示
+    };
   },
   computed: {
     ...mapGetters(["getLoginInfo"]),
@@ -125,20 +124,20 @@ export default {
   },
   watch: {
     // 父组件选中工单
-    workOrderDetail (value) {
+    workOrderDetail(value) {
       // 更新默认工作组
-      this.getGroupVaue()
+      this.getGroupVaue();
       // 请求工单看板
-      this.getOrderNum()
+      this.getOrderNum();
     },
-    showDataSummary (value) {
-      if (value) this.dataSummaryBgDisplay = 'block'
-      else this.dataSummaryBgDisplay = 'none'
-    }
+    showDataSummary(value) {
+      if (value) this.dataSummaryBgDisplay = "block";
+      else this.dataSummaryBgDisplay = "none";
+    },
   },
   methods: {
     // 点击工单看板显示全部
-    boardListMore (list, item, index, listRow) {
+    boardListMore(list, item, index, listRow) {
       /*     if (item.name == '......') {
             // 将此看板完全显示
             if (listRow == 2) {
@@ -155,184 +154,182 @@ export default {
           } */
       // 如果一个看板只有一条数据，则直接跳转到对应列表id，无需展示放大看板
       if (list.sheetSumInfoList.length == 1) {
-        let taskType = list.listId
-        this.$emit('getTaskType', taskType)
+        let taskType = list.listId;
+        this.$emit("getTaskType", taskType);
       } else {
         // 展示放大版看板
-        this.showBigBoard(listRow, index)
+        this.showBigBoard(listRow, index);
       }
-
-
     },
 
     // 点击放大看板跳转列表id
-    clickBigBoard (item) {
-      this.bigBoardShow = false
+    clickBigBoard(item) {
+      this.bigBoardShow = false;
       // 获取点击条件 specProdType=14,overTime=1,specProdTypeNotIn=14|15|29
-      let condition = item.condition
-      let arr = condition.split(',')
-      let siftPara = {}
-      arr.forEach(item => {
-        let key = item.split('=')[0]
-        let value = item.split('=')[1]
-        siftPara[key] = value
-      })
-      let taskType = this.bigBoard.listId
-      this.$emit('getTaskType', taskType, JSON.stringify(siftPara))
+      let condition = item.condition;
+      let arr = condition.split(",");
+      let siftPara = {};
+      arr.forEach((item) => {
+        let key = item.split("=")[0];
+        let value = item.split("=")[1];
+        siftPara[key] = value;
+      });
+      let taskType = this.bigBoard.listId;
+      this.$emit("getTaskType", taskType, JSON.stringify(siftPara));
     },
 
     // 点击查看放大版看板数
-    showBigBoard (row, index) {
-      this.bigBoardShow = true
+    showBigBoard(row, index) {
+      this.bigBoardShow = true;
       if (row == 1) {
-        this.bigBoard = this.boardList1[index]
+        this.bigBoard = this.boardList1[index];
       } else {
-        this.bigBoard = this.boardList2[index]
+        this.bigBoard = this.boardList2[index];
       }
       // this.cutBigBoard = this.bigBoard.sheetSumInfoList.slice(1)
-
     },
     // 从登录返回的listSheetGroup内获取下拉菜单
-    getGroupVaue () {
-      this.currentGroupList = []
-      this.groupNameColumns = []
+    getGroupVaue() {
+      this.currentGroupList = [];
+      this.groupNameColumns = [];
       // 获取下拉菜单内容
       this.getLoginInfo.listSheetGroup.forEach((item, index) => {
         // 根据groupSysId获取工单对应工作组内容
         if (item.groupSysId == this.workOrderDetail.sysId) {
-          this.currentGroupList.push(item)
-          this.groupNameColumns.push(item.groupName)
-
+          this.currentGroupList.push(item);
+          this.groupNameColumns.push(item.groupName);
         }
-      })
+      });
       // 获取默认头部名称
-      this.groupName = this.currWorkGroupInfo.groupName
-      this.groupId = this.currWorkGroupInfo.groupId
+      this.groupName = this.currWorkGroupInfo.groupName;
+      this.groupId = this.currWorkGroupInfo.groupId;
       // 获取默认工作组id
       for (let index in this.currentGroupList) {
-        index = Number(index)
-        if (this.currentGroupList[index].groupId == this.currWorkGroupInfo.groupId) {
-          this.groupNameDefaultIndex = index
-          this.groupNameLastIndex = index
-          return
+        index = Number(index);
+        if (
+          this.currentGroupList[index].groupId == this.currWorkGroupInfo.groupId
+        ) {
+          this.groupNameDefaultIndex = index;
+          this.groupNameLastIndex = index;
+          return;
         }
       }
-
-
     },
     // 点击打开选择工作组弹出层
-    clickSelectGroup () {
-      this.selectGroupShow = true
+    clickSelectGroup() {
+      this.selectGroupShow = true;
     },
     // 确认工作组
-    async confirmGroup (value, index) {
-      this.groupName = value
+    async confirmGroup(value, index) {
+      this.groupName = value;
       // 不同工单工作组列表有差别
       // this.groupId = this.getLoginInfo.listSheetGroup[index].groupId
-      this.groupId = this.currentGroupList[index].groupId
-      this.groupNameLastIndex = index
+      this.groupId = this.currentGroupList[index].groupId;
+      this.groupNameLastIndex = index;
       // 将选择的工作组存入vuex
-      this.$store.commit('workOrder/updateCurrWorkGroupInfo', { groupId: this.groupId, groupName: this.groupName })
-      this.selectGroupShow = false
+      this.$store.commit("workOrder/updateCurrWorkGroupInfo", {
+        groupId: this.groupId,
+        groupName: this.groupName,
+      });
+      this.selectGroupShow = false;
       // 调用改变工作组接口
-      let sysId = this.workOrderDetail.sysId
-      let result = await reqChangeDefaultGroup(JSON.stringify({ sysId, groupId: this.groupId }))
-      console.log('改变工作组', result)
+      let sysId = this.workOrderDetail.sysId;
+      let result = await reqChangeDefaultGroup(
+        JSON.stringify({ sysId, groupId: this.groupId })
+      );
+      console.log("改变工作组", result);
 
       // 获取工单看板数
-      this.getOrderNum()
+      this.getOrderNum();
       // 获取工单列表信息
-      this.$emit('changeGroup')
+      this.$emit("changeGroup");
     },
     // 取消工作组
-    cancelGroup () {
-      this.selectGroupShow = false
+    cancelGroup() {
+      this.selectGroupShow = false;
       // 取消后恢复上一次确认位置
-      this.groupNameColumns = []
+      this.groupNameColumns = [];
       setTimeout(() => {
         this.getLoginInfo.listSheetGroup.forEach((item, index) => {
           if (item.groupSysId == this.workOrderDetail.sysId) {
-            this.groupNameColumns.push(item.groupName)
+            this.groupNameColumns.push(item.groupName);
           }
-        })
-      })
+        });
+      });
 
-      this.groupNameDefaultIndex = this.groupNameLastIndex
-
+      this.groupNameDefaultIndex = this.groupNameLastIndex;
     },
 
     // 获取工单看板数
-    async getOrderNum () {
-      let ifmSysId = this.workOrderDetail.ifmSysId || -1 // 只有sysId=3时用，1：故障单 3：预警单4：支撑单5：重保单6:优化单
-      let groupId = this.currWorkGroupInfo.groupId
-      let curtSysIds = []
-      let type = ''
+    async getOrderNum() {
+      let ifmSysId = this.workOrderDetail.ifmSysId || -1; // 只有sysId=3时用，1：故障单 3：预警单4：支撑单5：重保单6:优化单
+      let groupId = this.currWorkGroupInfo.groupId;
+      let sysId = this.workOrderDetail.sysId;
+      let type = "";
 
-      if (Object.keys(this.workOrderDetail).length > 0) {
+      //  舍弃curtSysIds
+      /*  if (Object.keys(this.workOrderDetail).length > 0) {
         curtSysIds.push(this.workOrderDetail.sysId)
       } else {
         // 改成了新页面，目前是工作台，默认会有一个值，这个不确定估计会舍弃
         this.getLoginInfo?.userIds.forEach((item) => {
           curtSysIds.push(item.sysId)
         })
-      }
-      let postData = { ifmSysId, groupId, curtSysIds, type }
-      let result = await reqSheetReportSum(JSON.stringify(postData))
-      console.log('获取工单看板数', result)
-      this.apiResponse(result, '.departmentOrder', () => {
+      } */
+      let postData = { ifmSysId, groupId, sysId, type };
+      let result = await reqSheetReportSum(JSON.stringify(postData));
+      console.log("获取工单看板数", result);
+      this.apiResponse(result, ".departmentOrder", () => {
         if (result.operationSuccessFlag) {
           // 请求成功
-          this.boardList1 = result.list1
-          this.boardList2 = result.list2
-          this.cutBoardList1 = JSON.parse(JSON.stringify(this.boardList1))
-          this.cutBoardList2 = JSON.parse(JSON.stringify(this.boardList2))
+          this.boardList1 = result.list1;
+          this.boardList2 = result.list2;
+          this.cutBoardList1 = JSON.parse(JSON.stringify(this.boardList1));
+          this.cutBoardList2 = JSON.parse(JSON.stringify(this.boardList2));
 
           // 处理boardList内sheetSumInfoList只显示前四项
           this.cutBoardList1.forEach((list1, index) => {
             if (list1.sheetSumInfoList.length > 4) {
-              list1.sheetSumInfoList = list1.sheetSumInfoList.slice(0, 4)
+              list1.sheetSumInfoList = list1.sheetSumInfoList.slice(0, 4);
               list1.sheetSumInfoList.push({
-                name: '......'
-              })
+                name: "......",
+              });
             }
-
-          })
+          });
           this.cutBoardList2.forEach((list2, index) => {
             if (list2.sheetSumInfoList.length > 4) {
-              list2.sheetSumInfoList = list2.sheetSumInfoList.slice(0, 4)
+              list2.sheetSumInfoList = list2.sheetSumInfoList.slice(0, 4);
               list2.sheetSumInfoList.push({
-                name: '......'
-              })
+                name: "......",
+              });
             }
-          })
-
+          });
         }
         // 将组件高度传给父组件
-        this.getBgHeight()
-      })
+        this.getBgHeight();
+      });
     },
     // 将组件高度传给父组件
-    getBgHeight () {
+    getBgHeight() {
       this.$nextTick(() => {
         // 将组件高度传给父组件
-        this.dataSummaryBgHeight = (this.$refs.dataSummary.clientHeight - 30)
-        this.$emit('getBgHeight', this.dataSummaryBgHeight)
-      })
+        this.dataSummaryBgHeight = this.$refs.dataSummary.clientHeight - 30;
+        this.$emit("getBgHeight", this.dataSummaryBgHeight);
+      });
     },
-
   },
-  mounted () {
+  mounted() {
     // 将组件高度传给父组件
     // this.dataSummaryBgHeight = (this.$refs.dataSummary.clientHeight - 76)
     // this.$emit('getBgHeight', this.dataSummaryBgHeight)
   },
-  created () {
+  created() {
     // 获取工单看板数
-    this.getOrderNum()
+    this.getOrderNum();
     // 从登录返回的listSheetGroup内获取下拉菜单
-    this.getGroupVaue()
-  }
-}
+    this.getGroupVaue();
+  },
+};
 </script>
 
 <style scoped lang="less">
@@ -439,7 +436,7 @@ export default {
           align-items: center;
           height: 40px; //64px
           padding: 0;
-          background-image: url('./images/orderBoardPopBg.png');
+          background-image: url("./images/orderBoardPopBg.png");
           background-size: cover;
           .close {
             position: absolute;

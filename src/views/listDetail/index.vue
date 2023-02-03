@@ -50,160 +50,161 @@
       @change="changeTab"
     >
       <van-tab :title="base.key" v-for="(base, index) in baseInfo" :key="index">
-        <!-- 处理过程 -->
-        <div v-if="base.key == '处理过程'" class="treatProcess">
-          <!-- 处理过程有两种情况，一种是折叠面板显示，一种是展开显示 -->
-          <!-- 判断base.value为空时显示空状态 -->
-          <template v-if="base.value?.length === 0">
-            <van-empty description="暂无数据" />
-          </template>
-          <!-- 折叠面板显示 -->
-          <div class="treatProcessCollapse" v-if="treaetProcessCollapseShow">
-            <van-collapse
-              v-model="treatProcessActiveNames"
-              v-for="(item, index) in base.value"
-              :key="index"
-            >
-              <van-collapse-item
-                :title="item.key"
-                :name="index"
-                :value="item.value?.length + '条'"
-                :class="item.flagActive == '1' ? 'collapseItem' : ''"
-              >
-                <div
-                  class="collapseContent"
-                  v-for="(content, index) in item.value"
-                  :key="index"
-                >
-                  <div class="title">
-                    <span style="color: #000">{{ content.text }}</span>
-                    <span>{{ content.time }}</span>
-                  </div>
-                  <div class="content">
-                    <p>{{ content.remark }}</p>
-                  </div>
-                </div>
-              </van-collapse-item>
-            </van-collapse>
-          </div>
-          <!-- 展开显示 -->
-          <template v-else>
-            <div
-              v-for="(item, index) in base.value"
-              :key="index"
-              class="treatProcessSpread"
-            >
-              <div class="title">
-                <span class="text">{{ item.text }}</span>
-                <span class="time">{{ item.time }}</span>
-              </div>
-              <div class="content">
-                <span class="remark">{{ item.remark }}</span>
-              </div>
-            </div>
-          </template>
-        </div>
-        <!-- 其他 -->
-        <div class="basicInfo" v-else>
-          <!-- 判断value和arrInfo为空时显示空状态 -->
-          <template
-            v-if="
-              base.hasOwnProperty('arrInfo') &&
-              base.value?.length == 0 &&
-              base.arrInfo?.length == 0
-            "
-          >
-            <van-empty description="暂无数据" />
-          </template>
-          <template
-            v-if="!base.hasOwnProperty('arrInfo') && base.value?.length == 0"
-          >
-            <van-empty description="暂无数据" />
-          </template>
-
-          <!-- baseInfo显示部分 -->
-          <div
-            v-for="(item, index) in base.value"
-            :key="index"
-            class="baseRow"
-            v-else
-          >
-            <!-- 字数过多折叠显示 -->
-            <van-collapse v-model="trSpread" v-if="item.content?.length > 30">
-              <van-collapse-item
-                :name="index"
-                :title="item.name"
-                :value="item.content.slice(0, 10) + '...'"
-                >{{ item.content }}</van-collapse-item
-              >
-            </van-collapse>
-            <!-- 正常显示 -->
-            <!-- sysId=2时资源信息下的新专线号可变蓝点击 -->
-            <template v-else>
-              <span class="name">{{ item.name }}</span>
-              <span
-                class="value"
-                :class="judgeNewLineNumStyle(item)"
-                @click="clickNewLineNum(item)"
-                >{{ item.content }}</span
-              >
+        <div ref="canvas" id="canvas">
+          <!-- 处理过程 -->
+          <div v-if="base.key == '处理过程'" class="treatProcess">
+            <!-- 处理过程有两种情况，一种是折叠面板显示，一种是展开显示 -->
+            <!-- 判断base.value为空时显示空状态 -->
+            <template v-if="base.value?.length === 0">
+              <van-empty description="暂无数据" />
             </template>
-          </div>
-          <!-- arrInfo显示部分 -->
-          <div
-            class="arrRow"
-            v-for="(arr, index) in base.arrInfo"
-            :key="'arr' + index"
-          >
-            <div class="title">
-              <h4>{{ arr.key }}</h4>
-              <!-- 基站定位什么时候出现？ -->
-              <span
-                v-if="arr.key == '【基站信息】'"
-                class="jiZhanDingWei"
-                @click="clickJiZhanDingWei"
-                >基站定位>></span
-              >
-            </div>
-            <!-- 点击基站定位跳出选项 -->
-            <van-action-sheet
-              v-model="jizhanShow"
-              :actions="jizhanActions"
-              cancel-text="取消"
-              close-on-click-action
-            />
-            <div
-              class="baseRow"
-              v-for="(arrItem, index) in arr.value"
-              :key="index"
-            >
-              <!-- 字数过多折叠显示 -->
+            <!-- 折叠面板显示 -->
+            <div class="treatProcessCollapse" v-if="treaetProcessCollapseShow">
               <van-collapse
-                v-model="arrInfoSpread"
-                v-if="arrItem.content?.length > 30"
+                v-model="treatProcessActiveNames"
+                v-for="(item, index) in base.value"
+                :key="index"
               >
                 <van-collapse-item
+                  :title="item.key"
                   :name="index"
-                  :title="arrItem.name"
-                  :value="arrItem.content.slice(0, 10) + '...'"
-                  >{{ arrItem.content }}</van-collapse-item
+                  :value="item.value?.length + '条'"
+                  :class="item.flagActive == '1' ? 'collapseItem' : ''"
+                >
+                  <div
+                    class="collapseContent"
+                    v-for="(content, index) in item.value"
+                    :key="index"
+                  >
+                    <div class="title">
+                      <span style="color: #000">{{ content.text }}</span>
+                      <span>{{ content.time }}</span>
+                    </div>
+                    <div class="content">
+                      <p>{{ content.remark }}</p>
+                    </div>
+                  </div>
+                </van-collapse-item>
+              </van-collapse>
+            </div>
+            <!-- 展开显示 -->
+            <template v-else>
+              <div
+                v-for="(item, index) in base.value"
+                :key="index"
+                class="treatProcessSpread"
+              >
+                <div class="title">
+                  <span class="text">{{ item.text }}</span>
+                  <span class="time">{{ item.time }}</span>
+                </div>
+                <div class="content">
+                  <span class="remark">{{ item.remark }}</span>
+                </div>
+              </div>
+            </template>
+          </div>
+          <!-- 其他 -->
+          <div class="basicInfo" v-else>
+            <!-- 判断value和arrInfo为空时显示空状态 -->
+            <template
+              v-if="
+                base.hasOwnProperty('arrInfo') &&
+                base.value?.length == 0 &&
+                base.arrInfo?.length == 0
+              "
+            >
+              <van-empty description="暂无数据" />
+            </template>
+            <template
+              v-if="!base.hasOwnProperty('arrInfo') && base.value?.length == 0"
+            >
+              <van-empty description="暂无数据" />
+            </template>
+
+            <!-- baseInfo显示部分 -->
+            <div
+              v-for="(item, index) in base.value"
+              :key="index"
+              class="baseRow"
+              v-else
+            >
+              <!-- 字数过多折叠显示 -->
+              <van-collapse v-model="trSpread" v-if="item.content?.length > 30">
+                <van-collapse-item
+                  :name="index"
+                  :title="item.name"
+                  :value="item.content.slice(0, 10) + '...'"
+                  >{{ item.content }}</van-collapse-item
                 >
               </van-collapse>
               <!-- 正常显示 -->
+              <!-- sysId=2时资源信息下的新专线号可变蓝点击 -->
               <template v-else>
-                <span class="name">{{ arrItem.name }}</span>
-                <!-- 基站状态颜色会改变  -->
-                <!-- sysId=3时网管告警时间和网管告警名称字体颜色为蓝色，要做弹窗显示 -->
+                <span class="name">{{ item.name }}</span>
                 <span
                   class="value"
-                  :class="judgeArrInfoColor(arrItem)"
-                  @click="clickJzInfo(arrItem)"
-                  >{{ arrItem.content }}</span
+                  :class="judgeNewLineNumStyle(item)"
+                  @click="clickNewLineNum(item)"
+                  >{{ item.content }}</span
                 >
               </template>
             </div>
-            <!-- 原始单元格显示 -->
-            <!-- <van-cell-group>
+            <!-- arrInfo显示部分 -->
+            <div
+              class="arrRow"
+              v-for="(arr, index) in base.arrInfo"
+              :key="'arr' + index"
+            >
+              <div class="title">
+                <h4>{{ arr.key }}</h4>
+                <!-- 基站定位什么时候出现？ -->
+                <span
+                  v-if="arr.key == '【基站信息】'"
+                  class="jiZhanDingWei"
+                  @click="clickJiZhanDingWei"
+                  >基站定位>></span
+                >
+              </div>
+              <!-- 点击基站定位跳出选项 -->
+              <van-action-sheet
+                v-model="jizhanShow"
+                :actions="jizhanActions"
+                cancel-text="取消"
+                close-on-click-action
+              />
+              <div
+                class="baseRow"
+                v-for="(arrItem, index) in arr.value"
+                :key="index"
+              >
+                <!-- 字数过多折叠显示 -->
+                <van-collapse
+                  v-model="arrInfoSpread"
+                  v-if="arrItem.content?.length > 30"
+                >
+                  <van-collapse-item
+                    :name="index"
+                    :title="arrItem.name"
+                    :value="arrItem.content.slice(0, 10) + '...'"
+                    >{{ arrItem.content }}</van-collapse-item
+                  >
+                </van-collapse>
+                <!-- 正常显示 -->
+                <template v-else>
+                  <span class="name">{{ arrItem.name }}</span>
+                  <!-- 基站状态颜色会改变  -->
+                  <!-- sysId=3时网管告警时间和网管告警名称字体颜色为蓝色，要做弹窗显示 -->
+                  <span
+                    class="value"
+                    :class="judgeArrInfoColor(arrItem)"
+                    @click="clickJzInfo(arrItem)"
+                    >{{ arrItem.content }}</span
+                  >
+                </template>
+              </div>
+              <!-- 原始单元格显示 -->
+              <!-- <van-cell-group>
               <van-cell
                 :title="arrItem.name"
                 :value="arrItem.content"
@@ -212,28 +213,35 @@
                 :value-class="arrItem.name == '基站状态' ? 'value' : ''"
               />
             </van-cell-group> -->
-          </div>
-          <!-- modelInfo显示部分 -->
-          <div
-            class="modelRow"
-            v-for="(model, index) in base.modelInfo"
-            :key="'model' + index"
-          >
-            <div class="title">
-              <h4>{{ model.key }}</h4>
             </div>
-            <van-cell-group>
-              <van-cell
-                :title="modelItem.name"
-                :value="modelItem.content"
-                v-for="(modelItem, index) in model.value"
-                :key="index"
-              />
-            </van-cell-group>
+            <!-- modelInfo显示部分 -->
+            <div
+              class="modelRow"
+              v-for="(model, index) in base.modelInfo"
+              :key="'model' + index"
+            >
+              <div class="title">
+                <h4>{{ model.key }}</h4>
+              </div>
+              <van-cell-group>
+                <van-cell
+                  :title="modelItem.name"
+                  :value="modelItem.content"
+                  v-for="(modelItem, index) in model.value"
+                  :key="index"
+                />
+              </van-cell-group>
+            </div>
           </div>
         </div>
       </van-tab>
     </van-tabs>
+
+    <!-- 点击截屏 -->
+    <div class="screenShot" @click="saveImage">
+      <i class="iconfont icon-24gf-camera2"></i>
+      <span>点击截屏</span>
+    </div>
     <!-- 底部按钮区域 -->
     <div class="bottomContain">
       <div class="bottom">
@@ -353,14 +361,13 @@
 <script>
 import { setWaterMark, removeWatermark } from "@/utils/waterMark";
 import { mapState, mapGetters } from "vuex";
-import { setItem, getItem, removeItem } from "@/utils/sessionStorage";
+import { getItem, removeItem } from "@/utils/sessionStorage";
 import { matchButton } from "@/utils/button";
-import { reqgetYwjsDetail, reqTsxqDetail } from "@/http";
 import { reqArrive } from "@/http/button";
 import { reqHuJiaoCall } from "@/http/tools";
 import PhoneIcon from "@/components/selectCallNumber/phoneIcon.vue";
 import Progress from "@/components/progress";
-import $ from "jquery";
+import html2canvas from "html2canvas";
 
 export default {
   name: "ListDetail",
@@ -413,6 +420,7 @@ export default {
         lastAlarmTime: "",
         lastFaultReason: "",
       },
+      imgUrl: "", // 截屏
     };
   },
   provide() {
@@ -459,6 +467,26 @@ export default {
     // 回退
     goBackFn() {
       this.$router.go(-1);
+    },
+    //保存图片
+    saveImage() {
+      // 第一个参数是需要生成截图的元素,第二个是自己需要配置的参数,宽高等
+      html2canvas(document.getElementById("canvas"), {
+        // backgroundColor: null, //画出来的图片有白色的边框,不要可设置背景为透明色（null）
+        useCORS: true, //支持图片跨域
+        scale: 1, //设置放大的倍数
+      }).then((canvas) => {
+        // 把生成的base64位图片上传到服务器,生成在线图片地址
+        let url = canvas.toDataURL("image/png"); // toDataURL: 图片格式转成 base64
+        this.imgUrl = url;
+        //将图片下载到pc端本地
+        let a = document.createElement("a"); // 生成一个a元素
+        let event = new MouseEvent("click"); // 创建一个单击事件
+        a.download = "listDetailPhoto"; // 设置图片名称没有设置则为默认
+        a.href = this.imgUrl; // 将生成的URL设置为a.href属性
+        a.dispatchEvent(event); // 触发a的单击事件
+        console.log("点击截屏");
+      });
     },
     // sysId=3时点击网管告警名称或网管告警时间
     clickJzInfo(arrItem) {
@@ -1223,6 +1251,22 @@ export default {
           }
         }
       }
+    }
+  }
+  .screenShot {
+    z-index: 101;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    font-size: 14px;
+    width: 25%;
+    margin: 10px auto;
+    padding: 5px 20px;
+    background-color: @theme-color;
+    .iconfont {
+      font-size: 20px;
     }
   }
   .bottomContain {

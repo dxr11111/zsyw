@@ -66,7 +66,7 @@ export const matchButton = async (buttonInfo, buttonId) => {
                     // on confirm
                     let data = await IfmCrisTestApi(JSON.stringify({ id: buttonInfo.id }))
                     console.log(data);
-                    if (data.operationSuccessFlag){
+                    if (data.operationSuccessFlag) {
                         vue.$toast.success(data.successMessage)
                         if (vue.$route.path !== '/main/workBench') {
                             vue.$router.push('/main/workBench')
@@ -112,7 +112,7 @@ export const matchButton = async (buttonInfo, buttonId) => {
             }
             console.log('自动调度参数', params);
             var data = await IdmDispatchAutoApi(JSON.stringify(params))
-            if (data.operationSuccessFlag){
+            if (data.operationSuccessFlag) {
                 vue.$toast.success(data.successMessage)
                 vue.operationSuccessRefresh(true)
             } else {
@@ -216,7 +216,7 @@ export const matchButton = async (buttonInfo, buttonId) => {
         // 局内 确认撤单
         case ('repealConfirm'):
             var data = await JndRepealConfirmApi(JSON.stringify({ id: buttonInfo.id }))
-            if (data.operationSuccessFlag){
+            if (data.operationSuccessFlag) {
                 vue.$toast.success(data.successMessage)
                 if (vue.$route.path !== '/main/workBench') {
                     vue.$router.push('/main/workBench')
@@ -229,8 +229,8 @@ export const matchButton = async (buttonInfo, buttonId) => {
         // 局内 已阅
         case ('haveRead'):
             // var data = await JndHaveReadApi(JSON.stringify({ id: buttonInfo.id }))
-            var data = {operationSuccessFlag:true}
-            if (data.operationSuccessFlag){
+            var data = { operationSuccessFlag: true }
+            if (data.operationSuccessFlag) {
                 vue.$toast.success(data.successMessage)
                 if (vue.$route.path !== '/main/workBench') {
                     vue.$router.push('/main/workBench')
@@ -1026,7 +1026,7 @@ export const matchButton = async (buttonInfo, buttonId) => {
                     baseSN: buttonInfo.baseSn,
                     engItem: buttonInfo.businessInfo.engItem,
                     rbhids: buttonInfo.businessInfo.ycRbsHids,
-                    resourcecode: buttonInfo.businessInfo.resourcecode,
+                    resourcecode: buttonInfo.businessInfo.infoNum,
                 }
             })
             break

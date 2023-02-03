@@ -118,35 +118,54 @@ export default {
       };
       let result = await reqIdmInstrustArrange(JSON.stringify(postData));
       console.log("指令编排结果", result);
-      this.apiResponse(result, ".makeData", () => {
-        // 成功
-        // 再次获取数据制作信息
-        this.getMakeDataInfo();
-      });
-      if (!result.operationSuccessFlag) {
-        // 失败
-        if (result.errorCode == 4) {
-          this.$dialog
-            .confirm({
-              title: result.errorMessage,
-              getContainer: ".makeData",
-              className: "confirmDialog",
-            })
-            .then(async () => {
-              // 再次调用接口
-              postData = { ...postData, biaoshi: "1" };
-              let secondResult = await reqIdmInstrustArrange(
-                JSON.stringify(postData)
-              );
-              console.log("指令编排再次结果", secondResult);
-              this.apiResponse(secondResult, ".makeData", () => {
-                // 再次获取数据制作信息
-                this.getMakeDataInfo();
-              });
-            })
-            .catch(() => {});
+      let handleResult = () => {
+        if (result.operationSuccessFlag) {
+          // 成功
+          if (result?.successMessage.length > 0)
+            this.$toast(result.successMessage);
+          // 再次获取数据制作信息
+          this.getMakeDataInfo();
+        } else {
+          // 失败
+          if (result.errorCode == 4) {
+            this.$dialog
+              .confirm({
+                title: result.errorMessage,
+                getContainer: ".makeData",
+                className: "confirmDialog",
+              })
+              .then(async () => {
+                // 再次调用接口
+                postData = { ...postData, biaoshi: "1" };
+                let secondResult = await reqIdmInstrustArrange(
+                  JSON.stringify(postData)
+                );
+                console.log("指令编排再次结果", secondResult);
+                handleResult();
+              })
+              .catch(() => {});
+          } else {
+            if (result?.errorMessage.length > 0) {
+              // 当messageModul = 1 时，页面出现弹窗窗口，需用户点击确定关闭提示框
+              if (result.messageModul == 1) {
+                this.$dialog
+                  .alert({
+                    title: "提示",
+                    message: result.errorMessage,
+                    getContainer: ".makeData",
+                    className: "confirmDialog",
+                  })
+                  .then(() => {
+                    // on close
+                  });
+              } else if (result.messageModul == 0) {
+                this.$toast(result.errorMessage);
+              }
+            }
+          }
         }
-      }
+      };
+      handleResult();
     },
     // 点击指令下发
     async instrustIssue() {

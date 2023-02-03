@@ -6,6 +6,34 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "7588168",
+      "name": "24gf-camera2",
+      "font_class": "24gf-camera2",
+      "unicode": "e9f3",
+      "unicode_decimal": 59891
+    },
+    {
+      "icon_id": "4735289",
+      "name": "icon_对号-面",
+      "font_class": "icon_duihao-mian",
+      "unicode": "e63d",
+      "unicode_decimal": 58941
+    },
+    {
+      "icon_id": "1205",
+      "name": "向右",
+      "font_class": "xiangyou",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "32475591",
+      "name": "全部",
+      "font_class": "quanbu",
+      "unicode": "e707",
+      "unicode_decimal": 59143
+    },
+    {
       "icon_id": "1312041",
       "name": "登录",
       "font_class": "denglu",

@@ -1,7 +1,7 @@
 // 生产环境去除console.log
 const prodPlugins = [];
 if (process.env.NODE_ENV === "production") {
-  prodPlugins.push("transform-remove-console");
+  // prodPlugins.push("transform-remove-console");
 }
 
 module.exports = {
