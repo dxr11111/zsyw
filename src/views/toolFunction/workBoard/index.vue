@@ -108,10 +108,10 @@
 import G6 from "@antv/g6";
 import { mapState } from "vuex";
 import $ from "jquery";
-import { getItem } from "@/utils/sessionStorage";
+import { getItem } from "@/utils/public/sessionStorage";
 export default {
   name: "WorkBoard",
-  data () {
+  data() {
     return {
       name: "建设工单看板",
       // loginNo: "huangyy2", // getItem("loginNo"), //qiwm1 huangyy2
@@ -127,21 +127,23 @@ export default {
       // 完工工单数
       orderNum: "",
       // 网络制式 // 全部为空字符串
-      netMode: 0,
-      netModeName: '',
+      netMode: "",
+      netModeName: "",
       showNetMode: false,
       netModeList: [
-        { name: "WCDMA", id: 1 },
-        { name: "FDD", id: 2 },
-        { name: "NB", id: 3 },
-        { name: "TDD", id: 4 },
-        { name: "5G", id: 5 },
+        { name: "全部", id: "" },
+        { name: "WCDMA", id: "1" },
+        { name: "FDD", id: "2" },
+        { name: "NB", id: "3" },
+        { name: "TDD", id: "4" },
+        { name: "5G", id: "5" },
       ],
       // 需求来源
       sourceId: "", // 全部为空字符串
-      sourceName: '',
+      sourceName: "",
       showSource: false,
       sourceOption: [
+        { name: "全部", value: "" },
         { name: "校园营销", value: "1" },
         { name: "路测", value: "2" },
         { name: "投诉", value: "3" },
@@ -199,22 +201,22 @@ export default {
   computed: {
     ...mapState("workBoard", ["jizhanInfo", "orderNumInfo"]),
     // 入网总数
-    netTotalTitle () {
+    netTotalTitle() {
       return this.workOrderList[this.workOrder].name;
     },
   },
   methods: {
     // 回退
-    goBack () {
+    goBack() {
       this.$router.go(-1);
     },
     // 宏站 室分
-    clickWorkOrder (item) {
+    clickWorkOrder(item) {
       this.workOrder = item.id;
       this.sourceId = "";
-      this.sourceName = ''
-      this.netMode = 0;
-      this.netModeName = ''
+      this.sourceName = "";
+      this.netMode = "";
+      this.netModeName = "";
       // 切换对应完工工单数
       this.getOrderNum();
       // 切换宏站和室分按钮；对应的需求来源要更换
@@ -283,28 +285,28 @@ export default {
       this.getJizhanList();
     }, */
     // 选择网络制式
-    onSelectNetMode (item) {
-      this.showNetMode = false
-      this.netMode = item.id
-      this.netModeName = item.name
+    onSelectNetMode(item) {
+      this.showNetMode = false;
+      this.netMode = item.id;
+      this.netModeName = item.name;
       this.getJizhanList();
     },
     // 循环需求来源
-    onSelectSource (item) {
-      this.showSource = false
-      this.sourceName = item.name
-      this.sourceId = item.value
+    onSelectSource(item) {
+      this.showSource = false;
+      this.sourceName = item.name;
+      this.sourceId = item.value;
       this.getJizhanList();
     },
-    addZero (num) {
+    addZero(num) {
       return num < 10 ? "0" + num : num;
     },
     // 获取当前日期
-    getCurrentDate () {
+    getCurrentDate() {
       let date = new Date();
       this.date = `${date.getFullYear()}-${this.addZero(date.getMonth() + 1)}`;
     },
-    async getOrderNum () {
+    async getOrderNum() {
       let orderType = (this.workOrder + 1).toString();
       let loginNo = this.loginNo;
       let postData = { orderType, loginNo };
@@ -314,20 +316,19 @@ export default {
           JSON.stringify(postData)
         );
         let result = this.orderNumInfo;
-        if (result.operationSuccessFlag) {
+        this.apiResponse(result, ".workBoard", () => {
           this.orderNum = result.orderNum;
           this.date = result.time;
-        }
+        });
       } catch (error) {
         console.log(error);
       }
     },
-    async getJizhanList () {
+    async getJizhanList() {
       let loginNo = this.loginNo;
       let requirement = this.sourceId;
       let type = (this.workOrder + 1).toString();
-      let netWork = this.netMode.toString();
-      if (netWork == 0) netWork = "";
+      let netWork = this.netMode;
       let postData = { loginNo, requirement, type, netWork };
       try {
         await this.$store.dispatch(
@@ -336,7 +337,7 @@ export default {
         );
         let result = this.jizhanInfo;
         console.log("响应数据", result);
-        if (result.operationSuccessFlag) {
+        this.apiResponse(result, ".workBoard", () => {
           let consLinkCountList = result.consLinkCountList;
           let jizhanCountList = result.jizhanCountList;
           jizhanCountList.forEach((item) => {
@@ -404,7 +405,7 @@ export default {
             $("#mountNode").empty();
             this.drawGraph();
           }
-        }
+        });
       } catch (error) {
         console.log("建设 基站数据获取失败", error);
         // 获取不到数据时设置orderNumList为空字符串
@@ -454,7 +455,7 @@ export default {
           "\n",
         ]); */
     },
-    drawGraph () {
+    drawGraph() {
       // 判断orderNumList内是否有数据
       if (this.orderNumList.length == 0) {
         for (let i = 1; i < 13; i++) {
@@ -564,8 +565,8 @@ export default {
           y: fourthY,
           type: "middle",
           anchorPoints: [
-            [0.45, 0],
-            [0.45, 1],
+            [0.46, 0],
+            [0.46, 1],
           ],
         },
         {
@@ -756,7 +757,7 @@ export default {
       G6.registerNode(
         "sql",
         {
-          drawShape (cfg, group) {
+          drawShape(cfg, group) {
             const rect = group.addShape("rect", {
               attrs: {
                 // x: -60,
@@ -794,7 +795,7 @@ export default {
       G6.registerNode(
         "middle",
         {
-          drawShape (cfg, group) {
+          drawShape(cfg, group) {
             const rect = group.addShape("rect", {
               attrs: {
                 // x: -60,
@@ -832,7 +833,7 @@ export default {
       G6.registerNode(
         "big",
         {
-          drawShape (cfg, group) {
+          drawShape(cfg, group) {
             const rect = group.addShape("rect", {
               attrs: {
                 // x: -60,
@@ -921,7 +922,7 @@ export default {
     },
   },
 
-  created () {
+  created() {
     // 获取当前日期
     // this.getCurrentDate();
     // 获取后台建设数据 基站数据
@@ -929,7 +930,7 @@ export default {
     // 获取后台时间，完工工单数
     this.getOrderNum();
   },
-  mounted () {
+  mounted() {
     // 流程图
     this.drawGraph();
 
@@ -1029,7 +1030,7 @@ export default {
           display: flex;
           line-height: 30px;
           .after::after {
-            content: '▼';
+            content: "▼";
             margin-left: -25px;
             color: gray;
           }
@@ -1064,7 +1065,7 @@ export default {
                 -webkit-transform: rotate(-45deg);
                 transform: rotate(-45deg);
                 opacity: 0.8;
-                content: '';
+                content: "";
               }
               .van-dropdown-menu__title::after {
                 content: none;

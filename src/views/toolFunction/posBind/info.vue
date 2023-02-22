@@ -69,30 +69,34 @@
 </template>
 
 <script>
-import { reqToolWaitPos } from '@/http/tools'
-import QRCode from 'qrcodejs2'
+import { reqToolWaitPos } from "@/http/tools";
+import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
+
+import QRCode from "qrcodejs2";
 export default {
-  name: 'ToolPosBindInfo',
-  data () {
+  name: "ToolPosBindInfo",
+  mixins: [keepAliveMixin],
+
+  data() {
     return {
       headName: `POS信息(${this.$route.query.orderId})`,
       posInfo: [],
       qrCodeShow: false, // 二维码弹出层
       onuId: "",
-    }
+    };
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.$router.go(-1);
     },
     // 点击设备pos信息
-    clickDev (item) {
+    clickDev(item) {
       // 有二维码信息，可跳转
       if (item.posBiaoQian) {
         // 跳转路由
         this.$router.push({
-          name: 'ToolPosBindSubmit',
+          name: "ToolPosBindSubmit",
           query: {
             posBianHao: item.posBianHao,
             onuId: this.onuId,
@@ -100,65 +104,61 @@ export default {
             orderId: this.$route.query.orderId,
             id: this.$route.query.id,
             mac: this.$route.query.mac,
-
-          }
-        })
+          },
+        });
       } else {
         // 没有二维码字符串
-        this.$dialog.alert({
-          title: '提示',
-          message: '设备未做码化关联入位，请通过资源核查App完成补贴码、入位后，才能完成后续绑定工作',
-          getContainer: '.infoList',
-          className: 'confirmDialog',
-        }).then(() => {
-          // on close
-        });
+        this.$dialog
+          .alert({
+            title: "提示",
+            message:
+              "设备未做码化关联入位，请通过资源核查App完成补贴码、入位后，才能完成后续绑定工作",
+            getContainer: ".infoList",
+            className: "confirmDialog",
+          })
+          .then(() => {
+            // on close
+          });
       }
-
     },
     // pos查询
-    async getPosInfo () {
-      let id = parseInt(this.$route.query.id)
-      let mac = this.$route.query.mac
-      let sn = this.$route.query.sn
-      let type = 2 // pos查询
-      let result = await reqToolWaitPos(JSON.stringify({ id, mac, sn, type }))
-      console.log('pos查询结果', result)
-      if (result.operationSuccessFlag) {
-        this.posInfo = result.posInfo
-        this.onuId = result.onuId
-      } else {
-        this.$toast(result.errorMessage)
-      }
-
-
+    async getPosInfo() {
+      let id = parseInt(this.$route.query.id);
+      let mac = this.$route.query.mac;
+      let sn = this.$route.query.sn;
+      let type = 2; // pos查询
+      let result = await reqToolWaitPos(JSON.stringify({ id, mac, sn, type }));
+      console.log("pos查询结果", result);
+      this.apiResponse(result, ".infoList", () => {
+        this.posInfo = result.posInfo;
+        this.onuId = result.onuId;
+      });
     },
     // 点击二维码图标-字符串生成二维码
-    creatQrCode (str) {
-      this.qrCodeShow = true
+    creatQrCode(str) {
+      this.qrCodeShow = true;
       let qrcode = new QRCode(this.$refs.qrCodeUrl, {
         text: str, // 需要转换为二维码的内容
         width: 200,
         height: 200,
-        colorDark: '#000000',
-        colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.H
-      })
-
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H,
+      });
     },
     // 点击二维码遮罩层-关闭遮罩层
-    closeQrCode () {
-      this.qrCodeShow = false
+    closeQrCode() {
+      this.qrCodeShow = false;
       // 清空二维码信息
-      let qrCodeUrl = this.$refs.qrCodeUrl
-      qrCodeUrl.innerHTML = ""
-    }
+      let qrCodeUrl = this.$refs.qrCodeUrl;
+      qrCodeUrl.innerHTML = "";
+    },
   },
-  created () {
+  created() {
     // pos查询
-    this.getPosInfo()
-  }
-}
+    this.getPosInfo();
+  },
+};
 </script>
 
 <style scoped lang="less">
@@ -213,7 +213,7 @@ export default {
           background: grey;
           border-radius: 10px;
           &::after {
-            content: '';
+            content: "";
             position: absolute;
             border-left: 2px solid #e0e0e0;
             height: 50px;

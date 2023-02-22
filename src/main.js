@@ -26,6 +26,10 @@ Vue.use(Vant)
 import '@/assets/css/theme.less'
 import '@/assets/css/confirmDialog.less'
 
+// import ElementUI from 'element-ui'
+// import 'element-ui/lib/theme-chalk/index.css'
+// Vue.use(ElementUI)
+
 
 // 引入公共组件
 import MyHeader from '@/components/myHeader'
@@ -40,23 +44,16 @@ import apiResponse from '@/utils/public/apiResponse'
 Vue.prototype.apiResponse = apiResponse
 import operationSuccessRefresh from '@/utils/public/operationSuccessRefresh'
 Vue.prototype.operationSuccessRefresh = operationSuccessRefresh
-import { destroyKeepAlive, destroyRoute } from '@/utils/public/destroyKeepAlive'
-Vue.prototype.destroyKeepAlive = destroyKeepAlive
-Vue.prototype.destroyRoute = destroyRoute
 import resetRouteJumpStep from '@/utils/public/resetRouteJumpStep'
 Vue.prototype.resetRouteJumpStep = resetRouteJumpStep
 
 
 // 引入 Vconsole
-import Vconsole from 'vconsole'
+// import Vconsole from 'vconsole'
 // 所有环境均使用
-new Vconsole()
+// new Vconsole()
 // 在 test 环境才使用
 // process.env.NODE_ENV === 'test' ? new Vconsole() : ''
-
-// 处理错误异常
-// import ErrorPlugin from '@/utils/public/errorPlugin'
-// Vue.use(ErrorPlugin)
 
 
 const vue = new Vue({

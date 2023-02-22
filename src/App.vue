@@ -1,16 +1,19 @@
 <template>
   <div id="app">
-    <!-- <keep-alive :include="include">
-        <router-view></router-view>
-      </keep-alive> -->
-
-    <keep-alive :max="10">
+    <!-- <keep-alive :max="10">
       <router-view v-if="$route.meta.myKeepAlive" />
     </keep-alive>
-    <router-view v-if="!$route.meta.myKeepAlive" />
+    <router-view v-if="!$route.meta.myKeepAlive" /> -->
+    <keep-alive :include="keepPages">
+      <router-view></router-view>
+    </keep-alive>
 
     <!-- 装机单回复-强制回单posCodeSign弹出层 -->
-    <IomNewFinishPosCode />
+    <IomNewFinishPosCode v-if="$store.state.button.posCodePopShow" />
+    <!-- 装机单修改客户电话弹出层 -->
+    <EditCustPhone v-if="$store.state.button.editCustPhone.editCustPhoneShow" />
+    <!-- 任务回复finishTask弹出层 -->
+    <FinishTask v-if="$store.state.button.finishTask.popShow" />
 
     <!-- 路由过渡 -->
     <!--  <transition :name="transitionName" v-if="isTransition">
@@ -24,25 +27,38 @@
 
 <script>
 import MyLoading from "@/components/myLoading";
-import IomNewFinishPosCode from '@/views/buttonJump/installMachineIDM/finish/iomNewFinishPosCode.vue';
+import IomNewFinishPosCode from "@/views/orderFunction/zhiJiaLei/installMachineIDM/finish/components/iomNewFinishPosCode.vue";
+import EditCustPhone from "@/views/orderFunction/zhiJiaLei/installMachineIDM/editCustPhone";
+import FinishTask from "@/views/orderFunction/publicOrder/finishTask.vue";
 import { mapState } from "vuex";
+import judgeProject from "./utils/public/judgeProject";
+
 export default {
   name: "App",
-  components: { MyLoading, IomNewFinishPosCode },
-  data () {
+  components: { MyLoading, IomNewFinishPosCode, EditCustPhone, FinishTask },
+  data() {
     return {
       // include: ['Main', 'ListDetail', 'Finish', 'IomNewFinish', 'Circuit'], // 需要缓存的路由组件
       // 路由过渡
       // transitionName: '',
       // isTransition: false,
-
     };
   },
   computed: {
     ...mapState(["isLoading"]),
+    keepPages() {
+      return this.$store.state.keepPages;
+    },
   },
 
   watch: {
+    // 监视路由变化
+    $route: {
+      handler(val) {
+        // 判断当前项目
+        judgeProject();
+      },
+    },
     // 路由过渡
     // #region
     /*     $route (to, from) {
@@ -68,30 +84,24 @@ export default {
           }
         } */
     //#endregion
-
   },
 
   methods: {
     // 返回路由的key
-    keepAliveKey ($route) {
-      if ($route.meta.parentPath == '/main') return '/main'
-      else return $route.fullPath
-
-    },
-
+    /*   keepAliveKey($route) {
+      if ($route.meta.parentPath == "/main") return "/main";
+      else return $route.fullPath;
+    }, */
   },
-  created () {
-    // this.getKeepAliveView();
+  created() {
     // 判断是否要增加头部高度
-    let Addhead = localStorage.getItem('Addhead')
+    let Addhead = localStorage.getItem("Addhead");
     if (Addhead !== null) {
-      localStorage.setItem('Addhead', Addhead)
+      localStorage.setItem("Addhead", Addhead);
     } else {
-      localStorage.setItem('Addhead', true)
+      localStorage.setItem("Addhead", true);
     }
-
-  }
-
+  },
 };
 </script>
 

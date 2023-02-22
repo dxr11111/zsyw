@@ -58,67 +58,71 @@
 </template>
 
 <script>
-import { reqToolMissBackQuery, reqToolMissBackDelete, reqHuJiaoCall } from '@/http/tools';
-import empty from '@/components/empty.vue';
+import {
+  reqToolMissBackQuery,
+  reqToolMissBackDelete,
+  reqHuJiaoCall,
+} from "@/http/tools";
 export default {
-  components: { empty },
-  name: 'toolHuJiao',
-  data () {
+  name: "toolHuJiao",
+  data() {
     return {
       missBackList: [],
-    }
+    };
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.$router.go(-1);
     },
     // 漏话回拨-查询
-    async getQuery () {
-      let callUserName = this.$store.getters.loginNo
-      let result = await reqToolMissBackQuery(JSON.stringify({ callUserName }))
-      console.log('漏话回拨查询结果', result)
-      this.apiResponse(result, '.toolHuJiao', () => {
+    async getQuery() {
+      let callUserName = this.$store.getters.loginNo;
+      let result = await reqToolMissBackQuery(JSON.stringify({ callUserName }));
+      console.log("漏话回拨查询结果", result);
+      this.apiResponse(result, ".toolHuJiao", () => {
         // 响应成功的方法
-        this.missBackList = result.listMissBackTel
-      })
+        this.missBackList = result.listMissBackTel;
+      });
     },
     // 点击电话标识
-    clickPhone (mobileNum) {
-      this.$dialog.confirm({
-        message: mobileNum,
-        getContainer: '.toolHuJiao',
-        className: 'confirmDialog',
-        confirmButtonText: '云入户呼叫',
-        cancelButtonText: '返回',
-      }).then(async () => {
-        // 点击云入户呼叫
-        let id = 0
-        let called = mobileNum
-        let callNumberType = '漏话回拨'
-        let hujiaoFlag = 1
-        let result = await reqHuJiaoCall(JSON.stringify({ id, called, callNumberType, hujiaoFlag }))
-        console.log('云入户呼叫结果', result)
-        this.apiResponse(result, '.toolHuJiao', () => { })
-        this.getQuery()
-
-      }).catch(() => { });
-
+    clickPhone(mobileNum) {
+      this.$dialog
+        .confirm({
+          message: mobileNum,
+          getContainer: ".toolHuJiao",
+          className: "confirmDialog",
+          confirmButtonText: "云入户呼叫",
+          cancelButtonText: "返回",
+        })
+        .then(async () => {
+          // 点击云入户呼叫
+          let id = 0;
+          let called = mobileNum;
+          let callNumberType = "漏话回拨";
+          let hujiaoFlag = 1;
+          let result = await reqHuJiaoCall(
+            JSON.stringify({ id, called, callNumberType, hujiaoFlag })
+          );
+          console.log("云入户呼叫结果", result);
+          this.apiResponse(result, ".toolHuJiao", () => {});
+          this.getQuery();
+        })
+        .catch(() => {});
     },
     // 点击删除标识
-    async deleteItem (id) {
-      let result = await reqToolMissBackDelete(JSON.stringify({ id }))
-      console.log('删除结果', result)
-      this.apiResponse(result, '.toolHuJiao', () => { })
-      this.getQuery()
-    }
+    async deleteItem(id) {
+      let result = await reqToolMissBackDelete(JSON.stringify({ id }));
+      console.log("删除结果", result);
+      this.apiResponse(result, ".toolHuJiao", () => {});
+      this.getQuery();
+    },
   },
-  created () {
+  created() {
     // 漏话回拨-查询
-    this.getQuery()
-  }
-
-}
+    this.getQuery();
+  },
+};
 </script>
 
 <style scoped lang="less">

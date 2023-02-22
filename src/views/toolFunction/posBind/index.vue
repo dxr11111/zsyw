@@ -49,7 +49,10 @@
             >
               <div class="num">{{ index + 1 }}</div>
               <div class="content">
-                <div class="time">{{bandingStatus == 0 ? '竣工时间：' : '绑定时间：'}}{{ item.createDate }}</div>
+                <div class="time">
+                  {{ bandingStatus == 0 ? "竣工时间：" : "绑定时间："
+                  }}{{ item.createDate }}
+                </div>
                 <div class="title">
                   <span>{{ item.abstractInfo[0] }}</span>
                   <span>{{ item.abstractInfo[1] }}</span>
@@ -61,7 +64,7 @@
             </div>
           </template>
           <!-- 空状态 -->
-          <template v-else><van-empty description="暂无数据" /></template>
+          <Empty v-else />
           <!-- 加载提示-空 -->
           <template #loading><div></div></template>
         </van-list>
@@ -71,130 +74,133 @@
 </template>
 
 <script>
-import { reqToolPosList } from '@/http/tools'
+import { reqToolPosList } from "@/http/tools";
+import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
+
 export default {
-  name: 'ToolPosBind',
-  data () {
+  name: "ToolPosBind",
+  mixins: [keepAliveMixin],
+
+  data() {
     return {
-      queryInfo: '', // 搜索条件
+      queryInfo: "", // 搜索条件
       bandingStatus: 0, // 0：未绑定，1已绑定
       page: 1, // 页码
       postList: [],
-      mainMarginTop: '',
+      mainMarginTop: "",
       // 下拉列表
       loading: false,
       finished: false,
-      finishText: '没有更多了',
+      finishText: "没有更多了",
       refreshing: false,
-    }
+    };
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.$router.go(-1);
+      this.$store.commit("removeThisPage", this.$options.name);
     },
     // 点击搜索
-    onSearch () {
+    onSearch() {
       this.postList = [];
-      this.page = 1
-      this.getposList()
+      this.page = 1;
+      this.getposList();
     },
     // 点击是否绑定
-    changeBindStatus (bool) {
-      this.bandingStatus = bool
+    changeBindStatus(bool) {
+      this.bandingStatus = bool;
       // 重置参数，重发请求
       this.postList = [];
-      this.page = 1
-      this.getposList()
+      this.page = 1;
+      this.getposList();
     },
     // 获取pos列表内容
-    async getposList () {
-      let queryInfo = this.queryInfo
-      let page = this.page
-      let bandingStatus = this.bandingStatus
+    async getposList() {
+      let queryInfo = this.queryInfo;
+      let page = this.page;
+      let bandingStatus = this.bandingStatus;
       try {
-        let result = await reqToolPosList(JSON.stringify({ queryInfo, page, bandingStatus }))
-        console.log('pos列表信息', result)
+        let result = await reqToolPosList(
+          JSON.stringify({ queryInfo, page, bandingStatus })
+        );
+        console.log("pos列表信息", result);
         // 请求完之后关闭加载状态
         this.loading = false;
-
-        if (result.operationSuccessFlag) {
+        this.apiResponse(result, ".toolPosBind", () => {
           // 判断列表是否全部加载完成
           if (this.page >= result.totalPage) {
             this.finished = true;
-            this.finishText = '没有更多了'
+            this.finishText = "没有更多了";
           }
           // 判断有无数据
           if (result.waitPosInfoList.length == 0) {
             // 无数据 → 会自动显示空状态 → 不显示finishText
-            this.finished = true // 关闭上拉加载
-            this.finishText = ''
+            this.finished = true; // 关闭上拉加载
+            this.finishText = "";
           }
           // 处理waitPosInfoList
-          let postList = []
-          result.waitPosInfoList.forEach(posInfo => {
-            let obj = {}
-            obj.id = posInfo.id
-            obj.createDate = posInfo.createDate
-            obj.orderId = posInfo.orderId
-            obj.sheetFrom = posInfo.sheetFrom // 判断sysid是2还是10
+          let postList = [];
+          result.waitPosInfoList.forEach((posInfo) => {
+            let obj = {};
+            obj.id = posInfo.id;
+            obj.createDate = posInfo.createDate;
+            obj.orderId = posInfo.orderId;
+            obj.sheetFrom = posInfo.sheetFrom; // 判断sysid是2还是10
             // 获取abstractInfo下的列表信息
-            let abstractInfo = JSON.parse(posInfo.abstractInfo)
-            obj.abstractInfo = abstractInfo[0]
-            postList.push(obj)
+            let abstractInfo = JSON.parse(posInfo.abstractInfo);
+            obj.abstractInfo = abstractInfo[0];
+            postList.push(obj);
           });
-          this.postList = [...this.postList, ...postList]
-
-        } else {
-          if (result.errorMessage.length > 0) this.$toast(result.errorMessage)
-          this.finished = true // 加载失败 关闭上拉加载
+          this.postList = [...this.postList, ...postList];
+        });
+        if (!result.operationSuccessFlag) {
+          this.finished = true; // 加载失败 关闭上拉加载
           if (this.postList.length > 0) {
-            this.finishText = '没有更多了'
+            this.finishText = "没有更多了";
           } else {
-            this.finishText = ''
+            this.finishText = "";
           }
         }
       } catch (error) {
-        this.loading = false // 加载失败 关闭加载状态
-        this.finished = true // 加载失败 关闭上拉加载
+        this.loading = false; // 加载失败 关闭加载状态
+        this.finished = true; // 加载失败 关闭上拉加载
         if (this.postList.length > 0) {
-          this.finishText = '没有更多了'
+          this.finishText = "没有更多了";
         } else {
-          this.finishText = ''
+          this.finishText = "";
         }
-        console.log('err', error)
+        console.log("err", error);
       }
-
     },
     // 跳转到pos绑定设备页面
-    skipPosDev (item) {
+    skipPosDev(item) {
       this.$router.push({
-        name: 'ToolPosBindDev',
+        name: "ToolPosBindDev",
         query: {
           orderId: item.orderId,
           id: item.id,
-          sheetFrom: item.sheetFrom
+          sheetFrom: item.sheetFrom,
         },
-      })
+      });
     },
     // 加载列表
-    onLoad () {
+    onLoad() {
       if (this.refreshing) {
         // 选择下拉刷新
         this.postList = [];
-        this.page = 1
+        this.page = 1;
         this.refreshing = false;
       } else {
         // 上拉加载数据
-        this.page++
+        this.page++;
       }
       // 请求数据
-      this.getposList()
-
+      this.getposList();
     },
-    onRefresh () {
+    onRefresh() {
       // 清空列表数据
-      this.postList = []
+      this.postList = [];
       this.finished = false;
 
       // 重新加载数据
@@ -202,24 +208,16 @@ export default {
       this.loading = true;
       this.onLoad();
     },
-
   },
-  created () {
+  created() {
     // 获取pos列表内容
-    this.getposList()
+    this.getposList();
   },
-  mounted () {
+  mounted() {
     // 获取postList元素margin-top
-    this.mainMarginTop = this.$refs.static.clientHeight + 'px'
-
+    this.mainMarginTop = this.$refs.static.clientHeight + "px";
   },
-  beforeRouteLeave (to, from, next) {
-    let that = this
-    this.destroyKeepAlive(to, from, next, ['Tool'], that, () => { })
-  },
-
-
-}
+};
 </script>
 
 <style scoped lang="less">

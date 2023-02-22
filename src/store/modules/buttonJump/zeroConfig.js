@@ -1,11 +1,11 @@
 import { reqIomNewZeroConfigQuery } from '@/http/button'
-import { setItem, getItem } from '@/utils/sessionStorage'
+import { setItem, getItem } from '@/utils/public/sessionStorage'
 const state = {
     zeroConfigQueryInfo: getItem('zeroConfigQueryInfo') || {},
 
 }
 const mutations = {
-    ZEROCONFIGQUERY (state, result) {
+    ZEROCONFIGQUERY(state, result) {
         state.zeroConfigQueryInfo = result
         setItem('zeroConfigQueryInfo', result)
     },
@@ -14,7 +14,7 @@ const mutations = {
 }
 const actions = {
     // 零配置前查询
-    async getIomNewZeroConfigQuery (context, postData) {
+    async getIomNewZeroConfigQuery(context, postData) {
         try {
             let result = await reqIomNewZeroConfigQuery(postData)
             console.log('零配置前查询结果', result)

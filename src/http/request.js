@@ -1,8 +1,9 @@
 // 对axios进行二次封装
 import axios from 'axios'
-import { getItem } from '@/utils/sessionStorage'
+import { getItem } from '@/utils/public/sessionStorage'
 import store from '@/store'
 import vue from '@/main'
+
 
 let requests = axios.create({
     baseURL: process.env.VUE_APP_BASE_API,
@@ -51,8 +52,8 @@ requests.interceptors.request.use(config => {
             let masterLoginNo = loginInfo.loginNo;
             let sysUserInfo = loginInfo.userIds;
             let publicData = {
-                mobileType: 1, // 1：安卓 2：ios
-                clientId: 7, // 7：安卓 8：ios
+                mobileType: 3, // 1：安卓 2：ios 3：webApp
+                clientId: 9, // 7：安卓 8：ios 9：2023版WebH5App
                 version: "1.1.13",
                 imei: "477E9099-6B08-49A3-8512-CB650B7851A9",
                 masterLoginNo,

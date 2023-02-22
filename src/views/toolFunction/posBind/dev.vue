@@ -33,8 +33,8 @@
         >
           <div class="content">
             <p style="color: #000">{{ item.deviceBusiTypeName }}</p>
-            <p>SN:{{ item.deviceSN || '--' }}</p>
-            <p>MAC:{{ item.deviceMAC || '--' }}</p>
+            <p>SN:{{ item.deviceSN || "--" }}</p>
+            <p>MAC:{{ item.deviceMAC || "--" }}</p>
           </div>
           <div class="type">
             <p>ONU</p>
@@ -76,78 +76,76 @@
 </template>
 
 <script>
-import { reqToolWaitPos } from '@/http/tools'
+import { reqToolWaitPos } from "@/http/tools";
+import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
+
 export default {
-  name: 'ToolPosBindDev',
-  data () {
+  name: "ToolPosBindDev",
+  mixins: [keepAliveMixin],
+
+  data() {
     return {
       headName: `POS绑定(${this.$route.query.orderId})`,
       onuList: [], // 设备信息
       sheetFrom: this.$route.query.sheetFrom, // sysId
       tipsShow: false,
-
-    }
+    };
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.$router.go(-1);
     },
     // 点击设备信息
-    clickDev (item) {
-      let mac = ""
-      let sn = ""
+    clickDev(item) {
+      let mac = "";
+      let sn = "";
       // 判断sysId
       if (this.sheetFrom == 2) {
-        if (item.deviceSN == '' && item.deviceMAC == '') return this.$toast('设备信息为空，不允许绑定POS端口')
-        mac = item.deviceMAC
-        sn = item.deviceSN
-      }
-      else {
+        if (item.deviceSN == "" && item.deviceMAC == "")
+          return this.$toast("设备信息为空，不允许绑定POS端口");
+        mac = item.deviceMAC;
+        sn = item.deviceSN;
+      } else {
         // sysId = 10
-        if (item.sn == '' && item.mac == '') return this.$toast('设备信息为空，不允许绑定POS端口')
-        mac = item.mac
-        sn = item.sn
+        if (item.sn == "" && item.mac == "")
+          return this.$toast("设备信息为空，不允许绑定POS端口");
+        mac = item.mac;
+        sn = item.sn;
       }
       // 跳转到pos信息页
       this.$router.push({
-        name: 'ToolPosBindInfo',
+        name: "ToolPosBindInfo",
         query: {
           mac,
           sn,
           orderId: this.$route.query.orderId,
           id: this.$route.query.id,
-        }
-      })
+        },
+      });
     },
     // 获取设备信息
-    async getDeviceInfo () {
-      let id = parseInt(this.$route.query.id)
-      let type = 1 // 查设备
-      let result = await reqToolWaitPos(JSON.stringify({ id, type }))
-      console.log('设备查询结果', result)
-      if (result.operationSuccessFlag) {
+    async getDeviceInfo() {
+      let id = parseInt(this.$route.query.id);
+      let type = 1; // 查设备
+      let result = await reqToolWaitPos(JSON.stringify({ id, type }));
+      console.log("设备查询结果", result);
+      this.apiResponse(result, ".devList", () => {
         // 根据sheetFrom判断取哪个list
         if (this.sheetFrom == 2) {
-          this.onuList = result.listOnu
+          this.onuList = result.listOnu;
         } else if (this.sheetFrom == 10) {
-          this.onuList = result.onuList
+          this.onuList = result.onuList;
         }
-        if (this.onuList.length == 0) this.tipsShow = true
-
-      } else {
-        if (result.errorMessage.length > 0) this.$toast(result.errorMessage)
-
-      }
-
-    }
+        if (this.onuList.length == 0) this.tipsShow = true;
+      });
+    },
   },
-  created () {
+  created() {
     // 获取设备信息
-    this.getDeviceInfo()
-  }
-
-}
+    this.getDeviceInfo();
+  },
+};
 </script>
 
 <style scoped lang="less">
@@ -205,7 +203,7 @@ export default {
           background: grey;
           border-radius: 10px;
           &::after {
-            content: '';
+            content: "";
             position: absolute;
             border-left: 2px solid #e0e0e0;
             height: 50px;

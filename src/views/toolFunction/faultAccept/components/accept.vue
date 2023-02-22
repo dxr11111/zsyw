@@ -143,93 +143,100 @@
 </template>
 
 <script>
-import { declarationList } from '@/utils/tools'
-import { IfmBalkAcceptApi } from '@/http/tools'
-import { getItem } from '@/utils/sessionStorage'
+import { declarationList } from "@/utils/public/tools";
+import { IfmBalkAcceptApi } from "@/http/tools";
+import { getItem } from "@/utils/public/sessionStorage";
 export default {
-  data () {
+  data() {
     return {
-      userName: getItem('loginInfo').userName,
+      userName: getItem("loginInfo").userName,
       formData: {
-        allegeCustName: '', // 申告人
-        allegeCustPhone1: '', // 申告人电话
-        allegeCustPhone2: '', // 申告人手机
-        balkContent: '', // 故障现象
-        paAllegeTypeId: '', // 申告类别ID
-        paAllegeContentId: '', // 申告内容ID
-        zhujiaoTel: '', // 主叫号
-        adslAccount: '', // ADSL号
-        iptvAccount: '', // IPTV业务账号
-        piaType: '', // 普话产品类别
-        telNum: '', // 故障号码
+        allegeCustName: "", // 申告人
+        allegeCustPhone1: "", // 申告人电话
+        allegeCustPhone2: "", // 申告人手机
+        balkContent: "", // 故障现象
+        paAllegeTypeId: "", // 申告类别ID
+        paAllegeContentId: "", // 申告内容ID
+        zhujiaoTel: "", // 主叫号
+        adslAccount: "", // ADSL号
+        iptvAccount: "", // IPTV业务账号
+        piaType: "", // 普话产品类别
+        telNum: "", // 故障号码
         isCrBalk: -1, // 是不是亲自上门
       },
       showDocType: false, // 控制产品类别选项
       docTypeList: [
-        { id: 1, name: '语音' },
-        { id: 3, name: '宽带' },
-        { id: 6, name: 'IPTV' },
+        { id: 1, name: "语音" },
+        { id: 3, name: "宽带" },
+        { id: 6, name: "IPTV" },
       ],
-      currDocType: '', // 产品类别
+      currDocType: "", // 产品类别
       showDecType: false, // 控制产品申告类别选项
       decTypeList: [],
-      currDecType: '', // 产品申告类别
+      currDecType: "", // 产品申告类别
       showDecCont: false, // 控制产品申告内容选项
       decContList: [],
-      currDecCont: '', // 产品申告内容
-    }
+      currDecCont: "", // 产品申告内容
+    };
   },
-  created () {
-    this.decTypeList = declarationList.map(e => {
-      return { id: e.id, name: e.name }
-    })
+  created() {
+    this.decTypeList = declarationList.map((e) => {
+      return { id: e.id, name: e.name };
+    });
   },
   methods: {
-    async submit () {
-      if (this.formData.isCrBalk == -1) return this.$toast(`请选择是否${this.userName}亲自上门`)
-      if (this.formData.allegeCustName == '') return this.$toast('请输入申告人姓名')
-      if (this.formData.allegeCustPhone1 == '' && this.formData.allegeCustPhone2 == '') return this.$toast('联系方式至少输入一项')
-      if (this.formData.telNum == '') return this.$toast('请输入故障号码')
+    async submit() {
+      if (this.formData.isCrBalk == -1)
+        return this.$toast(`请选择是否${this.userName}亲自上门`);
+      if (this.formData.allegeCustName == "")
+        return this.$toast("请输入申告人姓名");
+      if (
+        this.formData.allegeCustPhone1 == "" &&
+        this.formData.allegeCustPhone2 == ""
+      )
+        return this.$toast("联系方式至少输入一项");
+      if (this.formData.telNum == "") return this.$toast("请输入故障号码");
       if (this.formData.telNum.length == 8) {
-        var str = this.formData.telNum.substr(0, 1)
-        if (str !== '8' && str !== '6') return this.$toast('故障号码格式不正确')
+        var str = this.formData.telNum.substr(0, 1);
+        if (str !== "8" && str !== "6")
+          return this.$toast("故障号码格式不正确");
       } else if (this.formData.telNum.length == 11) {
-        var str = this.formData.telNum.substr(0, 3)
-        if (str !== '010') return this.$toast('故障号码格式不正确')
+        var str = this.formData.telNum.substr(0, 3);
+        if (str !== "010") return this.$toast("故障号码格式不正确");
       } else {
-        this.$toast('故障号码格式不正确')
+        this.$toast("故障号码格式不正确");
       }
-      if (this.currDocType == '') return this.$toast('请选择产品类别')
-      if (this.currDecType == '') return this.$toast('请选择产品申告类别')
-      if (this.currDecCont == '') return this.$toast('请选择产品申告内容')
-      if (this.formData.balkContent == '') return this.$toast('请输入故障现象')
-      let data = await IfmBalkAcceptApi(JSON.stringify(this.formData))
+      if (this.currDocType == "") return this.$toast("请选择产品类别");
+      if (this.currDecType == "") return this.$toast("请选择产品申告类别");
+      if (this.currDecCont == "") return this.$toast("请选择产品申告内容");
+      if (this.formData.balkContent == "") return this.$toast("请输入故障现象");
+      let data = await IfmBalkAcceptApi(JSON.stringify(this.formData));
       // console.log(data);
       if (data.operationSuccessFlag) {
-        this.$toast.fail(data.successMessage)
-        this.$emit('changeShow')
+        this.$toast.fail(data.successMessage);
+        this.$emit("changeShow");
       } else {
-        this.$toast.fail(data.errorMessage)
+        this.$toast.fail(data.errorMessage);
       }
     },
-    selectDecCont (item) {
-      this.formData.paAllegeContentId = item.id
-      this.currDecCont = item.name
-      this.showDecCont = false
+    selectDecCont(item) {
+      this.formData.paAllegeContentId = item.id;
+      this.currDecCont = item.name;
+      this.showDecCont = false;
     },
-    selectDecType (item) {
-      this.formData.paAllegeTypeId = item.id
-      this.currDecType = item.name
-      this.showDecType = false
-      this.decContList = declarationList.find(e => e.id == item.id).children
+    selectDecType(item) {
+      this.formData.paAllegeTypeId = item.id;
+      this.currDecType = item.name;
+      this.showDecType = false;
+      this.decContList = declarationList.find((e) => e.id == item.id).children;
     },
-    selectDocType (item) {
-      this.formData.piaType = item.id
-      this.currDocType = item.name
-      this.showDocType = false
+    selectDocType(item) {
+      this.formData.piaType = item.id;
+      this.currDocType = item.name;
+      this.showDocType = false;
     },
   },
-}
+};
 </script>
 
 <style lang="less" scoped>

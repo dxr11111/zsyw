@@ -1,24 +1,24 @@
 <template>
-  <div>
+  <div class="loginMore">
     <!-- 点击更多 -->
     <van-overlay :show="moreListShow" @click="$emit('changeMoreShow')">
       <div class="wrapper">
         <div class="moreList" v-if="moreListShow">
           <ul @click.stop>
             <li @click="scanEv">
-              <img src="@/assets/imgs/scan.png" alt="" />
+              <img src="@/assets/images/common/scan.png" alt="" />
               <span>扫码下载</span>
             </li>
             <li @click="installEv">
-              <img src="@/assets/imgs/install.png" alt="" />
+              <img src="@/assets/images/common/install.png" alt="" />
               <span>下载安装</span>
             </li>
             <li v-if="isChangeNo" @click="switchEv">
-              <img src="@/assets/imgs/switch.png" alt="" />
+              <img src="@/assets/images/common/switch.png" alt="" />
               <span>切换账号</span>
             </li>
             <li @click="resetEv">
-              <img src="@/assets/imgs/reset.png" alt="" />
+              <img src="@/assets/images/common/reset.png" alt="" />
               <span>密码重置</span>
             </li>
           </ul>
@@ -55,17 +55,17 @@
 </template>
 
 <script>
-import { getItem, removeItem } from "@/utils/sessionStorage"
+import { getItem, removeItem } from "@/utils/public/sessionStorage";
 export default {
   props: {
     // 是否是主登录页
     isLogin: {
       type: Boolean,
-      default: true
+      default: true,
     },
     isLoginInfo: {
       type: Boolean,
-      default: false
+      default: false,
     },
     // isChangeNo: {
     //   type: Boolean,
@@ -73,10 +73,10 @@ export default {
     // },
     moreListShow: {
       type: Boolean,
-      default: false
+      default: false,
     },
   },
-  data () {
+  data() {
     return {
       // moreListShow: false,
       pwdResetShow: false,
@@ -84,35 +84,35 @@ export default {
       // 密码重置
       resetLoginNo: "",
       resetMobile: "",
-    }
+    };
   },
-  created () {
+  created() {
     if (!this.isLogin) {
-      this.isChangeNo = true
+      this.isChangeNo = true;
     }
     // if (localStorage.getItem("loginNo") && this.isLogin) {
     //   this.isChangeNo = true
     // }
     if (this.isLoginInfo) {
-      this.isChangeNo = true
+      this.isChangeNo = true;
     }
   },
   methods: {
     // 点击扫码下载
-    scanEv () {
-      this.$router.push("/qrcode")
+    scanEv() {
+      this.$router.push("/qrcode");
     },
     // 点击下载安装
-    installEv () { },
+    installEv() {},
     // 点击切换账号
-    async switchEv () {
+    async switchEv() {
       // 关闭更多界面
-      this.$emit('changeMoreShow')
+      this.$emit("changeMoreShow");
       // 调用退出登录接口
-      await this.$store.dispatch("getLoginOut")
+      await this.$store.dispatch("getLoginOut");
       // 清空本地登录信息
-      removeItem("loginInfo")
-      this.isChangeNo = false
+      removeItem("loginInfo");
+      this.isChangeNo = false;
       // 切换账号/退出登录时要清除本地存储的userInfo,页面显示上一次登录名从本地存储loginNo获取
       // if (getItem("loginNo")) {
       //   this.loginNo = getItem("loginNo")
@@ -120,50 +120,47 @@ export default {
 
       if (!this.isLogin) {
         // this.$router.push('/login')
-        this.$router.push('/passLogin')
+        this.$router.push("/passLogin");
       } else {
-        this.$parent.changeIsLogin()
+        this.$parent.changeIsLogin();
       }
     },
     // 点击密码重置
-    resetEv () {
-      this.pwdResetShow = true
+    resetEv() {
+      this.pwdResetShow = true;
     },
     //取消密码重置
-    cancelPwdReset () {
-      this.pwdResetShow = false
-      this.resetLoginNo = ""
-      this.resetMobile = ""
+    cancelPwdReset() {
+      this.pwdResetShow = false;
+      this.resetLoginNo = "";
+      this.resetMobile = "";
     },
     // 提交密码重置
-    async submitPwdReset () {
-      if (this.resetLoginNo == "" || this.resetMobile == "") return this.$toast("账号或手机号不能为空")
-      if (this.resetMobile.length !== 11) return this.$toast('手机号长度不正确')
+    async submitPwdReset() {
+      if (this.resetLoginNo == "" || this.resetMobile == "")
+        return this.$toast("账号或手机号不能为空");
+      if (this.resetMobile.length !== 11)
+        return this.$toast("手机号长度不正确");
       //调用接口
-      let loginNo = this.resetLoginNo
-      let mobile = this.resetMobile
+      let loginNo = this.resetLoginNo;
+      let mobile = this.resetMobile;
       // let loginNo = "yangyp";
       // let mobile = "18600099891";
-      let postData = { loginNo, mobile }
+      let postData = { loginNo, mobile };
       try {
         let result = await this.$store.dispatch(
           "getpwdReset",
           JSON.stringify(postData)
-        )
-        if (result.operationSuccessFlag) {
-          // 接口返回成功
-          this.$toast(result.successMessage)
-          this.pwdResetShow = false
-        } else {
-          // 接口返回失败
-          this.$toast(result.errorMessage)
-        }
+        );
+        this.apiResponse(result, ".loginMore", () => {
+          this.pwdResetShow = false;
+        });
       } catch (error) {
-        console.log("err", error)
+        console.log("err", error);
       }
     },
   },
-}
+};
 </script>
 
 <style scoped lang="less">

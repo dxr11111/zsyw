@@ -164,7 +164,7 @@ export default {
       $("#tabjz").show();
       let result = this.dayInfo;
       console.log("断站数据", result);
-      if (result.operationSuccessFlag) {
+      this.apiResponse(result, ".dayInfo", () => {
         let khBean = result.ifmTDwKhBean;
         $("#dzscspm").text("断站时长市排名：" + khBean.rankTotal);
         $("#dzscxwgpm").text("断站时长小网格排名：" + khBean.rankXwg);
@@ -424,7 +424,7 @@ export default {
         };
         //使用刚刚指定的配置项和数据项显示图表
         myDxqChart.setOption(optionDxq);
-      }
+      });
     },
     async getDayXQ(postData2) {
       await this.$store.dispatch(
@@ -434,7 +434,7 @@ export default {
       $("#tabxq").show();
       let result = this.dayInfo;
       console.log("小区数据", result);
-      if (result.operationSuccessFlag) {
+      this.apiResponse(result, ".dayInfo", () => {
         let khBean = result.ifmTDwKhBean;
         $("#xqs").text(khBean.totalCount);
         $("#dxqscspm").text("断小区市排名：" + khBean.rankTotal);
@@ -446,7 +446,7 @@ export default {
         $("#dxqscylj").text(khBean.monthShichang);
         $("#dxql").text(khBean.rate);
         $("#dxqlylj").text(khBean.monthRate);
-      }
+      });
     },
   },
   mounted() {},

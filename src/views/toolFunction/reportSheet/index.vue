@@ -68,11 +68,11 @@
 
 <script>
 import axios from "axios";
-import { getItem } from '@/utils/sessionStorage'
+import { getItem } from "@/utils/public/sessionStorage";
 import $, { data } from "jquery";
 export default {
   name: "ReportSheet",
-  data () {
+  data() {
     return {
       name: "建设工单报表",
       loginNo: "", // admin qiwm1 Zhangxf
@@ -125,7 +125,7 @@ export default {
   },
   methods: {
     // 旋转
-    setLandScape () {
+    setLandScape() {
       var width = document.documentElement.clientWidth;
       var height = document.documentElement.clientHeight;
       if (width < height) {
@@ -137,7 +137,7 @@ export default {
       }
     },
     // 点击一级按钮
-    clickButton (item, index) {
+    clickButton(item, index) {
       this.currentButton = index;
       // 判断室分日报是否显示
       if (item.name !== "室分日报") {
@@ -168,7 +168,7 @@ export default {
       this.getTable();
     },
     // 点击室分日报出来的按钮
-    clickSFButton (item, index) {
+    clickSFButton(item, index) {
       this.currentSFList = index;
       // 判断室分日报类型
       this.sfType = item.sfType;
@@ -176,7 +176,7 @@ export default {
       this.getTable();
     },
     // 点击宏站报表
-    clickHZButton (item, index) {
+    clickHZButton(item, index) {
       this.currentHZList = index;
       // 判断宏站报表选项
       this.sfType = item.sfType;
@@ -192,7 +192,7 @@ export default {
       this.getTable();
     }, */
     // 根据不同权限获取setting中的按钮
-    async getSetting () {
+    async getSetting() {
       // 发送请求 获取按钮权限
       // 测试
       /* this.company = "0";
@@ -246,7 +246,7 @@ export default {
       // this.getTable();
     },
     // 获取后台传过来的权限参数和表格
-    async getTable () {
+    async getTable() {
       const loginNo = this.loginNo;
       const isAll = this.isAll;
       const type = this.sfType;
@@ -308,17 +308,17 @@ export default {
       }
     },
   },
-  mounted () {
+  mounted() {
     // this.getTable();
     this.setLandScape();
   },
-  created () {
-    let userIds = getItem('loginInfo').userIds
-    userIds.forEach(e => {
+  created() {
+    let userIds = getItem("loginInfo").userIds;
+    userIds.forEach((e) => {
       if (e.sysId == 11) {
-        this.loginNo = e.accountId
+        this.loginNo = e.accountId;
       }
-    })
+    });
     this.getSetting();
   },
 };

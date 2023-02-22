@@ -87,95 +87,95 @@
 </template>
 
 <script>
-import { formatTime } from '@/utils/common'
+import { formatTime } from "@/utils/public/common";
 export default {
   props: {
     total: {
       type: String,
-      default: ''
+      default: "",
     },
     baseInfoList: {
       type: Array,
-      default: []
-    }
+      default: [],
+    },
   },
-  data () {
+  data() {
     return {
       headName: `基站查询结果(${this.total})`,
-      activeNames: ['1'],
+      activeNames: ["1"],
       showOptions: false,
       optionsList: [
-        { id: 1, name: 'BBU' },
-        { id: 2, name: 'RRU' },
-        { id: 3, name: '天馈' },
-        { id: 4, name: '传输' },
-        { id: 5, name: '动力' },
-        { id: 6, name: '安防' },
-        { id: 7, name: '其它' },
+        { id: 1, name: "BBU" },
+        { id: 2, name: "RRU" },
+        { id: 3, name: "天馈" },
+        { id: 4, name: "传输" },
+        { id: 5, name: "动力" },
+        { id: 6, name: "安防" },
+        { id: 7, name: "其它" },
       ],
       selectedOpt: [],
-      currIndex: '', // 当前点击的列表索引
-      currItem: '', // 当前点击的列表
+      currIndex: "", // 当前点击的列表索引
+      currItem: "", // 当前点击的列表
       doms: [],
       checked: [], // 复选框状态
       checkedInfo: [], // 选择的基站列表
-    }
+    };
   },
-  mounted () {
-    this.doms = document.getElementsByClassName('van-field__control')
-    console.log(this.baseInfoList)
+  mounted() {
+    this.doms = document.getElementsByClassName("van-field__control");
+    console.log(this.baseInfoList);
     // 方便添加/替换是第几个数据，想不到其他方法，先使用这个
     for (let i = 0; i < this.baseInfoList.length; i++) {
-      this.selectedOpt.push('')
-      this.checked.push(false)
+      this.selectedOpt.push("");
+      this.checked.push(false);
     }
   },
   methods: {
-    submit () {
-      let arr = []
+    submit() {
+      let arr = [];
       this.checkedInfo.forEach((e, i) => {
-        if (e.guzhangshebei !== '') {
-          arr.push(i)
-        } 
-      })
+        if (e.guzhangshebei !== "") {
+          arr.push(i);
+        }
+      });
       // console.log('选择的基站列表长度和已选择的故障设备长度', this.checkedInfo.length, arr.length);
       if (this.checkedInfo.length == arr.length) {
-        this.$emit('change', this.checkedInfo)
-        this.$emit('updateIsIndex')
+        this.$emit("change", this.checkedInfo);
+        this.$emit("updateIsIndex");
       } else {
-        this.$toast('请选择故障设备')
+        this.$toast("请选择故障设备");
       }
     },
     // 点击选择框事件(点击时候输出的值还未改变，所以逻辑是相反的)
-    selectedInfo (item, index) {
+    selectedInfo(item, index) {
       // console.log('当前点击的状态', this.checked[index]);
       if (this.checked[index]) {
-        var i = this.checkedInfo.findIndex(e => e.siteName == item.siteName)
-        this.checkedInfo.splice(i, 1)
+        var i = this.checkedInfo.findIndex((e) => e.siteName == item.siteName);
+        this.checkedInfo.splice(i, 1);
       } else {
-        this.checkedInfo.push(item)
+        this.checkedInfo.push(item);
       }
-      console.log('选择的基站列表', this.checkedInfo)
+      console.log("选择的基站列表", this.checkedInfo);
     },
     // 打开选择故障设备，记录当前点击的基站信息
-    openChoose (item, index) {
-      this.showOptions = true
-      this.currIndex = index
-      this.currItem = item
+    openChoose(item, index) {
+      this.showOptions = true;
+      this.currIndex = index;
+      this.currItem = item;
     },
-    selectOption (item) {
-      this.selectedOpt.splice(this.currIndex, 1, item.name)
+    selectOption(item) {
+      this.selectedOpt.splice(this.currIndex, 1, item.name);
       // 根据当前点击的基站信息，把选择的故障设备id传给对应的项
       for (let i = 0; i < this.checkedInfo.length; i++) {
-        const ele = this.checkedInfo[i]
+        const ele = this.checkedInfo[i];
         if (ele.siteName == this.currItem.siteName) {
-          ele.guzhangshebei = String(item.id)
+          ele.guzhangshebei = String(item.id);
         }
       }
-      this.showOptions = false
+      this.showOptions = false;
     },
   },
-}
+};
 </script>
 
 <style scoped lang="less">
@@ -200,7 +200,7 @@ export default {
         color: #5a90fd;
       }
       ::v-deep .van-field__body::after {
-        content: '▼';
+        content: "▼";
         color: gray;
         position: absolute;
         right: -3px;

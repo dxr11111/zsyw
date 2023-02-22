@@ -1,4 +1,4 @@
-import { getItem, removeItem, setItem } from '@/utils/sessionStorage'
+import { getItem, removeItem, setItem } from '@/utils/public/sessionStorage'
 
 const state = {
     mainSrollTop: getItem('mainSrollTop') || 0, // 工作台页面滚轴置顶高度
@@ -11,11 +11,11 @@ const state = {
 
 };
 const mutations = {
-    CHANGEMAINSCROLLTOP (state, result) {
+    CHANGEMAINSCROLLTOP(state, result) {
         setItem('mainSrollTop', result)
         state.mainSrollTop = result
     },
-    CHANGECALLNUMBERSTATE (state, result) {
+    CHANGECALLNUMBERSTATE(state, result) {
         state.callNumberState = result
     },
 

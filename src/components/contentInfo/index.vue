@@ -80,22 +80,19 @@
 
 <script>
 import { mapState, mapGetters } from "vuex";
-import { reqIfmShowButton } from '@/http'
-import { reqArrive } from '@/http/button'
-import { matchButton } from '@/utils/button'
-
-import { getItem, } from "@/utils/sessionStorage"
+import { reqIfmShowButton } from "@/http";
+import { reqArrive } from "@/http/button";
+import { matchButton } from "@/utils/public/button";
 
 export default {
   name: "ContentInfo",
   props: ["contentInfo"],
-  data () {
+  data() {
     return {
       // 是否展开列表
       oddInfoShow: false,
       tagArr: [], // 标识对应颜色及名称
       buttonList: this.contentInfo.button, // 按钮
-
     };
   },
   computed: {
@@ -103,85 +100,86 @@ export default {
   },
   methods: {
     // 根据sysId判断工单颜色
-    judgeColTitleColor () {
-      let sysId = this.contentInfo.sysId
-      if (sysId == 1 || sysId == 12) return 'order colTitle colTitle2'
-      if (sysId == 3 || sysId == 9) return 'order colTitle colTitle3'
-      if (sysId == 2 || sysId == 10 || sysId == 7 || sysId == 11) return 'order colTitle colTitle1'
-
+    judgeColTitleColor() {
+      let sysId = this.contentInfo.sysId;
+      if (sysId == 1 || sysId == 12) return "order colTitle colTitle2";
+      if (sysId == 3 || sysId == 9) return "order colTitle colTitle3";
+      if (sysId == 2 || sysId == 10 || sysId == 7 || sysId == 11)
+        return "order colTitle colTitle1";
     },
     // 根据自定义序号判断tag颜色
-    judgeSheetLogoColor (num) {
+    judgeSheetLogoColor(num) {
       switch (num) {
-        case '1':
-          return 'colTitle colTitle1'
-        case '2':
-          return 'colTitle colTitle2';
-        case '3':
-          return 'colTitle colTitle3';
-        case '4':
-          return 'colTitle colTitle4';
-        case '5':
-          return 'colTitle colTitle5';
-        case '6':
-          return 'colTitle colTitle6';
+        case "1":
+          return "colTitle colTitle1";
+        case "2":
+          return "colTitle colTitle2";
+        case "3":
+          return "colTitle colTitle3";
+        case "4":
+          return "colTitle colTitle4";
+        case "5":
+          return "colTitle colTitle5";
+        case "6":
+          return "colTitle colTitle6";
       }
     },
     // 获取标识字段及颜色
-    getTag () {
+    getTag() {
       // e.g. 1,svip|2,测速
-      let tag = this.contentInfo.sheetLogo
+      let tag = this.contentInfo.sheetLogo;
       if (tag?.length > 0) {
-        let arr1 = tag.split('|')
-        let arr = []
-        arr1.forEach(item => {
-          let obj = {}
-          obj.color = item.split(',')[0]
-          obj.name = item.split(',')[1]
+        let arr1 = tag.split("|");
+        let arr = [];
+        arr1.forEach((item) => {
+          let obj = {};
+          obj.color = item.split(",")[0];
+          obj.name = item.split(",")[1];
           // 判断tag颜色
-          obj.class = this.judgeSheetLogoColor(item.split(',')[0])
-          arr.push(obj)
+          obj.class = this.judgeSheetLogoColor(item.split(",")[0]);
+          arr.push(obj);
         });
-        this.tagArr = arr
+        this.tagArr = arr;
       } else {
         // 没有标识字段
-        this.tagArr = []
-
+        this.tagArr = [];
       }
-
-
     },
     // 点击按钮
-    async clickoddOption (buttonId, contentInfo) {
+    async clickoddOption(buttonId, contentInfo) {
       // 点击更多按钮获取按钮接口
-      if (buttonId == 'more') {
-        let result = await reqIfmShowButton(JSON.stringify({ id: contentInfo.id }))
-        this.apiResponse(result, '.userInfo', () => {
-          this.buttonList = result.buttonList
-        })
-
+      if (buttonId == "more") {
+        let result = await reqIfmShowButton(
+          JSON.stringify({ id: contentInfo.id })
+        );
+        this.apiResponse(result, ".userInfo", () => {
+          this.buttonList = result.buttonList;
+        });
       }
 
       // 将值传给按钮
       // 我已到达需要在页面展示弹出框
-      if (buttonId == 'arrive') {
-        this.$dialog.confirm({
-          title: '您是否操作我已到达？',
-          className: 'confirmDialog',
-          getContainer: '.workbench'
-        })
+      if (buttonId == "arrive") {
+        this.$dialog
+          .confirm({
+            title: "您是否操作我已到达？",
+            className: "confirmDialog",
+            getContainer: ".workbench",
+          })
           .then(async () => {
-            let id = contentInfo.id // 工单唯一标识
-            let longitude = '' // 经度
-            let latitude = '' // 纬度
-            let address = '' // 所属地址
+            let id = contentInfo.id; // 工单唯一标识
+            let longitude = ""; // 经度
+            let latitude = ""; // 纬度
+            let address = ""; // 所属地址
             try {
-              let result = await reqArrive(JSON.stringify({ id, longitude, latitude, address }))
-              this.apiResponse(result, '.listDetail', () => {
+              let result = await reqArrive(
+                JSON.stringify({ id, longitude, latitude, address })
+              );
+              this.apiResponse(result, ".listDetail", () => {
                 // 操作成功刷新页面并跳转到沃推荐
-              })
+              });
             } catch (error) {
-              console.log('err', error)
+              console.log("err", error);
             }
           })
           .catch(() => {
@@ -189,23 +187,22 @@ export default {
           });
       } else {
         // 其他按钮
-        let isOperate = await matchButton(contentInfo, buttonId)
+        let isOperate = await matchButton(contentInfo, buttonId);
         if (isOperate) {
           // 只调用接口按钮操作成功 刷新工单详情/工作台
-          this.operationSuccessRefresh(true)
-
+          this.operationSuccessRefresh(true);
         }
       }
     },
     // 点击待办里的用户单号信息
-    clickTodoUserInfo () {
+    clickTodoUserInfo() {
       this.oddInfoShow = !this.oddInfoShow;
     },
     // 点击列表详情
-    listDetail (contentInfo) {
+    listDetail(contentInfo) {
       // console.log('详情', contentInfo);
-      let mainSrollTop = document.querySelector('.main')?.scrollTop//获取滚动高度
-      this.$store.commit('workBench/CHANGEMAINSCROLLTOP', mainSrollTop)
+      let mainSrollTop = document.querySelector(".main")?.scrollTop; //获取滚动高度
+      this.$store.commit("workBench/CHANGEMAINSCROLLTOP", mainSrollTop);
 
       // this.scroll = wrapperScrollTop;
       // 建设工单详情页参数不一样
@@ -215,7 +212,7 @@ export default {
           query: {
             uniqueIdentification: contentInfo.uniqueIdentification,
             baseId: contentInfo.orderId,
-            taskId: contentInfo.taskId
+            taskId: contentInfo.taskId,
           },
         });
       } else if (contentInfo.sysId == 12) {
@@ -224,11 +221,10 @@ export default {
           name: "ListDetail",
           query: {
             baseId: contentInfo.orderId,
-            taskId: contentInfo.taskId
+            taskId: contentInfo.taskId,
           },
         });
-      }
-      else {
+      } else {
         // 跳转到列表详情
         this.$router.push({
           name: "ListDetail",
@@ -237,24 +233,20 @@ export default {
           },
         });
       }
-
     },
   },
-  created () {
+  created() {
     // 获取标识颜色及名称
-    this.getTag()
+    this.getTag();
   },
-  mounted () {
-
-  }
+  mounted() {},
 };
-
 </script>
 
 <style scoped lang="less">
 // @import "@/assets/css/mixin.less";
-@import '@/assets/css/theme.less';
-@fontFamily: 'PingFangSC-Medium, PingFang SC';
+@import "@/assets/css/theme.less";
+@fontFamily: "PingFangSC-Medium, PingFang SC";
 .userInfo {
   width: 100%;
   // height: 106px;

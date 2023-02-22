@@ -127,17 +127,22 @@
 </template>
 
 <script>
-import { formatDate } from '@/utils/common'
-import { ApplyInstApi, ReqRecordApi, InstChangeApi, InstChangeResultApi } from '@/http/tools'
-import { getItem } from "@/utils/sessionStorage"
+import { formatDate } from "@/utils/public/common";
+import {
+  ApplyInstApi,
+  ReqRecordApi,
+  InstChangeApi,
+  InstChangeResultApi,
+} from "@/http/tools";
+import { getItem } from "@/utils/public/sessionStorage";
 export default {
-  name: 'TerminalDevice',
+  name: "TerminalDevice",
   data() {
     return {
-      userInfo: getItem('loginInfo'),
-      sn: '', // 终端串号
-      mac: '', // MAC地址
-      deviceType: '1', // 设备类型
+      userInfo: getItem("loginInfo"),
+      sn: "", // 终端串号
+      mac: "", // MAC地址
+      deviceType: "1", // 设备类型
       timeKey: formatDate(new Date()),
       minDate: new Date(2020, 6, 3),
       maxDate: new Date(2100, 12, 1),
@@ -145,82 +150,92 @@ export default {
       showTime: false,
       resultList: [], // 查询结果
       instList: [], // 转让数据
-    }
+    };
   },
   created() {
-    this.getInstList()
+    this.getInstList();
   },
   methods: {
-     applyBtn(type, obj) {
-      this.$dialog.confirm({
-        title: '提示',
-        message: `您确认${type == 2 ? '拒绝' : ''}转让嘛？`,
-        confirmButtonColor: '#1989fa'
-      }).then(async() => {
-        let params = {
-          ...obj,
-          result: type, //	转让结果
-          applyUserCode: obj.userCode, //	申请人身份证号
-          applyUserName: obj.userName, //	申请人姓名
-          userName: this.userInfo.userName,
-          userCode: this.userInfo.loginNo
-        }
-        let data = await InstChangeResultApi(JSON.stringify(params))
-        // console.log(data)
-        data.operationSuccessFlag ? this.$toast.success(data.successMessage) : this.$toast.fail(data.errorMessage)
-      }).catch()
+    applyBtn(type, obj) {
+      this.$dialog
+        .confirm({
+          title: "提示",
+          message: `您确认${type == 2 ? "拒绝" : ""}转让嘛？`,
+          confirmButtonColor: "#1989fa",
+        })
+        .then(async () => {
+          let params = {
+            ...obj,
+            result: type, //	转让结果
+            applyUserCode: obj.userCode, //	申请人身份证号
+            applyUserName: obj.userName, //	申请人姓名
+            userName: this.userInfo.userName,
+            userCode: this.userInfo.loginNo,
+          };
+          let data = await InstChangeResultApi(JSON.stringify(params));
+          // console.log(data)
+          data.operationSuccessFlag
+            ? this.$toast.success(data.successMessage)
+            : this.$toast.fail(data.errorMessage);
+        })
+        .catch();
     },
     async getInstList() {
-      let data = await InstChangeApi(JSON.stringify(''))
-      this.instList = data.result
+      let data = await InstChangeApi(JSON.stringify(""));
+      this.instList = data.result;
     },
     async searchReq() {
-      if (this.timeKey == null) return this.$toast('请选择查询时间')
-      let data = await ReqRecordApi(JSON.stringify({ applyDate: this.timeKey }))
-      console.log(data)
-      this.resultList = data.result
+      if (this.timeKey == null) return this.$toast("请选择查询时间");
+      let data = await ReqRecordApi(
+        JSON.stringify({ applyDate: this.timeKey })
+      );
+      console.log(data);
+      this.resultList = data.result;
     },
     formalType(key, value) {
-      if (key == '6') {  
-        value = '沃家产品'
-      } else if (key == '4') {
-        value = 'IPTV'
+      if (key == "6") {
+        value = "沃家产品";
+      } else if (key == "4") {
+        value = "IPTV";
       } else {
-        value = 'ONU'
+        value = "ONU";
       }
-      return value
+      return value;
     },
     chooseTime(value) {
-      this.timeKey = formatDate(value)
-      this.showTime = false
+      this.timeKey = formatDate(value);
+      this.showTime = false;
     },
     formatter(type, val) {
-      if (type === 'year') {
-        return val + '年'
+      if (type === "year") {
+        return val + "年";
       }
-      if (type === 'month') {
-        return val + '月'
+      if (type === "month") {
+        return val + "月";
       }
-      if (type === 'day') {
-        return val + '日'
+      if (type === "day") {
+        return val + "日";
       }
-      return val
+      return val;
     },
     async submit() {
-      if (this.sn == '' && this.mac == '') return this.$toast('MAC地址和终端串号不能同时为空')
+      if (this.sn == "" && this.mac == "")
+        return this.$toast("MAC地址和终端串号不能同时为空");
       let params = {
         sn: this.sn, //	终端串号
         mac: this.mac, //	MAC地址
         resourceTypeId: this.deviceType, //	设备类型
-      }
-      let data = await ApplyInstApi(JSON.stringify(params))
-      console.log(data)
-      data.operationSuccessFlag ? this.$toast.success(data.successMessage) : this.$toast.fail(data.errorMessage)
-      this.sn = ''
-      this.mac = ''
-    }
+      };
+      let data = await ApplyInstApi(JSON.stringify(params));
+      console.log(data);
+      data.operationSuccessFlag
+        ? this.$toast.success(data.successMessage)
+        : this.$toast.fail(data.errorMessage);
+      this.sn = "";
+      this.mac = "";
+    },
   },
-}
+};
 </script>
 
 <style scoped lang="less">

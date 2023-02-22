@@ -422,7 +422,7 @@
         </div>
         <!-- 故障单选择的类别 -->
         <template v-if="code == 3 && ifmCode == 1">
-          <div style="font-size: 14px; text-align: left">
+          <div style="font-size: 14px; text-align: left" v-if="selectedList.length > 0">
             {{ currItem == "全部" ? "" : `已选择${currItem}：` }}
             <span v-for="(item, index) in selectedList" :key="index"
               >{{ item.name }}&nbsp;
@@ -448,19 +448,19 @@
 </template>
 
 <script>
-import { formatDate, formatTime } from "@/utils/common";
+import { formatDate, formatTime } from "@/utils/public/common"
 import {
-  sysIdType,
-  specProdTypeList,
-  publicSpecialList,
-  jzdProStateList,
-  jndProList,
-  jndTypeList,
-  jzdProCodeList,
-  typeList,
-  MonitIndList,
-} from "@/utils/gdMethods/index";
-import { getItem } from "@/utils/sessionStorage";
+  sysIdType,
+  specProdTypeList,
+  publicSpecialList,
+  jzdProStateList,
+  jndProList,
+  jndTypeList,
+  jzdProCodeList,
+  typeList,
+  MonitIndList,
+} from "@/utils/gdMethods/index"
+import { getItem } from "@/utils/public/sessionStorage"
 export default {
   props: {
     sysId: Number,
@@ -815,6 +815,11 @@ export default {
             // 目前只有局内是下拉选择式，如果后面有，需要再加条件判断，这块需重新调整
             this.workType = obj.workType;
           }
+          // 优化单
+          if (this.ifmCode == 6) {
+            this.busiNameList = MonitIndList.find((e) => e.id == obj.workType).children;
+            // console.log('优化单制式', this.busiNameList)
+          }
         }
         this.actionType = obj.actionType || "";
         this.svip = obj.svip || "";
@@ -865,6 +870,7 @@ export default {
         if (obj.specProdType) {
           // 故障单
           if (this.ifmCode == 1) {
+            this.specProdType = obj.specProdType
             let arr = obj.specProdType.split(",");
             for (let i = 0; i < specProdTypeList.length; i++) {
               const ele = specProdTypeList[i];
@@ -955,7 +961,7 @@ export default {
     },
     // 选择框式选择
     onSelectFlowNode(item) {
-      // 局内./
+      // 局内
       if (this.sysId == 7) {
         this.showFlowNodeChoice = false;
         this.flowNode = item.id;
@@ -1059,6 +1065,8 @@ export default {
 
       // 优化单监控指标逻辑
       if (this.ifmCode == 6) {
+        // 切换制式的时候要清空下面选择的监控指标
+        this.busiName = ''
         if (!item.id)  {
           this.busiNameList = []
           MonitIndList.forEach((e) => {
@@ -1210,7 +1218,12 @@ export default {
       // 任务筛选工单种类
       if (this.isTask == 1) {
         let sysIds = this.code ? this.code : -1;
-        siftNum = siftNum + 1;
+        if (this.code == '') {
+          siftNum = 0
+        } else {
+          siftNum = siftNum + 1;
+        }
+        delete siftPara.ifmSysId // 任务筛选不需要传这个参数
         // console.log('任务筛选工单种类', sysIds);
         this.$emit("getSiftPara", siftPara, siftNum, sysIds);
       } else {

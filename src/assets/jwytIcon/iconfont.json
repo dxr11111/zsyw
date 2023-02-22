@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "5922285",
+      "name": "151_圆缓冲",
+      "font_class": "_yuanhuanchong",
+      "unicode": "e60f",
+      "unicode_decimal": 58895
+    },
+    {
+      "icon_id": "23036351",
+      "name": "更多",
+      "font_class": "gengduo",
+      "unicode": "e619",
+      "unicode_decimal": 58905
+    },
+    {
       "icon_id": "7588168",
       "name": "24gf-camera2",
       "font_class": "24gf-camera2",

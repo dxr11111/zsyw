@@ -1,5 +1,10 @@
 import requests from './request'
 
+// 故障 -- 开通超时可免
+export const SaveOverTimeApi = (postData) => {
+    return requests({ method: 'post', url: '/operation/ifm/ifmSaveOverTimeExemption', data: `data=${postData}` })
+}
+
 // 自动下发
 export const IdmIssueAutoInfoApi = (postData) => {
     return requests({ method: 'post', url: '/operation/idm/idmIssueAuto', data: `data=${postData}` })
@@ -196,9 +201,17 @@ export const reqUnFocusToday = (postData) => {
 export const reqSign = (postData) => {
     return requests({ method: 'post', url: '/operation/taskSign', data: `data=${postData}` })
 }
+// 领单
+export const reqFetch = (postData) => {
+    return requests({ method: 'post', url: '/operation/ifm/fetch', data: `data=${postData}` })
+}
 // 确认驳回
 export const reqConfirmReject = (postData) => {
     return requests({ method: 'post', url: '/operation/ifm/confirmReject', data: `data=${postData}` })
+}
+// 局内确认驳回
+export const reqJnddBackRejectConfirm = (postData) => {
+    return requests({ method: 'post', url: '/operation/jndd/jnddBackRejectConfirm;', data: `data=${postData}` })
 }
 
 // 预约
@@ -316,6 +329,11 @@ export const reqifmFinish = (postData) => {
 export const reqFinishQuery = (postData) => {
     return requests({ method: 'post', url: '/operation/ifm/ifmFinishQuery', data: `data=${postData}` })
 }
+// 根据任务查工单
+export const reqFinishQueryByTask = (postData) => {
+    return requests({ method: 'post', url: '/operation/ifm/ifmFinishQueryByTask', data: `data=${postData}` })
+}
+
 
 // 零配置
 // 零配置前查询
@@ -421,6 +439,11 @@ export const reqIomNewQueryFloorInfo = (postData) => {
 // 退工单-修改标准地址-查单元，楼层，房间
 export const reqIomNewQueryUitInfo = (postData) => {
     return requests({ method: 'post', url: '/operation/iomNew/iomNewQueryUitInfo', data: `data=${postData}` })
+}
+
+// 修改标准地址
+export const reqIomNewEditAddress = (postData) => {
+    return requests({ method: 'post', url: '/operation/iomNew/iomNewEditAddress', data: `data=${postData}` })
 }
 
 // 设备查询
@@ -586,9 +609,17 @@ export const reqIfmDiagnose = (postData) => {
     return requests({ method: 'post', url: '/operation/ifm/ifmDiagnose', data: `data=${postData}` })
 }
 
-// 解绑
+// 确定解绑
 export const reqAdslNoUnbinding = (postData) => {
     return requests({ method: 'post', url: '/operation/ifm/adslNoUnbinding', data: `data=${postData}` })
+}
+// 确定加绑
+export const reqAdslNoAddbinding = (postData) => {
+    return requests({ method: 'post', url: '/operation/ifm/adslNoAddBinding', data: `data=${postData}` })
+}
+// 查询加解绑进度
+export const reqAdslNoUnbindingQuery = (postData) => {
+    return requests({ method: 'post', url: '/operation/ifm/adslNoUnbindingQuery', data: `data=${postData}` })
 }
 
 // 基站-数据制作
@@ -602,4 +633,9 @@ export const reqIdmInstrustArrange = (postData) => {
 // 数据制作-指令下发
 export const reqIdmInstrustIssue = (postData) => {
     return requests({ method: 'post', url: '/operation/idm/idmInstrustIssue', data: `data=${postData}` })
+}
+
+// 修改客户电话
+export const reqIomNewEditCustPhone = (postData) => {
+    return requests({ method: 'post', url: '/operation/iomNew/editCustPhone', data: `data=${postData}` })
 }

@@ -1,6 +1,7 @@
 // 退工单
 
 const state = {
+    type: 1, // 1:退工单 2：修改标准地址
     // 退工单页面
     returnSheet: {
         errorReasonCode: '', //退单编码
@@ -31,16 +32,19 @@ const state = {
 
 }
 const mutations = {
-    changeRetrunSheet (state, result) {
+    changeType(state, result) {
+        state.type = result
+    },
+    changeRetrunSheet(state, result) {
         state.returnSheet = result
     },
-    changeChooseFirst (state, result) {
+    changeChooseFirst(state, result) {
         state.chooseFirst = result
     },
-    changeChooseUnit (state, result) {
+    changeChooseUnit(state, result) {
         state.chooseUnit = result
     },
-    changeChooseFloor (state, result) {
+    changeChooseFloor(state, result) {
         state.chooseFloor = result
     }
 

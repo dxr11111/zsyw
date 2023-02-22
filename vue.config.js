@@ -15,15 +15,16 @@ module.exports = defineConfig({
   productionSourceMap: false, // 去掉打包之后的map文件(主要是帮助线上调试代码的)
   configureWebpack(config) {
     config.devtool = config.mode === "production" ? false : "source-map",
-    config.externals = {'AMap': 'AMap'}
+      config.externals = { 'AMap': 'AMap' }
   },
   devServer: {
     proxy: {
       // 可以控制客户端是直接向代理服务器请求数据还是通过代理服务器向服务端请求数据
+      // 建维优一体
       '/api': {
         target: 'http://132.91.203.143:7143', // oss 开发环境
         // target: 'http://123.57.243.135:7061', // 阿里地址
-        // target: 'http://202.106.86.115:7064', // oss 生产环境
+        // target: 'http://202.106.86.115:7064/pom', // oss 生产环境
         // 往服务器发送请求时去掉api这个前缀
         pathRewrite: { '^/api': '' },
         ws: true,
@@ -39,6 +40,15 @@ module.exports = defineConfig({
         ws: true,
         changeOrigin: true,
         ['/img']: '',
+      },
+      // 联通网络
+      '/uniNet': {
+        target: 'http://132.91.203.143:7143', // 开发环境
+        // target: 'http://202.106.86.115:7064/pom', // 生产环境
+        // 往服务器发送请求时去掉api这个前缀
+        pathRewrite: { '^/uniNet': '' },
+        ws: true,
+        changeOrigin: true
       },
     }
   },
@@ -85,12 +95,12 @@ module.exports = defineConfig({
       args[0].title = '北京建维优一体门户'
       return args
     })
-      /* 压缩图片 */
-      // config.module
-      //   .rule('images')
-      //   .use('image-webpack-loader')
-      //   .loader('image-webpack-loader')
-      //   .options({ bypassOnDebug: true })
-      //   .end()
+    /* 压缩图片 */
+    // config.module
+    //   .rule('images')
+    //   .use('image-webpack-loader')
+    //   .loader('image-webpack-loader')
+    //   .options({ bypassOnDebug: true })
+    //   .end()
   }
 })

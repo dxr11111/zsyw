@@ -1,13 +1,15 @@
-// 未使用
+// 动态缓存路由
 export const keepAliveMixin = {
-    watch: {
-        $route(to, from) {  //当页面返回时将取消缓存
-            if (parseInt(to.query._t) < parseInt(from.query._t)) {  //表示是返回页面
-                console.log('相同则销毁页面', from.name, this.$options.name)
-                if (from.name === this.$options.name) {  //如果是当前页面返回的话（this.$options.name是当前组件的名字）
-                    from.meta.myKeepAlive = false;
-                }
-            }
-        },
+    created() {
+        if (!this.$options.name) { // 这里的name是页面/组件对象中的name，不是路由的
+            console.warn("缓存页面失败！没有设置组件名！");
+        }
+        if (this.$route?.meta?.myKeepAlive) {
+            this.$store.commit("keepThisPage", this.$options.name);
+        }
     },
+    beforeDestroy() {
+        console.log("触发组件销毁")
+    }
+
 }

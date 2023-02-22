@@ -102,7 +102,7 @@ export default {
         );
         let result = this.weekInfo;
         console.log("周报数据", result);
-        if (result.operationSuccessFlag) {
+        this.apiResponse(result, ".weekInfo", () => {
           //成功
           var week = result.week;
           $("#zkjsjW").text(
@@ -137,7 +137,8 @@ export default {
           //显示表格
           $("#tabConW").show();
           $("#tabtitleW").show();
-        } else {
+        });
+        if (!result.operationSuccessFlag) {
           //失败
           $("#zkjsjW").text("ERROR-" + result.errorMessage);
           $("#tabtitleW").show();

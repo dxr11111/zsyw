@@ -14,7 +14,11 @@
         <div class="field">
           <div class="label">故障发生时间</div>
           <div style="color: gray" @click="showTime = true">
-            <input readonly v-model="currDate" placeholder="请选择故障发生时间" />
+            <input
+              readonly
+              v-model="currDate"
+              placeholder="请选择故障发生时间"
+            />
             <span style="margin-left: 10px">▼</span>
           </div>
           <van-popup
@@ -123,18 +127,18 @@
 </template>
 
 <script>
-import { formatTime } from '@/utils/common'
-import { QueryBaseInfoApi, SaveWirelessApi } from '@/http/tools'
-import BaseInfo from '@/views/toolFunction/mobileOptAccept/components/baseInfo'
-import { getItem } from '@/utils/sessionStorage'
+import { formatTime } from "@/utils/public/common";
+import { QueryBaseInfoApi, SaveWirelessApi } from "@/http/tools";
+import BaseInfo from "@/views/toolFunction/mobileOptAccept/components/baseInfo";
+import { getItem } from "@/utils/public/sessionStorage";
 export default {
-  name: 'MobileOptAccept',
+  name: "MobileOptAccept",
   components: { BaseInfo },
-  data () {
+  data() {
     return {
       headName: `移动优化受理`,
-      balkTitle: '', // 受理单标题
-      balkContent: '', // 故障现象
+      balkTitle: "", // 受理单标题
+      balkContent: "", // 故障现象
       showTime: false, // 选择时间组件显示隐藏
       minDate: new Date(2020, 0, 1),
       maxDate: new Date(2072, 12, 31),
@@ -142,114 +146,121 @@ export default {
       currDate: null, // 故障时间
       showOptions: false,
       optionsList: [
-        { id: 1, name: '一般故障' },
-        { id: 2, name: '紧急故障' },
-        { id: 3, name: '重大故障' },
-        { id: 4, name: '通信故障' },
-        { id: 5, name: '重要通信' },
-        { id: 6, name: '不明故障' },
+        { id: 1, name: "一般故障" },
+        { id: 2, name: "紧急故障" },
+        { id: 3, name: "重大故障" },
+        { id: 4, name: "通信故障" },
+        { id: 5, name: "重要通信" },
+        { id: 6, name: "不明故障" },
       ],
-      currOption: '', // 故障级别
+      currOption: "", // 故障级别
       searchKey: 0, // 查询类型
-      keyWord: '', // 查询信息
+      keyWord: "", // 查询信息
       isIndex: true,
-      total: '', // 查询的基站总数
+      total: "", // 查询的基站总数
       baseInfoList: [], // 查询基站列表
       selectBaseInfo: [], // 选择的基站信息--子组件选择的
-      loginInfo: getItem('loginInfo').defaultSheetGroupList
-    }
+      loginInfo: getItem("loginInfo").defaultSheetGroupList,
+    };
   },
   methods: {
-    async submit () {
-      if (this.balkTitle == '') return this.$toast('请输入受理单标题')
-      if (this.currDate == null) return this.$toast('请选择故障发生时间')
-      if (this.balkContent == '') return this.$toast('请输入故障现象')
-      if (this.currOption == '') return this.$toast('请选择故障级别')
-      if (this.selectBaseInfo.length == 0) return this.$toast('请选择基站信息')
+    async submit() {
+      if (this.balkTitle == "") return this.$toast("请输入受理单标题");
+      if (this.currDate == null) return this.$toast("请选择故障发生时间");
+      if (this.balkContent == "") return this.$toast("请输入故障现象");
+      if (this.currOption == "") return this.$toast("请选择故障级别");
+      if (this.selectBaseInfo.length == 0) return this.$toast("请选择基站信息");
       let params = {
         balkTitle: this.balkTitle, //	受理单标题
-        groupId: this.loginInfo.find(e => e.groupSysId == 3).groupId, //	工作组ID
+        groupId: this.loginInfo.find((e) => e.groupSysId == 3).groupId, //	工作组ID
         balkStartTime: this.currDate, //	故障发生时间
         balkContent: this.balkContent, //	故障现象
-        balkLevelId: this.optionsList.find(e => e.name == this.currOption).id, //	故障级别
-        acceptUserLong: '', // 受理人经度
-        acceptUserLati: '', // 受理人维度
-        acceptUserPos: '', //	受理人位置
+        balkLevelId: this.optionsList.find((e) => e.name == this.currOption).id, //	故障级别
+        acceptUserLong: "", // 受理人经度
+        acceptUserLati: "", // 受理人维度
+        acceptUserPos: "", //	受理人位置
         baseStationList: this.selectBaseInfo, //	基站信息
-      }
-      console.log(params)
-      let data = await SaveWirelessApi(JSON.stringify(params))
-      data.operationSuccessFlag ? this.$toast.success(data.successMessage) : this.$toast.fail(data.errorMessage)
-      this.$router.go(-1)
+      };
+      console.log(params);
+      let data = await SaveWirelessApi(JSON.stringify(params));
+      data.operationSuccessFlag
+        ? this.$toast.success(data.successMessage)
+        : this.$toast.fail(data.errorMessage);
+      this.$router.go(-1);
     },
-    getBaseInfo (data) {
-      this.selectBaseInfo.push(...data)
+    getBaseInfo(data) {
+      this.selectBaseInfo.push(...data);
       for (let i = 0; i < data.length; i++) {
-        const item = data[i]
-        this.selectBaseInfo.forEach(e => {
+        const item = data[i];
+        this.selectBaseInfo.forEach((e) => {
           if (e.siteName == item.siteName) {
-            e.guzhangshebei = item.guzhangshebei
+            e.guzhangshebei = item.guzhangshebei;
           }
-        })
+        });
       }
-      this.selectBaseInfo = this.removal(this.selectBaseInfo)
-      console.log('基站信息', this.selectBaseInfo)
+      this.selectBaseInfo = this.removal(this.selectBaseInfo);
+      console.log("基站信息", this.selectBaseInfo);
     },
     // 数组去重
-    removal (arr) {
-      let newArr = []
+    removal(arr) {
+      let newArr = [];
       for (let i = 0; i < arr.length; i++) {
-        newArr.find(item => item.siteName == arr[i].siteName) ? newArr : newArr.push(arr[i])
+        newArr.find((item) => item.siteName == arr[i].siteName)
+          ? newArr
+          : newArr.push(arr[i]);
       }
-      return newArr
+      return newArr;
     },
-    async search () {
-      if (this.keyWord == '') return this.$toast('请输入名称查询基站')
-      let data = await QueryBaseInfoApi(JSON.stringify({ queryParam: this.keyWord, queryType: this.searchKey }))
-      console.log(data)
-      this.total = data.total
-      this.baseInfoList = data.ifmBaseStationList
-      this.isIndex = false
+    async search() {
+      if (this.keyWord == "") return this.$toast("请输入名称查询基站");
+      let data = await QueryBaseInfoApi(
+        JSON.stringify({ queryParam: this.keyWord, queryType: this.searchKey })
+      );
+      console.log(data);
+      this.total = data.total;
+      this.baseInfoList = data.ifmBaseStationList;
+      this.isIndex = false;
     },
-    selectOption (item) {
-      this.currOption = item.name
-      this.showOptions = false
+    selectOption(item) {
+      this.currOption = item.name;
+      this.showOptions = false;
     },
-    chooseTime (value) {
+    chooseTime(value) {
       console.log(formatTime(value));
       // 因为组件没有秒，所以在分钟上做文章
-      var curr = formatTime(new Date())
-      var a = Number(curr.substr(curr.length - 4, 1)) - 1
-      var str = curr.substr(0, curr.length-4) + a + curr.substr(curr.length-3)
-      console.log('分钟-1后的时间', str)
+      var curr = formatTime(new Date());
+      var a = Number(curr.substr(curr.length - 4, 1)) - 1;
+      var str =
+        curr.substr(0, curr.length - 4) + a + curr.substr(curr.length - 3);
+      console.log("分钟-1后的时间", str);
       // 不能晚于当前时间，包括当前时间
       if (formatTime(value) >= str) {
-        return this.$toast('不能晚于当前时间')
+        return this.$toast("不能晚于当前时间");
       } else {
-        this.currDate = formatTime(value)
-        this.showTime = false
+        this.currDate = formatTime(value);
+        this.showTime = false;
       }
     },
-    formatter (type, val) {
-      if (type === 'year') {
-        return val + '年'
+    formatter(type, val) {
+      if (type === "year") {
+        return val + "年";
       }
-      if (type === 'month') {
-        return val + '月'
+      if (type === "month") {
+        return val + "月";
       }
-      if (type === 'day') {
-        return val + '日'
+      if (type === "day") {
+        return val + "日";
       }
-      if (type === 'hour') {
-        return val + '时'
+      if (type === "hour") {
+        return val + "时";
       }
-      if (type === 'minute') {
-        return val + '分'
+      if (type === "minute") {
+        return val + "分";
       }
-      return val
+      return val;
     },
   },
-}
+};
 </script>
 
 <style lang="less" scoped>

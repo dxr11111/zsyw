@@ -15,13 +15,17 @@
           >
         </div>
         <!-- groupId 一级权限点击网格按钮时才展示 || 二级权限 -->
-        <div class="selectRegion" style="margin-bottom: 6px" v-if="type == 3 || userAuth == 2">
+        <div
+          class="selectRegion"
+          style="margin-bottom: 6px"
+          v-if="type == 3 || userAuth == 2"
+        >
           <span class="label">网格</span>
-          <div class="after" @click="showZhiBiao = true">
-            <input type="text" readonly v-model="groupName" placeholder="全部" />
+          <div class="after" @click="showGroup = true">
+            <input type="text" readonly v-model="groupName" />
           </div>
           <van-action-sheet
-            v-model="showZhiBiao"
+            v-model="showGroup"
             cancel-text="取消"
             :round="false"
             :actions="groupIdOption"
@@ -245,53 +249,55 @@
 </template>
 
 <script>
-import * as echarts from "echarts"
-import $ from "jquery"
-import { mapState } from "vuex"
-import { Toast } from "vant"
-import { getItem } from '@/utils/sessionStorage'
+import * as echarts from "echarts";
+import $ from "jquery";
+import { mapState } from "vuex";
+import { Toast } from "vant";
+import { getItem } from "@/utils/public/sessionStorage";
 export default {
   name: "YhdChartNew",
   data() {
     return {
       name: "优化工单看板",
-      tableMargin: '230px',
-      loginNo: '', // guzi1 wanglq96
+      tableMargin: "230px",
+      loginNo: "", // guzi1 wanglq96
       // 下拉菜单选项
       groupId: 0, // 网格
-      groupName: '全部网格',
+      groupName: "全部网格",
+      showGroup: false,
       groupIdOption: [],
       zhiBiaoIndex: 0,
       showZhiBiao: false,
-      monIndexId: "", // 指标
+      monIndexId: "全部指标", // 指标 全部指标传"-"
       zhiBiaoOption: [
+        { name: "全部指标", value: 0 },
         { name: "3G无线接通率", value: 1 },
         { name: "VoLTE下行丢包率", value: 2 },
         {
           name: "小区载频平均接收功率",
-          value: 3
+          value: 3,
         },
         {
           name: "下行速率小于10Mbps比例",
-          value: 4
+          value: 4,
         },
         {
           name: "小区内用户下行平均速率",
-          value: 5
+          value: 5,
         },
         { name: "CS域掉话率", value: 6 },
         { name: "同频切换出成功率", value: 7 },
         {
           name: "周期性RSRP大于等于负105dB比例",
-          value: 8
+          value: 8,
         },
         {
           name: "CQI小于8的采样点比例",
-          value: 9
+          value: 9,
         },
         {
           name: "VoLTE信令ERAB建立成功率",
-          value: 10
+          value: 10,
         },
         { name: "无线接通率", value: 11 },
         { name: "单流占比", value: 12 },
@@ -299,23 +305,23 @@ export default {
         { name: "VoLTE上行丢包率", value: 13 },
         {
           name: "下行PDSCH信道PRB平均利用率",
-          value: 14
+          value: 14,
         },
         {
           name: "上行每PRB干扰噪声平均值",
-          value: 15
+          value: 15,
         },
         { name: "LTE业务掉话率", value: 16 },
         { name: "上行底噪", value: 17 },
         {
           name: "周期性RSRP＞＝－110dBm的采样点比例",
-          value: 18
+          value: 18,
         },
         { name: "上行底噪-室内监控", value: 19 },
         { name: "SA小区掉线率", value: 20 },
         {
           name: "SA小区gNB站内切换成功率",
-          value: 21
+          value: 21,
         },
         { name: "VoLTE接通率(QCI1)", value: 22 },
         { name: "VoLTE语音掉线率", value: 23 },
@@ -380,7 +386,7 @@ export default {
       dataZbDbbhlVsCityArr: [], //东北闭环率（与全市差值）
       dataZbXbbhlVsCityArr: [], //西北闭环率（与全市差值）
       dataZbNqbhlVsCityArr: [], //南区闭环率（与全市差值）
-    }
+    };
   },
   computed: {
     // 根据天数得到周几
@@ -399,54 +405,54 @@ export default {
     }, */
     // 监视groupId 用户选中发送请求
     groupId() {
-      document.body.scrollTop = document.documentElement.scrollTop = 0
-      this.getTableInfo()
+      document.body.scrollTop = document.documentElement.scrollTop = 0;
+      this.getTableInfo();
     },
   },
   methods: {
     dateShowPopup() {
-      this.datePopShow = true
+      this.datePopShow = true;
     },
     weekShowPopup() {
-      this.weekPopShow = true
+      this.weekPopShow = true;
     },
     // 时间选择器
     formatter(type, val) {
       if (type === "year") {
-        return `${val}年`
+        return `${val}年`;
       } else if (type === "month") {
-        return `${val}月`
+        return `${val}月`;
       }
-      return val
+      return val;
     },
     confirmDate(value) {
-      let y = new Date(value).getFullYear()
-      let m = new Date(value).getMonth() + 1
-      this.month = y.toString() + "-" + this.addZero(m.toString())
-      this.datePopShow = false
+      let y = new Date(value).getFullYear();
+      let m = new Date(value).getMonth() + 1;
+      this.month = y.toString() + "-" + this.addZero(m.toString());
+      this.datePopShow = false;
       // 选择日期时 强制将weekIndex改为1
-      this.weekIndex = "1"
-      document.body.scrollTop = document.documentElement.scrollTop = 0
+      this.weekIndex = "1";
+      document.body.scrollTop = document.documentElement.scrollTop = 0;
       // 发送请求
-      this.getTableInfo()
+      this.getTableInfo();
     },
     // 补零
     addZero(num) {
-      return num < 10 ? "0" + num : num
+      return num < 10 ? "0" + num : num;
     },
     clickWeek(item, index) {
       if (item !== "取消") {
-        this.weekIndex = item
-        this.currentWeek = index
-        document.body.scrollTop = document.documentElement.scrollTop = 0
+        this.weekIndex = item;
+        this.currentWeek = index;
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
         // 发送请求
-        this.getTableInfo()
+        this.getTableInfo();
       }
-      this.weekPopShow = false
+      this.weekPopShow = false;
     },
     onSelectInteCell(item) {
-      this.groupName = item.name
-      this.groupId = item.value
+      this.groupName = item.name;
+      this.groupId = item.value;
       // this.userAuthIndex = item.value
     },
     // 改变指标下拉菜单
@@ -456,55 +462,56 @@ export default {
     //   this.getTableInfo();
     // },
     onSelectZhiBiao(item) {
-      this.monIndexId = item.name
-      document.body.scrollTop = document.documentElement.scrollTop = 0
-      this.getTableInfo()
+      this.monIndexId = item.name;
+      document.body.scrollTop = document.documentElement.scrollTop = 0;
+      this.getTableInfo();
     },
     // 获取第一个请求回来的groupList
     async getSettingInfo() {
       try {
-        await this.$store.dispatch("yhdChartNew/getSettingInfo", this.loginNo)
-        console.log("settingInfo", this.settingInfo)
+        await this.$store.dispatch("yhdChartNew/getSettingInfo", this.loginNo);
+        console.log("settingInfo", this.settingInfo);
         // 获取groupList
-        let groupList = this.settingInfo.groupList
-        let userAuth = this.settingInfo.userAuth
+        let groupList = this.settingInfo.groupList;
+        let userAuth = this.settingInfo.userAuth;
         // 获取groupName呈现在页面的网格下拉菜单中
-        let groupIdOption = []
+        let groupIdOption = [];
         for (let i in groupList) {
-          let obj = {}
-          obj.name = groupList[i].groupName
-          obj.value = groupList[i].groupId
-          groupIdOption.push(obj)
+          let obj = {};
+          obj.name = groupList[i].groupName;
+          obj.value = groupList[i].groupId;
+          groupIdOption.push(obj);
         }
         // this.groupIdOption = [...this.groupIdOption, ...groupIdOption]
-        this.groupIdOption = groupIdOption
+        this.groupIdOption = groupIdOption;
         // this.groupId = groupList[0].groupId;
         // 获取userAuth 1:一级权限“全市、区域、网格”、2:二级权限“网格”
-        this.userAuth = userAuth
+        this.userAuth = userAuth;
         // this.userAuth = 2; // 测试
         // userAuth为2时 type设置为3
-        if (this.userAuth == 2) this.type = 3
+        if (this.userAuth == 2) this.type = 3;
         // 请求表格数据 当groupId有值的时候，groupId变化会请求一次数据
         /* if (this.groupId == 0) {
           this.getTableInfo();
         } */
-        document.body.scrollTop = document.documentElement.scrollTop = 0
-        this.getTableInfo()
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+        this.getTableInfo();
       } catch (error) {
-        console.log("err", error)
+        console.log("err", error);
       }
     },
     // 获取第二个请求数据
     async getTableInfo() {
       try {
-        let type = this.type
-        let modeId = this.modeId
-        let monIndexId = this.monIndexId
-        let groupType = this.groupType
-        let groupId = this.groupId
-        let month = this.month
-        let weekIndex = this.weekIndex
-        let loginNo = this.loginNo
+        let type = this.type;
+        let modeId = this.modeId;
+        let monIndexId = this.monIndexId;
+        let groupType = this.groupType;
+        let groupId = this.groupId;
+        let month = this.month;
+        let weekIndex = this.weekIndex;
+        let loginNo = this.loginNo;
+        if (this.monIndexId == "全部指标") monIndexId = "-";
         let postData = {
           type,
           modeId,
@@ -514,91 +521,92 @@ export default {
           month,
           weekIndex,
           loginNo,
-        }
+        };
         // document.body.scrollTop = document.documentElement.scrollTop = 0;
         await this.$store.dispatch(
           "yhdChartNew/getTableInfo",
           JSON.stringify(postData)
-        )
-        let tableInfo = this.tableInfo
-        console.log("tableInfo", tableInfo)
+        );
+        let tableInfo = this.tableInfo;
+        console.log("tableInfo", tableInfo);
         // 设置表单数据 工单统计
-        this.setFormInfo("divFormInfo", tableInfo.yhdFromInfos)
+        this.setFormInfo("divFormInfo", tableInfo.yhdFromInfos);
         //指标闭环率
-        this.setZbbhlInfo(tableInfo.yhdIndexCloseRatios)
+        this.setZbbhlInfo(tableInfo.yhdIndexCloseRatios);
         //工单闭环时长分析
-        this.setGdbhscfxInfo(tableInfo.yhdCloseDurationAnalyzes)
+        this.setGdbhscfxInfo(tableInfo.yhdCloseDurationAnalyzes);
         //工单闭环率排名
-        this.setGdbhlpmInfo(tableInfo.yhdGroupCloseRatioRankings)
+        this.setGdbhlpmInfo(tableInfo.yhdGroupCloseRatioRankings);
         //工单闭环率走势
-        this.setGdbhlzsInfo(tableInfo.yhdStatCloseTrends)
+        this.setGdbhlzsInfo(tableInfo.yhdStatCloseTrends);
         //全网分区域统计
-        this.setQwfqytjInfo(tableInfo.allCityStatisArr)
+        this.setQwfqytjInfo(tableInfo.allCityStatisArr);
         //全网分指标统计
-        this.setQwfzbtjInfo(tableInfo.allIndexStatisArr)
+        this.setQwfzbtjInfo(tableInfo.allIndexStatisArr);
       } catch (error) {
-        console.log("err", error)
+        console.log("err", error);
       }
     },
 
     // 点击区域 东北 西北 南区
     handleClickQuyu(index, title) {
       // Toast(title);
-      this.quYu = title
-      this.setZbbhlInfoDetail()
+      this.quYu = title;
+      this.setZbbhlInfoDetail();
     },
     // 点击分公司类别 groupType 空-全部、1-市区、2-大郊、3-小郊
     handleClickFgs(index, title) {
       // Toast(title);
-      this.groupType = this.groupTypeList[index].groupType
-      this.getTableInfo()
+      this.groupType = this.groupTypeList[index].groupType;
+      this.getTableInfo();
     },
 
     // 选中全市 区域 网格按钮
     clickUserAuth(item) {
-      this.userAuthIndex = item.value
+      this.userAuthIndex = item.value;
       // 改变type值
-      this.type = item.value + 1
-      document.body.scrollTop = document.documentElement.scrollTop = 0
-      this.getTableInfo()
+      this.type = item.value + 1;
+      document.body.scrollTop = document.documentElement.scrollTop = 0;
+      this.getTableInfo();
     },
     // 选中制式按钮
     clickZhiShi(item) {
-      this.modeId = item.value
-      this.zhiShi = item.name
-      this.monIndexId = ""
-      this.zhiBiaoIndex = 0
-      document.body.scrollTop = document.documentElement.scrollTop = 0
+      this.modeId = item.value;
+      this.zhiShi = item.name;
+      this.monIndexId = "全部指标";
+      this.zhiBiaoIndex = 0;
+      document.body.scrollTop = document.documentElement.scrollTop = 0;
       // 制式不同 指标的下拉区域不同
       if (this.modeId == -1) {
         this.zhiBiaoOption = [
+          { name: "全部指标", value: 0 },
           { name: "3G无线接通率", value: 1 },
           { name: "VoLTE下行丢包率", value: 2 },
           {
             name: "小区载频平均接收功率",
-            value: 3
+            value: 3,
           },
           {
             name: "下行速率小于10Mbps比例",
-            value: 4
+            value: 4,
           },
           {
             name: "小区内用户下行平均速率",
-            value: 5
+            value: 5,
           },
           { name: "CS域掉话率", value: 6 },
           { name: "同频切换出成功率", value: 7 },
           {
             name: "周期性RSRP大于等于负105dB比例",
-            value: 8
+            value: 8,
           },
           {
             name: "CQI小于8的采样点比例",
-            value: 9
+            value: 9,
           },
           {
             name: "VoLTE信令ERAB建立成功率",
-            value: 10
+            value: 10,
           },
           { name: "无线接通率", value: 11 },
           { name: "单流占比", value: 12 },
@@ -606,77 +614,80 @@ export default {
           { name: "VoLTE上行丢包率", value: 13 },
           {
             name: "下行PDSCH信道PRB平均利用率",
-            value: 14
+            value: 14,
           },
           {
             name: "上行每PRB干扰噪声平均值",
-            value: 15
+            value: 15,
           },
           { name: "LTE业务掉话率", value: 16 },
           { name: "上行底噪", value: 17 },
           {
             name: "周期性RSRP＞＝－110dBm的采样点比例",
-            value: 18
+            value: 18,
           },
           { name: "上行底噪-室内监控", value: 19 },
           { name: "SA小区掉线率", value: 20 },
           {
             name: "SA小区gNB站内切换成功率",
-            value: 21
+            value: 21,
           },
           { name: "VoLTE接通率(QCI1)", value: 22 },
           { name: "VoLTE语音掉线率", value: 23 },
           { name: "SA站间切换成功率", value: 24 },
           { name: "5G倒流比", value: 25 },
           { name: "无线接入成功率", value: 26 },
-        ]
+        ];
       } else if (this.modeId == 2) {
         // 3G
         this.zhiBiaoOption = [
+          { name: "全部指标", value: 0 },
           { name: "3G无线接通率", value: 1 },
           {
             name: "小区载频平均接收功率",
-            value: 2
+            value: 2,
           },
           { name: "CS域掉话率", value: 3 },
-        ]
+        ];
       } else if (this.modeId == 4) {
         // 4G
         this.zhiBiaoOption = [
+          { name: "全部指标", value: 0 },
           { name: "无线接通率", value: 1 },
           { name: "LTE业务掉话率", value: 2 },
           { name: "同频切换出成功率", value: 3 },
           {
             name: "周期性RSRP大于等于负105dB比例",
-            value: 4
+            value: 4,
           },
           {
             name: "CQI小于8的采样点比例",
-            value: 5
+            value: 5,
           },
           {
             name: "下行速率小于10Mbps比例",
-            value: 6
+            value: 6,
           },
           { name: "单流占比", value: 7 },
           { name: "上行底噪", value: 8 },
           {
             name: "VoLTE信令ERAB建立成功率",
-            value: 9
+            value: 9,
           },
           { name: "VoLTE下行丢包率", value: 10 },
           { name: "VoLTE上行丢包率", value: 11 },
           {
             name: "周期性RSRP＞＝－110dBm的采样点比例",
-            value: 12
+            value: 12,
           },
           { name: "上行底噪-室内监控", value: 13 },
           { name: "VoLTE接通率(QCI1)", value: 14 },
           { name: "VoLTE语音掉线率", value: 15 },
-        ]
+        ];
       } else if (this.modeId == 5) {
         // 5G
         this.zhiBiaoOption = [
+          { name: "全部指标", value: 0 },
           { name: "无线接入成功率", value: 1 },
           /* { name: "SgNB添加成功率", value: 1, option: "SgNB添加成功率" },
           { name: "SgNB掉线率", value: 2, option: "SgNB掉线率" },
@@ -692,214 +703,214 @@ export default {
           }, */
           {
             name: "小区内用户下行平均速率",
-            value: 2
+            value: 2,
           },
           {
             name: "下行PDSCH信道PRB平均利用率",
-            value: 3
+            value: 3,
           },
           {
             name: "上行每PRB干扰噪声平均值",
-            value: 4
+            value: 4,
           },
           {
             name: "SA小区掉线率",
-            value: 5
+            value: 5,
           },
           {
             name: "SA小区gNB站内切换成功率",
-            value: 6
+            value: 6,
           },
           { name: "SA站间切换成功率", value: 7 },
           { name: "5G倒流比", value: 8 },
-        ]
+        ];
       }
       // 发送请求
-      this.getTableInfo()
+      this.getTableInfo();
     },
     // 表单数据 创建元素节点
     setFormInfo(tableId, jsondata) {
-      let table = document.createElement("table")
-      document.getElementById(tableId).innerHTML = ""
-      let tr, td
+      let table = document.createElement("table");
+      document.getElementById(tableId).innerHTML = "";
+      let tr, td;
       if (jsondata.length > 0) {
         //如果有数据
-        table.className = "imagetable"
-        table.style = "width:100%;border-collapse:collapse;text-align:left;"
+        table.className = "imagetable";
+        table.style = "width:100%;border-collapse:collapse;text-align:left;";
         for (let info in jsondata) {
-          tr = document.createElement("tr")
+          tr = document.createElement("tr");
           for (let cell in jsondata[info]) {
-            td = document.createElement("td")
-            td.appendChild(document.createTextNode(jsondata[info][cell]))
+            td = document.createElement("td");
+            td.appendChild(document.createTextNode(jsondata[info][cell]));
             //td.style.color = cellData.split('|')[2];
             //td.style.width = cellData.split('|')[3]+"px";
             if (info == 0 || cell == 0)
               //第一行或第一列加粗
-              td.style.fontWeight = "bold"
-            td.style.height = "30px"
-            td.style.border = "1px solid #999"
-            td.style.paddingLeft = "5px"
-            tr.appendChild(td)
+              td.style.fontWeight = "bold";
+            td.style.height = "30px";
+            td.style.border = "1px solid #999";
+            td.style.paddingLeft = "5px";
+            tr.appendChild(td);
           }
-          table.appendChild(tr)
+          table.appendChild(tr);
         }
       } else {
         //如果没有数据，则自动加没有数据一行
-        tr = document.createElement("tr")
-        td = document.createElement("td")
-        td.appendChild(document.createTextNode("没有查询到数据"))
-        td.setAttribute("colspan", 100)
-        tr.appendChild(td)
-        table.appendChild(tr)
+        tr = document.createElement("tr");
+        td = document.createElement("td");
+        td.appendChild(document.createTextNode("没有查询到数据"));
+        td.setAttribute("colspan", 100);
+        tr.appendChild(td);
+        table.appendChild(tr);
       }
 
-      document.getElementById(tableId).appendChild(table)
+      document.getElementById(tableId).appendChild(table);
     },
 
     // 指标闭环率初始化
     setZbbhlInfo(yhdIndexCloseRatios) {
-      let zbbhlHeight = 25
+      let zbbhlHeight = 25;
       // 初始化
-      this.labZbbhlArr = [] // 指标名称
-      this.dataZbwgbhlArr = [] //网格闭环率
-      this.dataZbDbbhlArr = [] //东北闭环率
-      this.dataZbXbbhlArr = [] //西北闭环率
-      this.dataZbNqbhlArr = [] //南区闭环率
-      this.dataZbwgbhlVsCityArr = [] //网格闭环率（与全市差值）
-      this.dataZbDbbhlVsCityArr = [] //东北闭环率（与全市差值）
-      this.dataZbXbbhlVsCityArr = [] //西北闭环率（与全市差值）
-      this.dataZbNqbhlVsCityArr = [] //南区闭环率（与全市差值）
+      this.labZbbhlArr = []; // 指标名称
+      this.dataZbwgbhlArr = []; //网格闭环率
+      this.dataZbDbbhlArr = []; //东北闭环率
+      this.dataZbXbbhlArr = []; //西北闭环率
+      this.dataZbNqbhlArr = []; //南区闭环率
+      this.dataZbwgbhlVsCityArr = []; //网格闭环率（与全市差值）
+      this.dataZbDbbhlVsCityArr = []; //东北闭环率（与全市差值）
+      this.dataZbXbbhlVsCityArr = []; //西北闭环率（与全市差值）
+      this.dataZbNqbhlVsCityArr = []; //南区闭环率（与全市差值）
       for (let i in yhdIndexCloseRatios) {
-        this.labZbbhlArr.push(yhdIndexCloseRatios[i].monIndexId) //指标名称
+        this.labZbbhlArr.push(yhdIndexCloseRatios[i].monIndexId); //指标名称
 
         for (let j in yhdIndexCloseRatios[i].yhdIndexCloseLevelTwos) {
           //内容
-          let closeRat = yhdIndexCloseRatios[i].yhdIndexCloseLevelTwos[j]
-          let chazhi = closeRat.vsCityRatio //网格/区域-全市的差值，复数标识网格差，正数表示网格/区域好
-          let areaRatio = closeRat.closeRatio //网格/区域
+          let closeRat = yhdIndexCloseRatios[i].yhdIndexCloseLevelTwos[j];
+          let chazhi = closeRat.vsCityRatio; //网格/区域-全市的差值，复数标识网格差，正数表示网格/区域好
+          let areaRatio = closeRat.closeRatio; //网格/区域
           if (chazhi > 0) {
             //网格/区域比全市好
             if (closeRat.closeRatioName == "网格") {
-              this.dataZbwgbhlArr.push(areaRatio - chazhi)
-              this.dataZbwgbhlVsCityArr.push(chazhi)
+              this.dataZbwgbhlArr.push(areaRatio - chazhi);
+              this.dataZbwgbhlVsCityArr.push(chazhi);
             } else if (closeRat.closeRatioName == "东北") {
-              this.dataZbDbbhlArr.push(areaRatio - chazhi)
-              this.dataZbDbbhlVsCityArr.push(chazhi)
+              this.dataZbDbbhlArr.push(areaRatio - chazhi);
+              this.dataZbDbbhlVsCityArr.push(chazhi);
             } else if (closeRat.closeRatioName == "西北") {
-              this.dataZbXbbhlArr.push(areaRatio - chazhi)
-              this.dataZbXbbhlVsCityArr.push(chazhi)
+              this.dataZbXbbhlArr.push(areaRatio - chazhi);
+              this.dataZbXbbhlVsCityArr.push(chazhi);
             } else if (closeRat.closeRatioName == "南区") {
-              this.dataZbNqbhlArr.push(areaRatio - chazhi)
-              this.dataZbNqbhlVsCityArr.push(chazhi)
+              this.dataZbNqbhlArr.push(areaRatio - chazhi);
+              this.dataZbNqbhlVsCityArr.push(chazhi);
             } else {
             }
           } else {
             //网格比全市差
             if (closeRat.closeRatioName == "网格") {
-              this.dataZbwgbhlArr.push(areaRatio)
-              this.dataZbwgbhlVsCityArr.push(chazhi)
+              this.dataZbwgbhlArr.push(areaRatio);
+              this.dataZbwgbhlVsCityArr.push(chazhi);
             } else if (closeRat.closeRatioName == "东北") {
-              this.dataZbDbbhlArr.push(areaRatio)
-              this.dataZbDbbhlVsCityArr.push(chazhi)
+              this.dataZbDbbhlArr.push(areaRatio);
+              this.dataZbDbbhlVsCityArr.push(chazhi);
             } else if (closeRat.closeRatioName == "西北") {
-              this.dataZbXbbhlArr.push(areaRatio)
-              this.dataZbXbbhlVsCityArr.push(chazhi)
+              this.dataZbXbbhlArr.push(areaRatio);
+              this.dataZbXbbhlVsCityArr.push(chazhi);
             } else if (closeRat.closeRatioName == "南区") {
-              this.dataZbNqbhlArr.push(areaRatio)
-              this.dataZbNqbhlVsCityArr.push(chazhi)
+              this.dataZbNqbhlArr.push(areaRatio);
+              this.dataZbNqbhlVsCityArr.push(chazhi);
             } else {
             }
           }
         }
-        zbbhlHeight += 25
+        zbbhlHeight += 25;
       }
-      $("#zbbhlData").height(zbbhlHeight + "px")
+      $("#zbbhlData").height(zbbhlHeight + "px");
       //根据网格或区域显示图表
-      this.setZbbhlInfoDetail()
+      this.setZbbhlInfoDetail();
     },
 
     // 指标闭环率信息细节
     setZbbhlInfoDetail() {
       // 初始化数据
-      let tempDataZbwgbhlArr = []
-      let tempDataZbVsCity = []
+      let tempDataZbwgbhlArr = [];
+      let tempDataZbVsCity = [];
       if (this.type == 1) {
         //全市
       } else if (this.type == 2) {
         //区域
         if (this.quYu == "东北") {
-          tempDataZbwgbhlArr = this.dataZbDbbhlArr
-          tempDataZbVsCity = this.dataZbDbbhlVsCityArr
+          tempDataZbwgbhlArr = this.dataZbDbbhlArr;
+          tempDataZbVsCity = this.dataZbDbbhlVsCityArr;
         } else if (this.quYu == "西北") {
-          tempDataZbwgbhlArr = this.dataZbXbbhlArr
-          tempDataZbVsCity = this.dataZbXbbhlVsCityArr
+          tempDataZbwgbhlArr = this.dataZbXbbhlArr;
+          tempDataZbVsCity = this.dataZbXbbhlVsCityArr;
         } else if (this.quYu == "南区") {
-          tempDataZbwgbhlArr = this.dataZbNqbhlArr
-          tempDataZbVsCity = this.dataZbNqbhlVsCityArr
+          tempDataZbwgbhlArr = this.dataZbNqbhlArr;
+          tempDataZbVsCity = this.dataZbNqbhlVsCityArr;
         }
       } else if (this.type == 3) {
         //网格
-        tempDataZbwgbhlArr = this.dataZbwgbhlArr
-        tempDataZbVsCity = this.dataZbwgbhlVsCityArr
+        tempDataZbwgbhlArr = this.dataZbwgbhlArr;
+        tempDataZbVsCity = this.dataZbwgbhlVsCityArr;
       }
-      let labZbbhlArr = this.labZbbhlArr
+      let labZbbhlArr = this.labZbbhlArr;
       //设置图表
-      console.log("tempDataZbVsCity", tempDataZbVsCity)
+      console.log("tempDataZbVsCity", tempDataZbVsCity);
 
-      this.setzbbhlChartData(labZbbhlArr, tempDataZbwgbhlArr, tempDataZbVsCity)
+      this.setzbbhlChartData(labZbbhlArr, tempDataZbwgbhlArr, tempDataZbVsCity);
     },
 
     // 工单闭环时长分析
     setGdbhscfxInfo(yhdCloseDurationAnalyzes) {
-      let labArr = new Array() //名称
-      let dataArr = new Array() //时长
+      let labArr = new Array(); //名称
+      let dataArr = new Array(); //时长
       for (let i in yhdCloseDurationAnalyzes) {
-        labArr.push(yhdCloseDurationAnalyzes[i].areaName) //区域名称
-        dataArr.push(yhdCloseDurationAnalyzes[i].durationCount) //时长
+        labArr.push(yhdCloseDurationAnalyzes[i].areaName); //区域名称
+        dataArr.push(yhdCloseDurationAnalyzes[i].durationCount); //时长
       }
 
       //设置图表
-      this.setGdbhscfxChartData(labArr, dataArr)
+      this.setGdbhscfxChartData(labArr, dataArr);
     },
 
     // 工单闭环率排名
     setGdbhlpmInfo(yhdGroupCloseRatioRankings) {
-      let labgdbhpmArr = new Array()
-      let datadbhpmArr = new Array()
-      let gdbhlpmHeight = 25
+      let labgdbhpmArr = new Array();
+      let datadbhpmArr = new Array();
+      let gdbhlpmHeight = 25;
       for (let i in yhdGroupCloseRatioRankings) {
-        labgdbhpmArr.push(yhdGroupCloseRatioRankings[i].groupName)
-        datadbhpmArr.push(yhdGroupCloseRatioRankings[i].closeRatio)
-        gdbhlpmHeight += 25
+        labgdbhpmArr.push(yhdGroupCloseRatioRankings[i].groupName);
+        datadbhpmArr.push(yhdGroupCloseRatioRankings[i].closeRatio);
+        gdbhlpmHeight += 25;
       }
-      $("#gdbhlpmData").height(gdbhlpmHeight + "px")
+      $("#gdbhlpmData").height(gdbhlpmHeight + "px");
       //设置图表
-      this.setGdbhlpmChartData(labgdbhpmArr, datadbhpmArr, gdbhlpmHeight)
+      this.setGdbhlpmChartData(labgdbhpmArr, datadbhpmArr, gdbhlpmHeight);
     },
 
     // 工单闭环率走势
     setGdbhlzsInfo(yhdStatCloseTrends) {
-      let labDateArr = new Array()
-      let labAreaArr = new Array()
-      let dataArr = new Array()
+      let labDateArr = new Array();
+      let labAreaArr = new Array();
+      let dataArr = new Array();
       for (let i in yhdStatCloseTrends) {
         if (i == 0) {
           //因为日期数据都一样，所以就取一次，避免数组倍数扩大
           for (let j in yhdStatCloseTrends[i].statDates) {
-            labDateArr.push(yhdStatCloseTrends[i].statDates[j])
+            labDateArr.push(yhdStatCloseTrends[i].statDates[j]);
           }
         }
-        labAreaArr.push(yhdStatCloseTrends[i].closeName)
-        dataArr.push(yhdStatCloseTrends[i].closeRatios)
+        labAreaArr.push(yhdStatCloseTrends[i].closeName);
+        dataArr.push(yhdStatCloseTrends[i].closeRatios);
       }
       //设置图表
-      this.setGdbhlzsChartData(labDateArr, labAreaArr, dataArr)
+      this.setGdbhlzsChartData(labDateArr, labAreaArr, dataArr);
     },
 
     // 全网分区域统计
     setQwfqytjInfo(allCityStatisArr) {
-      let table = document.getElementById("tabQwfqytj")
-      table.innerHTML = ""
+      let table = document.getElementById("tabQwfqytj");
+      table.innerHTML = "";
       let firstTr = `<tr>
                     <th rowspan="2" style="padding:8px;background:linear-gradient(to right, #e9f0ff, white);border:1px solid #999999;">区域</th>
                     <th rowspan="2" style="padding:8px;background:linear-gradient(to right, #e9f0ff, white);border:1px solid #999999;">区局</th>
@@ -912,24 +923,24 @@ export default {
                     <th style="padding:8px;border: 1px solid #999999;background:linear-gradient(to right, #e9f0ff, white)">总闭环工单</th>
                     <th style="padding:8px;border: 1px solid #999999;background:linear-gradient(to right, #e9f0ff, white)">总工单闭环率</th>
                     <th style="padding:8px;border: 1px solid #999999;background:linear-gradient(to right, #e9f0ff, white)">闭环率环比对比</th>
-                  </tr>`
-      table.insertAdjacentHTML("afterbegin", firstTr)
-      let tr, td
+                  </tr>`;
+      table.insertAdjacentHTML("afterbegin", firstTr);
+      let tr, td;
       for (let i in allCityStatisArr) {
         for (let j in allCityStatisArr[i].statisArr) {
-          tr = document.createElement("tr")
-          let tdBgColor = "white"
-          let tdTxtColor = "black"
+          tr = document.createElement("tr");
+          let tdBgColor = "white";
+          let tdTxtColor = "black";
           if (j == 0) {
             //第1行（第1列合并列）
-            td = document.createElement("td")
+            td = document.createElement("td");
             td.appendChild(
               document.createTextNode(allCityStatisArr[i].areaName)
-            )
-            td.setAttribute("rowspan", allCityStatisArr[i].statisArr.length)
-            td.style.border = "1px solid #999999"
-            td.style.padding = "8px"
-            tr.appendChild(td)
+            );
+            td.setAttribute("rowspan", allCityStatisArr[i].statisArr.length);
+            td.style.border = "1px solid #999999";
+            td.style.padding = "8px";
+            tr.appendChild(td);
             // tdBgColor = "green";
             // tdTxtColor = "white";
           } else if (j == allCityStatisArr[i].statisArr.length - 1) {
@@ -938,85 +949,85 @@ export default {
             // tdTxtColor = "white";
           }
 
-          td = document.createElement("td")
-          td.style.background = tdBgColor
-          td.style.color = tdTxtColor
-          td.style.border = "1px solid #999999"
-          td.style.padding = "8px"
+          td = document.createElement("td");
+          td.style.background = tdBgColor;
+          td.style.color = tdTxtColor;
+          td.style.border = "1px solid #999999";
+          td.style.padding = "8px";
           td.appendChild(
             document.createTextNode(allCityStatisArr[i].statisArr[j].dist)
-          )
-          tr.appendChild(td)
-          td = document.createElement("td")
-          td.style.background = tdBgColor
-          td.style.color = tdTxtColor
-          td.style.border = "1px solid #999999"
-          td.style.padding = "8px"
+          );
+          tr.appendChild(td);
+          td = document.createElement("td");
+          td.style.background = tdBgColor;
+          td.style.color = tdTxtColor;
+          td.style.border = "1px solid #999999";
+          td.style.padding = "8px";
           td.appendChild(
             document.createTextNode(allCityStatisArr[i].statisArr[j].city)
-          )
-          tr.appendChild(td)
-          td = document.createElement("td")
-          td.style.background = tdBgColor
-          td.style.color = tdTxtColor
-          td.style.border = "1px solid #999999"
-          td.style.padding = "8px"
+          );
+          tr.appendChild(td);
+          td = document.createElement("td");
+          td.style.background = tdBgColor;
+          td.style.color = tdTxtColor;
+          td.style.border = "1px solid #999999";
+          td.style.padding = "8px";
           td.appendChild(
             document.createTextNode(
               allCityStatisArr[i].statisArr[j].acceptCountWeek
             )
-          )
-          tr.appendChild(td)
-          td = document.createElement("td")
-          td.style.background = tdBgColor
-          td.style.color = tdTxtColor
-          td.style.border = "1px solid #999999"
-          td.style.padding = "8px"
+          );
+          tr.appendChild(td);
+          td = document.createElement("td");
+          td.style.background = tdBgColor;
+          td.style.color = tdTxtColor;
+          td.style.border = "1px solid #999999";
+          td.style.padding = "8px";
           td.appendChild(
             document.createTextNode(
               allCityStatisArr[i].statisArr[j].acceptCount
             )
-          )
-          tr.appendChild(td)
-          td = document.createElement("td")
-          td.style.background = tdBgColor
-          td.style.color = tdTxtColor
-          td.style.border = "1px solid #999999"
-          td.style.padding = "8px"
+          );
+          tr.appendChild(td);
+          td = document.createElement("td");
+          td.style.background = tdBgColor;
+          td.style.color = tdTxtColor;
+          td.style.border = "1px solid #999999";
+          td.style.padding = "8px";
           td.appendChild(
             document.createTextNode(allCityStatisArr[i].statisArr[j].closeCount)
-          )
-          tr.appendChild(td)
-          td = document.createElement("td")
-          td.style.background = tdBgColor
-          td.style.color = tdTxtColor
-          td.style.border = "1px solid #999999"
-          td.style.padding = "8px"
+          );
+          tr.appendChild(td);
+          td = document.createElement("td");
+          td.style.background = tdBgColor;
+          td.style.color = tdTxtColor;
+          td.style.border = "1px solid #999999";
+          td.style.padding = "8px";
           td.appendChild(
             document.createTextNode(allCityStatisArr[i].statisArr[j].closeRatio)
-          )
-          tr.appendChild(td)
-          td = document.createElement("td")
-          td.style.background = tdBgColor
-          td.style.color = tdTxtColor
-          td.style.border = "1px solid #999999"
-          td.style.padding = "8px"
+          );
+          tr.appendChild(td);
+          td = document.createElement("td");
+          td.style.background = tdBgColor;
+          td.style.color = tdTxtColor;
+          td.style.border = "1px solid #999999";
+          td.style.padding = "8px";
           td.appendChild(
             document.createTextNode(
               allCityStatisArr[i].statisArr[j].closeRatioHb
             )
-          )
-          tr.appendChild(td)
+          );
+          tr.appendChild(td);
 
-          table.appendChild(tr)
+          table.appendChild(tr);
         }
       }
     },
 
     // 全网分指标统计
     setQwfzbtjInfo(allIndexStatisArr) {
-      let table = document.getElementById("tabQwfzbtj")
-      table.innerHTML = ""
+      let table = document.getElementById("tabQwfzbtj");
+      table.innerHTML = "";
       let firstTr = `<tr>
                     <th style="padding:8px;border: 1px solid #999999;background:linear-gradient(to right, #e9f0ff, white)">网格</th>
                     <th style="padding:8px;border: 1px solid #999999;background:linear-gradient(to right, #e9f0ff, white)">策略分类</th>
@@ -1025,76 +1036,76 @@ export default {
                     <th style="padding:8px;border: 1px solid #999999;background:linear-gradient(to right, #e9f0ff, white)">总闭环工单</th>
                     <th style="padding:8px;border: 1px solid #999999;background:linear-gradient(to right, #e9f0ff, white)">总工单闭环率</th>
                     <th style="padding:8px;border: 1px solid #999999;background:linear-gradient(to right, #e9f0ff, white)">闭环率环比对比</th>
-                  </tr>`
-      table.insertAdjacentHTML("afterbegin", firstTr)
-      let tr, td
+                  </tr>`;
+      table.insertAdjacentHTML("afterbegin", firstTr);
+      let tr, td;
       for (let i in allIndexStatisArr) {
         for (let j in allIndexStatisArr[i].statisArr) {
-          tr = document.createElement("tr")
+          tr = document.createElement("tr");
           if (j == 0) {
-            td = document.createElement("td")
-            td.appendChild(document.createTextNode(allIndexStatisArr[i].mode))
-            td.setAttribute("rowspan", allIndexStatisArr[i].statisArr.length)
-            td.style.border = "1px solid #999999"
-            td.style.padding = "8px"
-            tr.appendChild(td)
+            td = document.createElement("td");
+            td.appendChild(document.createTextNode(allIndexStatisArr[i].mode));
+            td.setAttribute("rowspan", allIndexStatisArr[i].statisArr.length);
+            td.style.border = "1px solid #999999";
+            td.style.padding = "8px";
+            tr.appendChild(td);
           }
 
-          td = document.createElement("td")
+          td = document.createElement("td");
           td.appendChild(
             document.createTextNode(allIndexStatisArr[i].statisArr[j].monIndex)
-          )
-          td.style.border = "1px solid #999999"
-          td.style.padding = "8px"
-          tr.appendChild(td)
-          td = document.createElement("td")
+          );
+          td.style.border = "1px solid #999999";
+          td.style.padding = "8px";
+          tr.appendChild(td);
+          td = document.createElement("td");
           td.appendChild(
             document.createTextNode(
               allIndexStatisArr[i].statisArr[j].acceptCountWeek
             )
-          )
-          td.style.border = "1px solid #999999"
-          td.style.padding = "8px"
-          tr.appendChild(td)
-          td = document.createElement("td")
+          );
+          td.style.border = "1px solid #999999";
+          td.style.padding = "8px";
+          tr.appendChild(td);
+          td = document.createElement("td");
           td.appendChild(
             document.createTextNode(
               allIndexStatisArr[i].statisArr[j].acceptCount
             )
-          )
-          td.style.border = "1px solid #999999"
-          td.style.padding = "8px"
+          );
+          td.style.border = "1px solid #999999";
+          td.style.padding = "8px";
 
-          tr.appendChild(td)
-          td = document.createElement("td")
+          tr.appendChild(td);
+          td = document.createElement("td");
           td.appendChild(
             document.createTextNode(
               allIndexStatisArr[i].statisArr[j].closeCount
             )
-          )
-          td.style.border = "1px solid #999999"
-          td.style.padding = "8px"
-          tr.appendChild(td)
-          td = document.createElement("td")
+          );
+          td.style.border = "1px solid #999999";
+          td.style.padding = "8px";
+          tr.appendChild(td);
+          td = document.createElement("td");
           td.appendChild(
             document.createTextNode(
               allIndexStatisArr[i].statisArr[j].closeRatio
             )
-          )
-          td.style.border = "1px solid #999999"
-          td.style.padding = "8px"
-          tr.appendChild(td)
-          td = document.createElement("td")
+          );
+          td.style.border = "1px solid #999999";
+          td.style.padding = "8px";
+          tr.appendChild(td);
+          td = document.createElement("td");
           td.appendChild(
             document.createTextNode(
               allIndexStatisArr[i].statisArr[j].closeRatioHb
             )
-          )
-          td.style.border = "1px solid #999999"
-          td.style.padding = "8px"
-          tr.appendChild(td)
+          );
+          td.style.border = "1px solid #999999";
+          td.style.padding = "8px";
+          tr.appendChild(td);
 
-          table.appendChild(tr)
+          table.appendChild(tr);
         }
       }
     },
@@ -1104,16 +1115,16 @@ export default {
       // console.log(nameList);
       // console.log(valueList);
 
-      let jsonstr = []
+      let jsonstr = [];
       for (let i = 0; i < nameList.length; i++) {
-        let json = {}
-        json.name = nameList[i]
-        json.data = valueList[i]
-        json.type = chartType
-        jsonstr.push(json)
+        let json = {};
+        json.name = nameList[i];
+        json.data = valueList[i];
+        json.type = chartType;
+        jsonstr.push(json);
       }
 
-      return jsonstr
+      return jsonstr;
     },
 
     // 指标闭环率（图表）
@@ -1121,9 +1132,9 @@ export default {
       // let myChart = echarts.init(document.getElementById("zbbhlData"));
       let myChart = echarts.getInstanceByDom(
         document.getElementById("zbbhlData")
-      )
+      );
       if (myChart == null) {
-        myChart = echarts.init(document.getElementById("zbbhlData"))
+        myChart = echarts.init(document.getElementById("zbbhlData"));
       }
 
       //指定图表的配置项和数据
@@ -1175,9 +1186,9 @@ export default {
             stack: "闭环率",
             label: {
               formatter: function (params) {
-                var chazhi = parseFloat(params.value).toFixed(2)
-                if (chazhi > 0) return "↑" + chazhi + "%"
-                else return "↓" + chazhi + "%"
+                var chazhi = parseFloat(params.value).toFixed(2);
+                if (chazhi > 0) return "↑" + chazhi + "%";
+                else return "↓" + chazhi + "%";
               },
               show: true, //显示数字
               position: "right",
@@ -1188,11 +1199,11 @@ export default {
             data: dataQsArr,
           },
         ],
-      }
+      };
       //使用刚刚指定的配置项和数据项显示图表
-      myChart.clear()
-      myChart.setOption(option)
-      window.onresize = myChart.resize() //大小有变化，需要重新加载
+      myChart.clear();
+      myChart.setOption(option);
+      window.onresize = myChart.resize(); //大小有变化，需要重新加载
     },
 
     // 工单闭环时长分析
@@ -1201,9 +1212,9 @@ export default {
       //dataArr=[[100,110,120,130],[120,130,140,150],[130,140,150,160]];
       let myChart = echarts.getInstanceByDom(
         document.getElementById("gdbhscfxData")
-      )
+      );
       if (myChart == null) {
-        myChart = echarts.init(document.getElementById("gdbhscfxData"))
+        myChart = echarts.init(document.getElementById("gdbhscfxData"));
       }
 
       //指定图表的配置项和数据
@@ -1237,14 +1248,14 @@ export default {
         },
         //数据-data是最终要显示的数据
         series: this.getChartData("bar", labArr, dataArr),
-      }
+      };
 
       //使用刚刚指定的配置项和数据项显示图表
-      myChart.clear()
-      myChart.setOption(option)
+      myChart.clear();
+      myChart.setOption(option);
       window.onresize = function () {
-        myChart.resize() //大小有变化，需要重新加载
-      }
+        myChart.resize(); //大小有变化，需要重新加载
+      };
     },
 
     // 工单闭环率排名
@@ -1252,9 +1263,9 @@ export default {
       // let myChart = echarts.init(document.getElementById("gdbhlpmData"));
       let myChart = echarts.getInstanceByDom(
         document.getElementById("gdbhlpmData")
-      )
+      );
       if (myChart == null) {
-        myChart = echarts.init(document.getElementById("gdbhlpmData"))
+        myChart = echarts.init(document.getElementById("gdbhlpmData"));
       }
 
       //指定图表的配置项和数据
@@ -1297,11 +1308,11 @@ export default {
             data: dataArr,
           },
         ],
-      }
-      myChart.clear()
+      };
+      myChart.clear();
       //使用刚刚指定的配置项和数据项显示图表
-      myChart.setOption(option)
-      window.onresize = myChart.resize()
+      myChart.setOption(option);
+      window.onresize = myChart.resize();
     },
 
     // 工单闭环率走势(折线图)
@@ -1309,9 +1320,9 @@ export default {
       // let myChart = echarts.init(document.getElementById("gdbhlzsData"));
       let myChart = echarts.getInstanceByDom(
         document.getElementById("gdbhlzsData")
-      )
+      );
       if (myChart == null) {
-        myChart = echarts.init(document.getElementById("gdbhlzsData"))
+        myChart = echarts.init(document.getElementById("gdbhlzsData"));
       }
       //指定图表的配置项和数据
       let option = {
@@ -1341,10 +1352,10 @@ export default {
         },
         //数据-data是最终要显示的数据
         series: this.getChartData("line", labAreaArr, dataArr),
-      }
-      myChart.clear()
+      };
+      myChart.clear();
       //使用刚刚指定的配置项和数据项显示图表
-      myChart.setOption(option)
+      myChart.setOption(option);
     },
 
     //差小区制式占比
@@ -1352,9 +1363,9 @@ export default {
       // let myChart = echarts.init(document.getElementById("cxqzszbData"));
       let myChart = echarts.getInstanceByDom(
         document.getElementById("cxqzszbData")
-      )
+      );
       if (myChart == null) {
-        myChart = echarts.init(document.getElementById("cxqzszbData"))
+        myChart = echarts.init(document.getElementById("cxqzszbData"));
       }
 
       //指定图表的配置项和数据
@@ -1392,29 +1403,27 @@ export default {
             },
           ],
         },
-      }
-      myChart.setOption(option)
+      };
+      myChart.setOption(option);
     },
   },
   mounted() {
-    console.log('111111111', this.$refs.static.clientHeight)
-    this.tableMargin = this.$refs.static.clientHeight + 10 + 'px'
-
+    this.tableMargin = this.$refs.static.clientHeight + 10 + "px";
   },
   created() {
-    let userIds = getItem('loginInfo').userIds
-    userIds.forEach(e => {
+    let userIds = getItem("loginInfo").userIds;
+    userIds.forEach((e) => {
       if (e.sysId == 3) {
-        this.loginNo = e.accountId
+        this.loginNo = e.accountId;
       }
-    })
+    });
     // 发送第一个请求获取用户权限
-    this.getSettingInfo()
-    let y = new Date().getFullYear()
-    let m = new Date().getMonth() + 1
-    this.month = y.toString() + "-" + this.addZero(m.toString())
-    this.weekIndex = 1
-    this.getTableInfo()
+    this.getSettingInfo();
+    let y = new Date().getFullYear();
+    let m = new Date().getMonth() + 1;
+    this.month = y.toString() + "-" + this.addZero(m.toString());
+    this.weekIndex = 1;
+    this.getTableInfo();
   },
 };
 </script>

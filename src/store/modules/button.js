@@ -1,4 +1,3 @@
-import { setItem, getItem } from '@/utils/sessionStorage'
 const state = {
     // 装机单-回复-posCodeSign弹出层
     posCodePopShow: false,
@@ -11,8 +10,33 @@ const state = {
     iomNewFinishParams: {}, // IOM回单页面的参数
     // positionFlag: false, // 是否定位
     // currIdPosition: null, // 定位需要用的id参数
+
+    // 装机单-修改客户电话弹出层
+    editCustPhone: {
+        editCustPhoneShow: false,
+        orderId: -1,
+    },
+
+    // 回复任务
+    finishTask: {
+        popShow: false,
+        id: -1,
+        orderId: "",
+        flowNode: "",
+        workType: -1,
+    }
 }
 const mutations = {
+    // 修改回复任务参数
+    changeFinishTask(state, result) {
+        state.finishTask = result
+    },
+
+    // 修改客户电话
+    changeEditCustPhoneShow(state, result) {
+        state.changeEditCustPhoneShow = result
+    },
+
     // updatePositionFlag (state, flag) {
     //     state.positionFlag = flag
     // },
@@ -20,31 +44,31 @@ const mutations = {
     //     state.currIdPosition = id
     // },
     // 更改装机单-回复-posCodeSign弹出层标识
-    CHANGEPOSPOPSHOW (state, result) {
+    CHANGEPOSPOPSHOW(state, result) {
         state.posCodePopShow = result
     },
     // 更改pos位置描述
-    CHANGEPOSADDRESS (state, result) {
+    CHANGEPOSADDRESS(state, result) {
         state.posAddress = result
     },
     // 更改posCodeSign
-    CHANGEPOSCODESIGN (state, result) {
+    CHANGEPOSCODESIGN(state, result) {
         state.posCodeSign = result
     },
     // pos二维码编码
-    CHANGEPOSCODE (state, result) {
+    CHANGEPOSCODE(state, result) {
         state.posCode = result
     },
     // 更改IOM回单页面的参数
-    CHANGEIOMFINISHPARAM (state, result) {
+    CHANGEIOMFINISHPARAM(state, result) {
         state.iomNewFinishParams = result
     },
     // 更改标准地址
-    CHANGEBZDZFIT (state, result) {
+    CHANGEBZDZFIT(state, result) {
         state.bzdzFit = result
     },
     // 标准地址备注
-    CHANGEBZDZMARK (state, result) {
+    CHANGEBZDZMARK(state, result) {
         state.bzdzMark = result
     }
 }

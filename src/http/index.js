@@ -284,3 +284,8 @@ export const reqEveryDayStudy = (postData) => {
     data: `data=${postData}`,
   });
 };
+
+// 网络鉴权服务，获取权限
+export const reqUniNetLogin = (postData) => {
+  return requests({ method: 'post', url: '/uniNetLogin', data: `data=${postData}` })
+}

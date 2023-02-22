@@ -70,17 +70,17 @@ export default {
     ...mapState("ydNetworkAssess", ["monthInfo"]),
   },
   watch: {
-    khMonth () {
+    khMonth() {
       this.getMonthInfo();
     },
-    modeId () {
+    modeId() {
       if (this.titleActiveName == "month") {
         this.getMonthInfo();
       }
     },
   },
   methods: {
-    async getMonthInfo () {
+    async getMonthInfo() {
       try {
         let zhishi = this.modeId;
         let khMonth = this.khMonth;
@@ -93,7 +93,7 @@ export default {
         );
         let result = this.monthInfo;
         console.log("月报数据", result);
-        if (result.operationSuccessFlag) {
+        this.apiResponse(result, ".monthInfo", () => {
           //成功
           //数据
           $("#tabtitleM").hide();
@@ -119,7 +119,8 @@ export default {
 
           //显示内容
           $("#tabConM").show();
-        } else {
+        });
+        if (!result.operationSuccessFlag) {
           //失败
           $("#zkjsjM").text("ERROR-" + result.errorMessage);
           $("#tabtitleM").show();
@@ -130,7 +131,7 @@ export default {
       }
     },
   },
-  created () { },
+  created() {},
 };
 </script>
 

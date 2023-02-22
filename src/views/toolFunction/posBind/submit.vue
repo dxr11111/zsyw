@@ -43,7 +43,7 @@
             </div>
           </div>
           <!-- 空状态 -->
-          <template v-else><van-empty description="暂无数据" /></template>
+          <Empty v-else />
         </van-tab>
         <van-tab :title="guangFenTitle">
           <div
@@ -77,7 +77,7 @@
             </div>
           </div>
           <!-- 空状态 -->
-          <template v-else><van-empty description="暂无数据" /></template>
+          <Empty v-else />
         </van-tab>
         <van-tab :title="fttbTitle">
           <div
@@ -96,7 +96,7 @@
             </div>
           </div>
           <!-- 空状态 -->
-          <template v-else><van-empty description="暂无数据" /></template>
+          <Empty v-else />
         </van-tab>
       </van-tabs>
       <!-- 光分信息弹出框 -->
@@ -195,22 +195,22 @@
 </template>
 
 <script>
-import { reqToolWaitPos } from '@/http/tools'
+import { reqToolWaitPos } from "@/http/tools";
 export default {
-  name: 'ToolPosBindSubmit',
-  data () {
+  name: "ToolPosBindSubmit",
+  data() {
     return {
       headName: `POS绑定(${this.$route.query.orderId})`,
       activeIndex: 0,
-      posBianHao: '', // pos编号
-      posDuanKou: '', // pos端口
-      posDuanKouID: '', // pos端口id
-      guangFenID: '', // 光分id
-      guangFenDuanKouID: '', // 光分端口id
-      guangFenBianHao: '', // 光分编号
-      guangFenDuanKouHao: '', // 光分端口
-      guangFenDuanKouShu: '', // 光分端口总数
-      guangFenWeizhi: '', // 光分位置描述
+      posBianHao: "", // pos编号
+      posDuanKou: "", // pos端口
+      posDuanKouID: "", // pos端口id
+      guangFenID: "", // 光分id
+      guangFenDuanKouID: "", // 光分端口id
+      guangFenBianHao: "", // 光分编号
+      guangFenDuanKouHao: "", // 光分端口
+      guangFenDuanKouShu: "", // 光分端口总数
+      guangFenWeizhi: "", // 光分位置描述
       // pos信息
       posDuanKouList: [],
       guangFenList: [],
@@ -220,131 +220,142 @@ export default {
       opsPopIndex: -1, // 弹出框对应的光分信息
       // 点击弹出的光分信息
       guangFenInfo: [],
-      guangFenPopTitle: '', // 标题
+      guangFenPopTitle: "", // 标题
       guangFenInfoIndex: -1, // 选中的弹出框内的光分信息
       // 底部div高度
       bottomHeight: "",
-    }
+    };
   },
   computed: {
     // pos端口标题
-    posTitle () {
-      return `POS端口(${this.posDuanKouList.length})`
+    posTitle() {
+      return `POS端口(${this.posDuanKouList.length})`;
     },
     // 光分信息标题
-    guangFenTitle () {
-      return `光分信息(${this.guangFenList.length})`
+    guangFenTitle() {
+      return `光分信息(${this.guangFenList.length})`;
     },
     // fttb信息标题
-    fttbTitle () {
-      return `FTTB信息(${this.fttblist.length})`
-    }
+    fttbTitle() {
+      return `FTTB信息(${this.fttblist.length})`;
+    },
   },
   methods: {
     // 回退
-    goBackFn () {
-      this.$router.go(-1)
+    goBackFn() {
+      this.$router.go(-1);
     },
     // 获取pos信息
-    getPosInfo () {
-      let posInfo = JSON.parse(this.$route.query.posInfo)
-      this.posDuanKouList = posInfo.posDuanKouList
-      this.guangFenList = posInfo.guangFenList
-      this.fttblist = posInfo.fttblist
-
+    getPosInfo() {
+      let posInfo = JSON.parse(this.$route.query.posInfo);
+      this.posDuanKouList = posInfo.posDuanKouList;
+      this.guangFenList = posInfo.guangFenList;
+      this.fttblist = posInfo.fttblist;
     },
     // 选中pos端口
-    clickPos (item, index) {
+    clickPos(item, index) {
       if (item.zhuangTai === 1) {
-        return this.$toast('只能选择空闲或正向分配端口')
+        return this.$toast("只能选择空闲或正向分配端口");
       }
       // 选中空闲状态
-      this.posDuanKouIndex = index
+      this.posDuanKouIndex = index;
       // 获取选中pos端口
-      this.posDuanKou = item.duankouHao
-      this.posDuanKouID = item.duanKouID
+      this.posDuanKou = item.duankouHao;
+      this.posDuanKouID = item.duanKouID;
       // 将光分选中的信息清空
-      this.guangFenBianHao = ''
-      this.guangFenDuanKouHao = ''
-      this.guangFenID = ''
-      this.guangFenDuanKouID = ''
-
+      this.guangFenBianHao = "";
+      this.guangFenDuanKouHao = "";
+      this.guangFenID = "";
+      this.guangFenDuanKouID = "";
     },
     // 选中光分信息给弹出框的内容
-    clickGuangFen (item, index) {
-      this.opsInfoShow = true
+    clickGuangFen(item, index) {
+      this.opsInfoShow = true;
       // 记录弹框对应的内容下标
-      this.opsPopIndex = index
-      this.guangFenInfo = item.guangFenDuanKouList
-      this.guangFenDuanKouShu = item.guangFenDuanKouShu
-      this.guangFenWeizhi = item.guangFenWeizhi
-      this.guangFenPopTitle = this.guangFenInfo[0].guangFenBianHao
+      this.opsPopIndex = index;
+      this.guangFenInfo = item.guangFenDuanKouList;
+      this.guangFenDuanKouShu = item.guangFenDuanKouShu;
+      this.guangFenWeizhi = item.guangFenWeizhi;
+      this.guangFenPopTitle = this.guangFenInfo[0].guangFenBianHao;
     },
     // 弹出框选中光分信息
-    clickGuangFenPop (item, index) {
+    clickGuangFenPop(item, index) {
       // 判断选中状态是否异常
       if (item.zhuangTai === 2) {
-        return this.$toast('光分端口状态异常，不能选择')
+        return this.$toast("光分端口状态异常，不能选择");
       }
-      this.guangFenInfoIndex = index
+      this.guangFenInfoIndex = index;
     },
     // 弹出框确认光分信息
-    confirmGuangFen () {
+    confirmGuangFen() {
       // 未选中光分信息无法确认
       if (this.guangFenInfoIndex === -1) {
-        return this.$toast('请选择一个设备')
+        return this.$toast("请选择一个设备");
       }
       // 关闭弹出框
-      this.opsInfoShow = false
+      this.opsInfoShow = false;
       // 获取选择的编号，端口
-      this.guangFenBianHao = this.guangFenInfo[this.guangFenInfoIndex].guangFenBianHao
-      this.guangFenDuanKouHao = this.guangFenInfo[this.guangFenInfoIndex].guangFenDuanKouHao
-      this.posDuanKou = this.guangFenInfo[this.guangFenInfoIndex].posDuanKouHao
-      this.posDuanKouID = this.guangFenInfo[this.guangFenInfoIndex].posDuanKouID
-      this.guangFenID = this.guangFenInfo[this.guangFenInfoIndex].guangFenID
-      this.guangFenDuanKouID = this.guangFenInfo[this.guangFenInfoIndex].guangFenDuanKouID
+      this.guangFenBianHao =
+        this.guangFenInfo[this.guangFenInfoIndex].guangFenBianHao;
+      this.guangFenDuanKouHao =
+        this.guangFenInfo[this.guangFenInfoIndex].guangFenDuanKouHao;
+      this.posDuanKou = this.guangFenInfo[this.guangFenInfoIndex].posDuanKouHao;
+      this.posDuanKouID =
+        this.guangFenInfo[this.guangFenInfoIndex].posDuanKouID;
+      this.guangFenID = this.guangFenInfo[this.guangFenInfoIndex].guangFenID;
+      this.guangFenDuanKouID =
+        this.guangFenInfo[this.guangFenInfoIndex].guangFenDuanKouID;
     },
     // 提交信息
-    async onSubmit () {
-      let posInfo = JSON.parse(this.$route.query.posInfo)
+    async onSubmit() {
+      let posInfo = JSON.parse(this.$route.query.posInfo);
       // 传参
-      let type = 3 // pos提交
-      let id = parseInt(this.$route.query.id)
-      let posBianHao = this.posBianHao
-      let posShebeiId = posInfo.posShebeiId
-      let posDuanKou = this.posDuanKou
-      let posDuanKouID = this.posDuanKouID
-      let onuId = this.$route.query.onuId
-      let guangFenBianHao = this.guangFenBianHao
-      let guangFenDuanKouShu = this.guangFenDuanKouShu // 手工
-      let guangFenWeizhi = this.guangFenWeizhi // 手工
-      let guangFenID = this.guangFenID
-      let userCreateGuangFen = 0 // 未手工填写光分信息
-      let guangFenDuanKou = this.guangFenDuanKouHao
-      let guangFenDuanKouID = this.guangFenDuanKouID
+      let type = 3; // pos提交
+      let id = parseInt(this.$route.query.id);
+      let posBianHao = this.posBianHao;
+      let posShebeiId = posInfo.posShebeiId;
+      let posDuanKou = this.posDuanKou;
+      let posDuanKouID = this.posDuanKouID;
+      let onuId = this.$route.query.onuId;
+      let guangFenBianHao = this.guangFenBianHao;
+      let guangFenDuanKouShu = this.guangFenDuanKouShu; // 手工
+      let guangFenWeizhi = this.guangFenWeizhi; // 手工
+      let guangFenID = this.guangFenID;
+      let userCreateGuangFen = 0; // 未手工填写光分信息
+      let guangFenDuanKou = this.guangFenDuanKouHao;
+      let guangFenDuanKouID = this.guangFenDuanKouID;
       let postData = {
-        type, id, posBianHao, posShebeiId, posDuanKou, posDuanKouID, onuId, guangFenBianHao,
-        guangFenWeizhi, guangFenDuanKouShu, guangFenID, userCreateGuangFen, guangFenDuanKou, guangFenDuanKouID
-      }
-      let result = await reqToolWaitPos(JSON.stringify(postData))
-      console.log('pos绑定提交结果', result)
-      if (result.operationSuccessFlag) {
-      } else {
-      }
-    }
+        type,
+        id,
+        posBianHao,
+        posShebeiId,
+        posDuanKou,
+        posDuanKouID,
+        onuId,
+        guangFenBianHao,
+        guangFenWeizhi,
+        guangFenDuanKouShu,
+        guangFenID,
+        userCreateGuangFen,
+        guangFenDuanKou,
+        guangFenDuanKouID,
+      };
+      let result = await reqToolWaitPos(JSON.stringify(postData));
+      console.log("pos绑定提交结果", result);
+      this.apiResponse(result, ".submit", () => {});
+    },
   },
-  created () {
+  created() {
     // 默认选中的pos编号
-    this.posBianHao = this.$route.query.posBianHao
+    this.posBianHao = this.$route.query.posBianHao;
     // 获取pos信息
-    this.getPosInfo()
+    this.getPosInfo();
   },
-  mounted () {
+  mounted() {
     // 获取底部div高度
-    this.bottomHeight = this.$refs.bottom.clientHeight + 'px'
-
+    this.bottomHeight = this.$refs.bottom.clientHeight + "px";
   },
-}
+};
 </script>
 
 <style scoped lang="less">
@@ -459,7 +470,7 @@ export default {
             background: grey;
             border-radius: 10px;
             &::after {
-              content: '';
+              content: "";
               position: absolute;
               border-left: 2px solid #e0e0e0;
               height: 50px;

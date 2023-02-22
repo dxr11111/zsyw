@@ -85,7 +85,7 @@ import WeekReport from "./components/weekReport";
 import MonthReport from "./components/monthReport";
 import FgsReport from "./components/fgsReport";
 import $ from "jquery";
-import { getItem } from '@/utils/sessionStorage';
+import { getItem } from '@/utils/public/sessionStorage';
 export default {
   name: "YdNetworkAssess",
   components: {

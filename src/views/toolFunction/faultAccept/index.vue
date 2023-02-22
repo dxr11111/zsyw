@@ -9,7 +9,7 @@
       <div style="margin-top: 20px">
         <div>
           <img
-            src="@/assets/imgs/guzhangshouli.png"
+            src="@/assets/images/common/guzhangshouli.png"
             @click="isShow = 'accept'"
           />
         </div>
@@ -25,17 +25,17 @@
 
 <script>
 export default {
-  name: 'FaultAccept',
+  name: "FaultAccept",
   components: {
-    Accept: () => import('./components/accept.vue'),
-    Search: () => import('./components/search.vue'),
+    Accept: () => import("./components/accept.vue"),
+    Search: () => import("./components/search.vue"),
   },
-  data () {
+  data() {
     return {
-      isShow: 'index'
-    }
+      isShow: "index",
+    };
   },
-}
+};
 </script>
 
 <style scoped lang="less">
@@ -54,7 +54,7 @@ img {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  background-image: url('@/assets/imgs/search-bg.png');
+  background-image: url("@/assets/images/common/search-bg.png");
   span {
     line-height: 100px;
     margin-left: -21%;

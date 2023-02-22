@@ -53,7 +53,7 @@ export default {
         console.log("分公司数据", result);
         $("#tabBodyCon").empty(); //清空
         //数据
-        if (result.operationSuccessFlag) {
+        this.apiResponse(result, ".fgsInfo", () => {
           //成功
           let week = result.week;
           $("#riqi").text("日期(" + week.weekStart + "至" + week.weekEnd + ")");
@@ -146,7 +146,8 @@ export default {
             );
             $trTemp.appendTo("#tabBodyCon");
           }
-        } else {
+        });
+        if (!result.operationSuccessFlag) {
           //失败
           $("#riqi").text("ERROR-" + result.errorMessage);
         }
