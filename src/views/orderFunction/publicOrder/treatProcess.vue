@@ -56,12 +56,9 @@
 
 <script>
 import { reqTreatProcess } from "@/http/button";
-import url from "@/http/img";
-// import { reqgetImgId } from '@/http/index'
 import { getItem } from "@/utils/public/sessionStorage";
 import { removeWatermark } from "@/utils/public/waterMark";
 import { uploadImg } from "@/utils/public/uploadImg";
-import axios from "axios";
 
 export default {
   name: "TreatProcess",
@@ -86,7 +83,8 @@ export default {
     // 表单校验
     checkForm() {
       if (this.process == "") return this.$toast("请填写处理过程");
-      if (this.remark == "") return this.$toast("请填写备注信息");
+      if (this.flowNode !== "6" && this.remark == "")
+        return this.$toast("请填写备注信息");
       // 获取图片id
       this.getPicturesId();
     },

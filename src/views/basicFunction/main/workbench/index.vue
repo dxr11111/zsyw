@@ -97,6 +97,7 @@
           @getBgHeight="getBgHeight"
           @getTaskType="getTaskType"
           :showDataSummary="showDataSummary"
+          :selectSysId="selectSysId"
           ref="myTask"
         />
         <DepartmentOrder
@@ -241,6 +242,7 @@
 <script>
 import { reqBillListTab, reqgetOrderList, reqFastQuery } from "@/http/index";
 import { getItem, removeItem, setItem } from "@/utils/public/sessionStorage";
+import { getHasTaskListSysId } from "@/utils/public/common";
 import { reqHuJiaoCall } from "@/http/tools";
 import ContentInfo from "@/components/contentInfo";
 import Filtrate from "@/components/filtrate";
@@ -305,7 +307,7 @@ export default {
         // 12:tsxq（投诉类-投诉单）
       },
       siftPara: {},
-      bigBoardSiftPara: {}, // 工单看板跳转列表id筛选条件
+      bigBoardSiftPara: {}, // 工单/任务看板跳转列表id筛选条件
 
       // 个性化-选择工单
       selectOrderActions: [],
@@ -456,6 +458,9 @@ export default {
     },
     // 切换tab栏
     changeTabs(index, title) {
+      // 切换tab栏取消未完成的请求
+      this.$store.commit("CLEARCANCEL");
+
       // tab栏头部为快速筛选 → 点击其他索引 → 删除快速筛选选项
       if (this.tabList[0].name == "筛选结果") {
         this.queryInfo = "";
@@ -799,6 +804,7 @@ export default {
           groupId = item.groupId;
         }
       });
+
       // 根据默认id获取工作组默认名称
       if (groupId !== -1) {
         this.getLoginInfo.listSheetGroup.forEach((item) => {
@@ -892,10 +898,8 @@ export default {
       let ifmSysId = -1;
       let groupSysId = -1;
       if (this.isTask == 1) {
-        // 任务 返回所有sysId
-        this.getLoginInfo?.userIds.forEach((item) => {
-          sysIds.push(item.sysId);
-        });
+        // 任务 获取用户userIds里的hasTaskList=1时的sysId
+        sysIds = getHasTaskListSysId(this.getLoginInfo?.userIds);
       } else {
         // 工单
         sysIds = [this.listPostData.sysId];
@@ -950,12 +954,13 @@ export default {
         groupSysId = -1; // 公众类传-1，其他类按照sysId传
       }
 
+      // 获取点击看板跳转到列表id的筛选条件,任务和工单都有
+      siftPara = { ...this.bigBoardSiftPara, ...siftPara };
+
       // 区分工单/任务
       if (this.isTask == 1) {
-        // 任务
-        this.getLoginInfo?.userIds.forEach((item) => {
-          sysIds.push(item.sysId);
-        });
+        // 任务 获取用户userIds里的hasTaskList=1时的sysId
+        sysIds = getHasTaskListSysId(this.getLoginInfo?.userIds);
         groupSysId = -1;
         // 筛选内选择工单则sysIds为选择的工单
         if (this.selectSysId > -1) {
@@ -965,13 +970,9 @@ export default {
         // 工单
         groupId = this.currWorkGroupInfo.groupId;
         sysIds = [this.listPostData.sysId];
-        /* if (JSON.stringify(siftPara) == '{}') {
-          siftPara = { ifmSysId: this.listPostData.ifmSysId }
-        } */
+
         // 需要在筛选条件里加ifmSysId字段
         siftPara = { ...{ ifmSysId: this.listPostData.ifmSysId }, ...siftPara };
-        // 获取点击看板跳转到列表id的筛选条件
-        siftPara = { ...this.bigBoardSiftPara, ...siftPara };
       }
 
       let postData = {
@@ -1077,12 +1078,6 @@ export default {
       // 清空工单看板跳转的筛选条件
       this.bigBoardSiftPara = {};
       this.resetListInfo();
-      /* // 任务页面点击筛选需要重新调用任务看板
-      // 判断是任务还是工单 → 获取任务看板数
-      if (this.isTask == 1) {
-        // 重新获取任务列表
-        this.$refs.myTask.getTaskNum();
-      } */
     },
 
     // 监听main滚动事件
@@ -1212,6 +1207,7 @@ export default {
             this.tabList = listTabContent;
           });
         }
+
         this.$nextTick(() => {
           this.taskType = id;
           this.tabList.forEach((e, i) => {

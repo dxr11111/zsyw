@@ -67,9 +67,8 @@
 </template>
 
 <script>
-import axios from "axios";
 import { getItem } from "@/utils/public/sessionStorage";
-import $, { data } from "jquery";
+import $ from "jquery";
 export default {
   name: "ReportSheet",
   data() {

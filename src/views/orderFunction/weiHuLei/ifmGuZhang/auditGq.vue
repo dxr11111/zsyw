@@ -80,10 +80,14 @@
 </template>
 
 <script>
-import { reqIfmComplaintProdQuery, reqIfmAuditYdProdInfo, reqDownloadFile } from '@/http/button'
-import { Base64 } from 'js-base64'
+import {
+  reqIfmComplaintProdQuery,
+  reqIfmAuditYdProdInfo,
+  reqDownloadFile,
+} from "@/http/button";
+import { Base64 } from "js-base64";
 export default {
-  name: 'AuditGq',
+  name: "AuditGq",
   data() {
     return {
       headName: `审核挂起(${this.$route.query.orderId})`,
@@ -91,35 +95,36 @@ export default {
       // 提交参数
       // auditInfo: '', // 审核说明
       // auditStatus: -1, // 审核确认 1：审核通过,2:驳回
-      url: '',
+      url: "",
       // src: '',
       isShow: false,
       showImg: false,
       showTxt: false,
-    }
+    };
   },
   methods: {
     goBackFn() {
-      this.$router.go(-1)
+      this.$router.go(-1);
     },
     // 审核前查询
     async getQueryInfo() {
-      let id = parseInt(this.$route.query.id)
-      let type = 1 // 审核挂起
-      let queryOverTimeType = -1 // 用不到
-      let result = await reqIfmComplaintProdQuery(JSON.stringify({ id, type, queryOverTimeType }))
-      console.log('审核挂起查询', result)
+      let id = parseInt(this.$route.query.id);
+      let type = 1; // 审核挂起
+      let queryOverTimeType = -1; // 用不到
+      let result = await reqIfmComplaintProdQuery(
+        JSON.stringify({ id, type, queryOverTimeType })
+      );
+      console.log("审核挂起查询", result);
       if (result.operationSuccessFlag) {
         // 获取审核预约挂起信息
         // this.prodYdCompZkAudit = result.prodYdCompZkAudit
-        var arr = result.prodYdCompZkAudit
-        arr.forEach(e => {
-          e.auditInfo = ''
-          e.auditStatus = null
-        })
-        this.prodYdCompZkAudit = arr
+        var arr = result.prodYdCompZkAudit;
+        arr.forEach((e) => {
+          e.auditInfo = "";
+          e.auditStatus = null;
+        });
+        this.prodYdCompZkAudit = arr;
       }
-
     },
     // // 选中是否审核确认
     // clickAuditStatus (bool) {
@@ -131,27 +136,35 @@ export default {
     // },
     // 提交
     async onSubmit(item) {
-      if (this.auditInfo == '') return this.$toast('请输入审核说明')
-      if (this.auditStatus == -1) return this.$toast('请选择审核确认')
-      let id = parseInt(this.$route.query.id)
-      let type = 1 // 审核挂起
-      let auditStatus = item.auditStatus
-      let auditInfo = item.auditInfo
-      delete item.auditStatus
-      delete item.auditInfo
+      if (this.auditInfo == "") return this.$toast("请输入审核说明");
+      if (this.auditStatus == -1) return this.$toast("请选择审核确认");
+      let id = parseInt(this.$route.query.id);
+      let type = 1; // 审核挂起
+      let auditStatus = item.auditStatus;
+      let auditInfo = item.auditInfo;
+      delete item.auditStatus;
+      delete item.auditInfo;
       // let prodYdCompZkAudit = prodYdCompZkAudit[0]
-      let prodYdCompZkAudit = item
-      let sheetOverTimeInfo = {} // 用不到
-      let auditOverTimeType = -1 // 用不到
-      let postData = { id, type, auditStatus, auditInfo, prodYdCompZkAudit, sheetOverTimeInfo, auditOverTimeType }
-      let result = await reqIfmAuditYdProdInfo(JSON.stringify(postData))
+      let prodYdCompZkAudit = item;
+      let sheetOverTimeInfo = {}; // 用不到
+      let auditOverTimeType = -1; // 用不到
+      let postData = {
+        id,
+        type,
+        auditStatus,
+        auditInfo,
+        prodYdCompZkAudit,
+        sheetOverTimeInfo,
+        auditOverTimeType,
+      };
+      let result = await reqIfmAuditYdProdInfo(JSON.stringify(postData));
       if (result.operationSuccessFlag) {
-        this.$toast(result.successMessage)
-        this.$router.go(-1)
+        this.$toast(result.successMessage);
+        this.$router.go(-1);
         // 通知上个页面刷新
-        this.$store.commit('OPERATEBUTTON', true)
+        this.$store.commit("OPERATEBUTTON", true);
       } else {
-        this.$toast(result.errorMessage)
+        this.$toast(result.errorMessage);
       }
     },
     // 下载证据
@@ -200,42 +213,59 @@ export default {
     //   // this.apiResponse(result, '.auditGq', () => { })
     // },
 
-
     // 下载证据
     async downloadFile(item) {
-      let sysId = item.attachmentInfo.sysId
-      let fileId = item.attachmentInfo.fileId
-      let flowNode = this.$route.query.flowNode
-      let result = await reqDownloadFile(JSON.stringify({ sysId, fileId, flowNode }))
-      console.log('下载证据', result)
+      let sysId = item.attachmentInfo.sysId;
+      let fileId = item.attachmentInfo.fileId;
+      let flowNode = this.$route.query.flowNode;
+      let result = await reqDownloadFile(
+        JSON.stringify({ sysId, fileId, flowNode })
+      );
+      console.log("下载证据", result);
       if (result.operationSuccessFlag) {
-        var arr = item.attachmentInfo?.fileName.split('.')
-        var type = arr[arr.length - 1]
-        let base64Url = this.getBase64Type(type) + result.file
-        console.log('完整的base64', base64Url)
-        this.downloadFileFn(base64Url, item.attachmentInfo?.fileName)
+        var arr = item.attachmentInfo?.fileName.split(".");
+        var type = arr[arr.length - 1];
+        console.log('文件类型', type);
+        let base64Url = this.getBase64Type(type) + result.file;
+        console.log("完整的base64", base64Url);
+        this.downloadFileFn(base64Url, item.attachmentInfo?.fileName);
       } else {
-        this.$toast(result.errorMessage)
+        this.$toast(result.errorMessage);
       }
       // this.apiResponse(result, '.auditGq', () => { })
     },
     //根据文件后缀 获取base64前缀不同 拼接完整的base64
     getBase64Type(type) {
       switch (type) {
-        case 'txt': return 'data:text/plain;base64,'
-        case 'doc': return 'data:application/msword;base64,'
-        case 'docx': return 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,'
-        case 'xls': return 'data:application/vnd.ms-excel;base64,'
-        case 'xlsx': return 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,'
-        case 'pdf': return 'data:application/pdf;base64,'
-        case 'pptx': return 'data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,'
-        case 'ppt': return 'data:application/vnd.ms-powerpoint;base64,'
-        case 'png': return 'data:image/png;base64,'
-        case 'jpg': return 'data:image/jpeg;base64,'
-        case 'gif': return 'data:image/gif;base64,'
-        case 'svg': return 'data:image/svg+xml;base64,'
-        case 'ico': return 'data:image/x-icon;base64,'
-        case 'bmp': return 'data:image/bmp;base64,'
+        case "txt":
+          return "data:text/plain;base64,";
+        case "doc":
+          return "data:application/msword;base64,";
+        case "docx":
+          return "data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,";
+        case "xls":
+          return "data:application/vnd.ms-excel;base64,";
+        case "xlsx":
+          return "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,";
+        case "pdf":
+          return "data:application/pdf;base64,";
+        case "pptx":
+          return "data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,";
+        case "ppt":
+          return "data:application/vnd.ms-powerpoint;base64,";
+        case "png":
+          return "data:image/png;base64,";
+        case "jpg",
+            "jpeg":
+          return "data:image/jpeg;base64,";
+        case "gif":
+          return "data:image/gif;base64,";
+        case "svg":
+          return "data:image/svg+xml;base64,";
+        case "ico":
+          return "data:image/x-icon;base64,";
+        case "bmp":
+          return "data:image/bmp;base64,";
       }
     },
     //将完整的base64码转换为blob
@@ -243,44 +273,42 @@ export default {
       var arr = dataurl.split(","),
         mimeString = arr[0].match(/:(.*?);/)[1],
         str = atob(arr[1]),
-        u8 = new Uint8Array(str.length)
+        u8 = new Uint8Array(str.length);
       for (let i = 0; i < str.length; i++) {
-        u8[i] = str.charCodeAt(i)
+        u8[i] = str.charCodeAt(i);
       }
-      return new Blob([u8], { type: mimeString })
+      return new Blob([u8], { type: mimeString });
     },
     downloadFileFn(base64, fileName) {
-      console.log('完整的base64', base64)
-      console.log('下载后的文件名', fileName)
-      var myBlob = this.base6toBlob(base64)
-      var myUrl = URL.createObjectURL(myBlob)
-      console.log('返回数据的blob链接', myUrl)
+      console.log("完整的base64", base64);
+      console.log("下载后的文件名", fileName);
+      var myBlob = this.base6toBlob(base64);
+      var myUrl = URL.createObjectURL(myBlob);
+      console.log("返回数据的blob链接", myUrl);
       // 使用a标签进行下载
-      let link = document.createElement('a')
-      link.style.display = 'none'
-      link.href = myUrl
-      link.setAttribute('download', fileName)//对文件进行命名
-      document.body.appendChild(link)
-      link.click()
+      let link = document.createElement("a");
+      link.style.display = "none";
+      link.href = myUrl;
+      link.setAttribute("download", fileName); //对文件进行命名
+      document.body.appendChild(link);
+      link.click();
 
       if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveOrOpenBlob(base64, fileName)
+        window.navigator.msSaveOrOpenBlob(base64, fileName);
       } else {
-        window.open(myUrl)
+        window.open(myUrl);
       }
       // this.url = myUrl
       // this.src = `https://view.officeapps.live.com/op/view.aspx?src=${myUrl}`
-      document.body.removeChild(link) //下载完成移除元素
-      window.URL.revokeObjectURL(myUrl) //释放掉blob对象
-
+      document.body.removeChild(link); //下载完成移除元素
+      window.URL.revokeObjectURL(myUrl); //释放掉blob对象
     },
   },
   created() {
     // 审核前查询
-    this.getQueryInfo()
-  }
-
-}
+    this.getQueryInfo();
+  },
+};
 </script>
 
 <style scoped lang="less">
@@ -320,6 +348,7 @@ img {
 }
 .auditGq {
   .main {
+    background-color: #fff;
     margin: 10px;
     border: 1px solid rgb(121, 177, 251);
     .van-cell-group {

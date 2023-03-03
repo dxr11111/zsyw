@@ -161,8 +161,8 @@ export default {
       updateFile: [],
       loginNo: getItem("loginNo"), // 登录人
       formData: {
-        zbZbcc: "", // 重保车次
-        zbZbrc: "", // 重保人次
+        zbZbcc: 0, // 重保车次
+        zbZbrc: 0, // 重保人次
         custInfo: "", // 客户资料核实
         isCheck: null, // 是否预检预修
         isHasWarning: null, // 是否加入网管预警
@@ -185,8 +185,8 @@ export default {
   },
   methods: {
     async submit() {
-      if (!this.formData.zbZbcc) return this.$toast("请输入重保车次");
-      if (!this.formData.zbZbrc) return this.$toast("请输入重保人次");
+      if (this.formData.zbZbcc == '') return this.$toast("请输入重保车次");
+      if (this.formData.zbZbrc == '') return this.$toast("请输入重保人次");
       if (this.sheetType != 2) {
         if (this.formData.custInfo == "")
           return this.$toast("请输入客户重保电路资料核实");
@@ -222,6 +222,8 @@ export default {
       // console.log('222',this.base);
       // list.push(this.base)
       // this.formData.file = list
+      this.formData.zbZbcc = Number(this.formData.zbZbcc)
+      this.formData.zbZbrc = Number(this.formData.zbZbrc)
       console.log("参数", this.formData);
       let data = await IfmFinishApi(JSON.stringify(this.formData));
       if (data.operationSuccessFlag) {
@@ -293,8 +295,14 @@ export default {
     background: #fff;
     line-height: 30px;
     font-size: 14px;
+    margin-bottom: 10px;
+    text-align: start;
+    span {
+      width: 30%;
+    }
     input {
-      width: 240px;
+      // width: 240px;
+      flex: 1;
       height: 30px;
       margin-left: 3px;
       border: 1px solid #ccc;
@@ -310,6 +318,7 @@ export default {
     background: #fff;
     line-height: 30px;
     font-size: 14px;
+    margin-bottom: 10px;
     .label {
       color: #3b3b3b;
     }
@@ -337,7 +346,6 @@ export default {
   text-align: left;
   padding: 15px;
   background-color: #fff;
-  margin-top: 10px;
   // input {
   //   // display: none;
   // }

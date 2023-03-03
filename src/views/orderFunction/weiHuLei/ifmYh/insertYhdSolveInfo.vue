@@ -6,52 +6,58 @@
     <div class="main">
       <van-form @submit="onSubmit">
         <!-- 问题原因 -->
-        <van-field
-          label="问题原因"
-          :value="reasonTypeName"
-          @click="reasonTypeShow = true"
-          placeholder="请选择问题原因"
-          is-link
-          arrow-direction="down"
-          readonly
-          class="textRight"
-        />
-        <van-action-sheet
-          v-model="reasonTypeShow"
-          :actions="reasonTypeActions"
-          cancel-text="取消"
-          close-on-click-action
-          @select="selectReasonType"
-        />
+        <div class="region">
+          <van-field
+            label="问题原因"
+            :value="reasonTypeName"
+            @click="reasonTypeShow = true"
+            placeholder="请选择问题原因"
+            is-link
+            arrow-direction="down"
+            readonly
+            class="textRight"
+          />
+          <van-action-sheet
+            v-model="reasonTypeShow"
+            :actions="reasonTypeActions"
+            cancel-text="取消"
+            close-on-click-action
+            @select="selectReasonType"
+          />
+        </div>
 
         <!-- 解决放案 -->
-        <van-field
-          label="解决放案"
-          :value="solveTypeName"
-          @click="solveTypeShow = true"
-          placeholder="请选择解决放案"
-          is-link
-          arrow-direction="down"
-          readonly
-          class="textRight"
-        />
-        <van-action-sheet
-          v-model="solveTypeShow"
-          :actions="solveTypeActions"
-          cancel-text="取消"
-          close-on-click-action
-          @select="selectSolveType"
-        />
+        <div class="region">
+          <van-field
+            label="解决放案"
+            :value="solveTypeName"
+            @click="solveTypeShow = true"
+            placeholder="请选择解决放案"
+            is-link
+            arrow-direction="down"
+            readonly
+            class="textRight"
+          />
+          <van-action-sheet
+            v-model="solveTypeShow"
+            :actions="solveTypeActions"
+            cancel-text="取消"
+            close-on-click-action
+            @select="selectSolveType"
+          />
+        </div>
 
         <!-- 方案详情 -->
-        <van-field
-          v-model="solveContent"
-          label="方案详情"
-          placeholder="请输入方案详情"
-          :autosize="{ maxHeight: 100, minHeight: 50 }"
-          type="textarea"
-          class="inputRegion"
-        />
+        <div class="region">
+          <van-field
+            v-model="solveContent"
+            label="方案详情"
+            placeholder="请输入方案详情"
+            :autosize="{ maxHeight: 100, minHeight: 50 }"
+            type="textarea"
+            class="inputRegion"
+          />
+        </div>
         <div class="submitButton">
           <van-button type="info" round block native-type="submit"
             >提交</van-button

@@ -5,76 +5,88 @@
     <div class="main">
       <van-form @submit="onSubmit" ref="form">
         <!-- 退单原因 -->
-        <van-field
-          label="退单原因"
-          :value="backReasonValue"
-          @click="chargeBackShow = true"
-          is-link
-          readonly
-          arrow-direction="down"
-          class="reason"
-        />
-        <van-action-sheet
-          v-model="chargeBackShow"
-          :actions="chargeBackActions"
-          cancel-text="取消"
-          close-on-click-action
-          @select="selectChargeBack"
-        />
+        <div class="region">
+          <van-field
+            label="退单原因"
+            :value="backReasonValue"
+            @click="chargeBackShow = true"
+            is-link
+            readonly
+            arrow-direction="down"
+            class="textRight"
+          />
+          <van-action-sheet
+            v-model="chargeBackShow"
+            :actions="chargeBackActions"
+            cancel-text="取消"
+            close-on-click-action
+            @select="selectChargeBack"
+          />
+        </div>
         <!-- 退单说明 -->
-        <van-field
-          v-model="backIntro"
-          placeholder="退单说明"
-          class="explain"
-          autocomplete="off"
-        />
+        <div class="region">
+          <van-field
+            v-model="backIntro"
+            label="退单说明"
+            placeholder="请输入退单说明"
+            class="inputRegion"
+            autocomplete="off"
+          />
+        </div>
 
         <!-- 超时原因 -->
-        <van-field
-          label="超时原因"
-          :value="overtimeReasonValue"
-          @click="overTimeShow = true"
-          is-link
-          readonly
-          arrow-direction="down"
-          class="explain reason"
-          placeholder="请选择超时原因"
-          v-if="isShowOver"
-        />
-        <van-action-sheet
-          v-model="overTimeShow"
-          :actions="overTimeActions"
-          cancel-text="取消"
-          close-on-click-action
-          @select="selectOverTime"
-        />
+        <div class="region">
+          <van-field
+            label="超时原因"
+            :value="overtimeReasonValue"
+            @click="overTimeShow = true"
+            is-link
+            readonly
+            arrow-direction="down"
+            class="textRight"
+            placeholder="请选择超时原因"
+            v-if="isShowOver"
+          />
+          <van-action-sheet
+            v-model="overTimeShow"
+            :actions="overTimeActions"
+            cancel-text="取消"
+            close-on-click-action
+            @select="selectOverTime"
+          />
+        </div>
         <!-- 超时子原因 -->
-        <van-field
-          label="超时子原因"
-          :value="overtimeItemValue"
-          @click="overTimeItemShow = true"
-          is-link
-          readonly
-          arrow-direction="down"
-          class="explain reason"
-          placeholder="请选择超时子原因"
-          v-if="isShowOver"
-        />
-        <van-action-sheet
-          v-model="overTimeItemShow"
-          :actions="overTimeItemActions"
-          cancel-text="取消"
-          close-on-click-action
-          @select="selectOverTimeItem"
-        />
+        <div class="region">
+          <van-field
+            label="超时子原因"
+            :value="overtimeItemValue"
+            @click="overTimeItemShow = true"
+            is-link
+            readonly
+            arrow-direction="down"
+            class="textRight"
+            placeholder="请选择超时子原因"
+            v-if="isShowOver"
+          />
+          <van-action-sheet
+            v-model="overTimeItemShow"
+            :actions="overTimeItemActions"
+            cancel-text="取消"
+            close-on-click-action
+            @select="selectOverTimeItem"
+          />
+        </div>
         <!-- 超时说明 -->
-        <van-field
-          v-model="overtimeIntro"
-          placeholder="超时说明"
-          class="explain"
-          autocomplete="off"
-          v-if="isShowOver"
-        />
+        <div class="region">
+          <van-field
+            v-model="overtimeIntro"
+            label="超时说明"
+            placeholder="请输入超时说明"
+            class="inputRegion"
+            autocomplete="off"
+            v-if="isShowOver"
+          />
+        </div>
 
         <div style="margin: 30px">
           <van-button round block type="info" native-type="submit"
@@ -170,7 +182,8 @@ export default {
     async onSubmit() {
       // 表单校验
       if (this.backIntro == "") return this.$toast("请输入退单说明");
-      if (this.overtimeIntro == "") return this.$toast("请输入超时说明");
+      if (this.isShowOver && this.overtimeIntro == "")
+        return this.$toast("请输入超时说明");
 
       let id = parseInt(this.$route.query.id);
       let backReason = this.backReason; // 退单原因
@@ -255,27 +268,5 @@ export default {
 .jnReject {
   height: 100%;
   background-color: #f8f7fc;
-  .main {
-    /deep/.van-cell__title {
-      width: 30%;
-      color: #000;
-      font-size: 16px;
-    }
-    /deep/.van-cell__value {
-      input {
-        color: #cccccc;
-      }
-    }
-    .explain {
-      margin-top: 10px;
-    }
-    .reason {
-      /deep/.van-cell__value {
-        input {
-          text-align: right;
-        }
-      }
-    }
-  }
 }
 </style>

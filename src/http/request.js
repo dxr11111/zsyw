@@ -1,10 +1,10 @@
-// 对axios进行二次封装
 import axios from 'axios'
 import { getItem } from '@/utils/public/sessionStorage'
 import store from '@/store'
 import vue from '@/main'
 
 
+// 对axios进行二次封装
 let requests = axios.create({
     baseURL: process.env.VUE_APP_BASE_API,
     timeout: 100000,
@@ -12,6 +12,7 @@ let requests = axios.create({
         'Content-Type': 'application/x-www-form-urlencoded',
     }
 })
+
 
 /* let imgRequests = axios.create({
     baseURL: "img", // 开发
@@ -76,8 +77,6 @@ requests.interceptors.request.use(config => {
 })
 // 响应拦截器
 requests.interceptors.response.use(res => {
-
-
     // 响应成功隐藏loading
     reqNum--
     if (reqNum <= 0) {
@@ -94,7 +93,6 @@ requests.interceptors.response.use(res => {
     if (reqNum <= 0) {
         store.commit('CHANGELOADING', false)
     }
-    // console.log('1111111111111111111', error, error.code)
     // 登录页面不拦截响应失败信息
     if (error.config?.url == '/loginUni') {
         vue.$toast(error.message)
@@ -108,5 +106,7 @@ requests.interceptors.response.use(res => {
 
 
 })
-
 export default requests
+
+
+

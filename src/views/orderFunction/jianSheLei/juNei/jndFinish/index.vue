@@ -140,7 +140,7 @@
           </div>
         </div>
         <div class="upload">
-          <van-uploader v-model="updateFile" multiple :max-count="maxCount">
+          <van-uploader v-model="updateFile" :before-read="beforeRead" :after-read="afterRead" multiple :max-count="maxCount">
             <van-button icon="plus" type="default"></van-button>
           </van-uploader>
         </div>
@@ -157,8 +157,7 @@ import { formatTime } from "@/utils/public/common";
 import { JndBeforeFinishApi, JndFinishApi } from "@/http/button";
 import { overTimeList } from "@/utils/gdMethods";
 import { getItem } from "@/utils/public/sessionStorage";
-import url from "@/http/img";
-import axios from "axios";
+import { uploadImg } from "@/utils/public/uploadImg";
 export default {
   name: "JndFinish",
   data() {
@@ -257,11 +256,11 @@ export default {
       if (this.needUpload && this.updateFile.length == 0)
         return this.$toast("请至少上传一个文件");
       console.log("参数", this.params);
-      if (this.updateFile.length > 0) return this.getFileId();
-      this.sendApi(this.params);
+      // if (this.updateFile.length > 0) return this.getFileId();
+      this.getFileId()
     },
-    async sendApi(params) {
-      let data = await JndFinishApi(JSON.stringify(params));
+    async sendApi() {
+      let data = await JndFinishApi(JSON.stringify(this.params));
       console.log("data", data);
       if (data.errorCode == 20) {
         this.$toast.fail(data.errorMessage);
@@ -278,36 +277,18 @@ export default {
         this.$toast.fail(data.errorMessage);
       }
     },
-    async getFileId() {
-      let ids = [];
-      this.updateFile.forEach((item, index) => {
-        let formData = new FormData();
-        formData.append("loginNo", getItem("loginNo"));
-        formData.append("sheetId", Number(this.$route.query.id));
-        formData.append("pictype", 3);
-        formData.append("picName", `${Number(this.$route.query.id)}-${index}`);
-        formData.append("file", item.file);
-        // 发送图片id请求
-        axios({
-          method: "post",
-          url: url,
-          data: formData,
-        })
-          .then((res) => {
-            // console.log('图片id结果', res)
-            // 获取图片id
-            ids.push(Number(res.data.id));
-            this.params.attachmentIdList = ids;
-            // 判断如果是最后一次图片请求，则发送强制回单/回复 请求
-            if (index === this.updateFile.length - 1) {
-              // 发送强制回单/回复 请求
-              this.sendApi(this.params);
-              // console.log('最后一次图片id', index)
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+    afterRead (file) {
+      console.log('afterRead',file);
+    },
+    beforeRead(file){
+      return this.compressFile(file, true)
+    },
+    getFileId() {
+      uploadImg(this.updateFile, getItem("loginNo"), Number(this.$route.query.id)).then((ids) => {
+        console.log("获取的图片id结果", ids);
+        this.params.attachmentIdList = ids;
+        // 发送处理过程请求
+        this.sendApi();
       });
     },
     formatter(type, val) {
@@ -367,6 +348,7 @@ export default {
     background: #fff;
     line-height: 30px;
     font-size: 14px;
+    margin-bottom: 10px;
     input {
       width: 260px;
       height: 30px;
@@ -384,6 +366,7 @@ export default {
     background: #fff;
     line-height: 30px;
     font-size: 14px;
+    margin-bottom: 10px;
     .label {
       color: #3b3b3b;
     }

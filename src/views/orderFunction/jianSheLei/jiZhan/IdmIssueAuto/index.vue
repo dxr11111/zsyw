@@ -124,7 +124,8 @@ export default {
   justify-content: space-between;
   padding: 15px;
   background-color: #fff;
-  border-bottom: 1px solid #ccc;
+  // border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
   font-size: 14px;
   .left {
     display: flex;

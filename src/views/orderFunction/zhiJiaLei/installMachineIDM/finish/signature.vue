@@ -98,11 +98,11 @@
 
 <script>
 import $ from "jquery";
-import axios from "axios";
 import SignaturePad from "signature_pad";
 import { rotateBase64Img } from "@/utils/public/common";
 import { reqIomNewFinish } from "@/http/button";
 import url from "@/http/img";
+import { getRequests } from "@/utils/public/uploadImg";
 import { getItem } from "@/utils/public/sessionStorage";
 export default {
   name: "IomNewFinishSignature",
@@ -220,12 +220,12 @@ export default {
       }
     },
     // 保存画布图案到本地
-    saveImg() {
+    /* saveImg() {
       let a = document.createElement("a");
       a.href = this.previewImage;
       a.download = "sign";
       a.click(); //保存
-    },
+    }, */
     // 获取签名图片id
     async getPictureId() {
       // 签名base64 => formdata
@@ -237,10 +237,11 @@ export default {
       formData.append("loginNo", this.loginNo);
       formData.append("sheetId", this.sheetId);
       formData.append("pictype", 3);
-      formData.append("picName", "sign");
+      formData.append("picName", `${this.sheetId}-sign.jpg`);
 
       // 发送图片id请求
-      axios({
+      const imgRequests = getRequests();
+      imgRequests({
         method: "post",
         url: url,
         data: formData,
@@ -248,22 +249,25 @@ export default {
         .then((res) => {
           console.log("图片id结果", res);
           // 获取签名图片id
-          this.signIds = [parseInt(res.data.id)];
+          this.signIds = [parseInt(res.id)];
 
           // 获取用户回执照片图片id
           if (this.isBuildImage === 0) {
             // 有上传照片
             this.buildImageList.forEach((item, index) => {
+              // 获取图片后缀
+              let imageName = item.file.name;
+              let suffix = imageName.split(".")[1];
               // 上传 form-data格式 图片
               let formData = new FormData();
               formData.append("loginNo", this.loginNo);
               formData.append("sheetId", this.sheetId);
               formData.append("pictype", 3);
-              formData.append("picName", `${this.sheetId}-${index}`);
+              formData.append("picName", `${this.sheetId}-${index}.${suffix}`);
               formData.append("file", item.file);
 
               // 发送图片id请求
-              axios({
+              imgRequests({
                 method: "post",
                 url: url,
                 data: formData,
@@ -271,12 +275,11 @@ export default {
                 .then((res) => {
                   console.log("图片id结果", res);
                   // 获取图片id
-                  this.imageIdList.push(parseInt(res.data.id));
+                  this.imageIdList.push(parseInt(res.id));
                   // 判断如果是最后一次图片请求，则发送强制回单/回复 请求
-                  if (index === this.buildImageList.length - 1) {
+                  if (this.buildImageList.length === this.imageIdList.length) {
                     // 发送强制回单/回复 请求
                     this.onSubmit();
-                    console.log("最后一次图片id", index);
                   }
                 })
                 .catch((err) => {

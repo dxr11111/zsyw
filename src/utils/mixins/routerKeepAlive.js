@@ -9,7 +9,7 @@ export const keepAliveMixin = {
         }
     },
     beforeDestroy() {
-        console.log("触发组件销毁")
+        console.log("触发组件销毁", this.$options.name)
     }
 
 }

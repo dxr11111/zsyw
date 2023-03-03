@@ -71,4 +71,8 @@ export default {
 .van-hairline-unset--top-bottom::after {
   border-width: 0;
 }
+::v-deep .van-cell-group--inset {
+  margin: 0;
+  padding: 0 10px
+}
 </style>>

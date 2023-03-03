@@ -2,22 +2,7 @@
   <div class="big-box">
     <MyHeader :name="headName" left="arrow-left" @goBackEv="$router.go(-1)" />
     <div class="form">
-      <div class="field">
-        <div class="label">用户办理意向</div>
-        <div class="radio-box" :model="userSituation">
-          <span
-            :class="userSituation == '30' ? 'active' : ''"
-            @click="userSituation = '30'"
-            >同意办理</span
-          >
-          <span
-            :class="userSituation == '20' ? 'active' : ''"
-            @click="userSituation = '20'"
-            >拒绝办理</span
-          >
-        </div>
-      </div>
-      <div class="field">
+      <div class="field" :style="isContact == 0 ? 'margin-bottom: 10px' : ''">
         <div class="label">联系用户</div>
         <div class="radio-box" :model="isContact">
           <span
@@ -32,7 +17,7 @@
           >
         </div>
       </div>
-      <div class="field" v-if="isContact !== '0'">
+      <div class="field" style="margin-bottom: 10px;" v-if="isContact !== '0'">
         <div class="label">联系用户时间</div>
         <div style="color: gray" @click="showTime = true">
           <input v-model="currDate" readonly placeholder="请选择联系用户时间" />
@@ -54,6 +39,21 @@
             @cancel="showTime = false"
           />
         </van-popup>
+      </div>
+      <div class="field" style="margin-bottom: 10px;">
+        <div class="label">用户办理意向</div>
+        <div class="radio-box" :model="userSituation">
+          <span
+            :class="userSituation == '30' ? 'active' : ''"
+            @click="userSituation = '30'"
+            >同意办理</span
+          >
+          <span
+            :class="userSituation == '20' ? 'active' : ''"
+            @click="userSituation = '20'"
+            >拒绝办理</span
+          >
+        </div>
       </div>
       <!-- 用户办理意向为同意(30)时展示 -->
       <div v-if="userSituation == '30'">
@@ -81,7 +81,7 @@
           <i class="iconfont icon-jianhao1" @click="delItem('bus', e)"></i>
         </div>
         <!-- 设备信息 -->
-        <div class="field">
+        <div class="field"  style="margin-top: 10px;">
           <div class="label">设备信息</div>
           <div style="color: gray; margin-right: 15px">
             添加用户更换或购买新设备
@@ -350,7 +350,7 @@ export default {
   }
 }
 .panel {
-  border: 2px solid #5a90fd;
+  border: 1px solid #5a90fd;
   position: relative;
   i {
     position: absolute;

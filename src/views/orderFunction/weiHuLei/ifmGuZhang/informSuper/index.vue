@@ -3,11 +3,13 @@
     <MyHeader :name="headName" left="arrow-left" @goBackEv="$router.go(-1)" />
     <van-form @submit="onSubmit">
       <van-field
+        class=""
         readonly
         label="接收部门"
         v-model="currDept"
         is-link
         @focus="showChoice = true"
+        arrow-direction="down"
       ></van-field>
       <van-action-sheet
         v-model="showChoice"
@@ -17,7 +19,14 @@
         close-on-click-action
         @select="onSelect"
       />
-      <van-field v-model="planDetail" label="方案详情" />
+      <div class="region">
+        <van-field
+          class="inputRegion"
+          v-model="planDetail"
+          label="方案详情"
+          placeholder="请输入方案详情"
+        />
+      </div>
       <div style="margin: 16px">
         <van-button round block type="info" native-type="submit"
           >确认</van-button
@@ -28,9 +37,9 @@
 </template>
 
 <script>
-import { GetImfSuperListApi, IfmSaveNotifyApi } from "@/http/button";
-import { mapState } from "vuex";
-import { getItem } from "@/utils/public/sessionStorage";
+import { GetImfSuperListApi, IfmSaveNotifyApi } from "@/http/button"
+import { mapState } from "vuex"
+import { getItem } from "@/utils/public/sessionStorage"
 export default {
   name: "InformSuper",
   data() {
@@ -41,80 +50,80 @@ export default {
       currDept: "", // 选择的接收部门
       showChoice: false,
       params: {},
-    };
+    }
   },
   computed: {
     ...mapState("workOrder", ["currWorkGroupInfo", "workOrderList"]),
     headName() {
-      return `通知上级(${this.$route.query.orderId})`;
+      return `通知上级(${this.$route.query.orderId})`
     },
     // 获取默认的组信息
     currInfo() {
-      let defaultInfo = getItem("loginInfo").defaultSheetGroupList[0];
-      let list = getItem("loginInfo").listSheetGroup;
+      let defaultInfo = getItem("loginInfo").defaultSheetGroupList[0]
+      let list = getItem("loginInfo").listSheetGroup
       // console.log('defaultInfo',defaultInfo);
       // console.log('list',list);
-      let arr = {};
+      let arr = {}
       list.forEach((e) => {
         // console.log(defaultInfo.groupId == e.groupId);
         if (defaultInfo.groupId == e.groupId) {
-          return (arr = { groupId: e.groupId, groupName: e.groupName });
+          return (arr = { groupId: e.groupId, groupName: e.groupName })
         }
-      });
+      })
       // console.log(arr)
-      return arr;
+      return arr
     },
   },
   created() {
-    this.getImfSuperList();
+    this.getImfSuperList()
   },
   methods: {
     onSelect(item) {
-      this.showChoice = false;
-      this.currDept = item.name;
+      this.showChoice = false
+      this.currDept = item.name
     },
     async onSubmit() {
       if (this.planDetail == "") {
-        this.$toast("方案详情不能为空!");
-        return;
+        this.$toast("方案详情不能为空!")
+        return
       }
-      this.params.id = Number(this.$route.query.id); // 工单ID
-      this.params.remark = this.planDetail; // 方案详情
+      this.params.id = Number(this.$route.query.id) // 工单ID
+      this.params.remark = this.planDetail // 方案详情
       this.params.sendGroupId =
         Object.keys(this.currWorkGroupInfo).length > 0
           ? this.currWorkGroupInfo.groupId
-          : this.currInfo.groupId; // 当前部门id
+          : this.currInfo.groupId // 当前部门id
       this.params.sendGroupName =
         Object.keys(this.currWorkGroupInfo).length > 0
           ? this.currWorkGroupInfo.groupName
-          : this.currInfo.groupName; // 当前部门名称
+          : this.currInfo.groupName // 当前部门名称
       this.allDeptData.filter((e) => {
         if (e.curtDeptName == this.currDept) {
-          this.params.recvGroupld = e.curtDeptId; // 接收部门id
-          this.params.recvGroupName = e.curtDeptName; // 接收部门名称
-          this.params.originSheetNo = e.sheetNo; // 起源工单号
+          this.params.recvGroupld = e.curtDeptId // 接收部门id
+          this.params.recvGroupName = e.curtDeptName // 接收部门名称
+          this.params.originSheetNo = e.sheetNo // 起源工单号
         }
-      });
+      })
       // console.log(this.params)
-      let data = await IfmSaveNotifyApi(JSON.stringify({ ...this.params }));
+      let data = await IfmSaveNotifyApi(JSON.stringify({ ...this.params }))
       if (data.operationSuccessFlag) {
-        this.$toast.success(data.successMessage);
-        this.$router.go(-1);
+        this.$toast.success(data.successMessage)
+        this.$router.go(-1)
         // 接口按钮操作成功 刷新工单详情/工作台
-        this.operationSuccessRefresh(true);
+        this.operationSuccessRefresh(true)
       } else {
-        this.$toast.fail(data.errorMessage);
+        this.$toast.fail(data.errorMessage)
       }
     },
     async getImfSuperList() {
       let data = await GetImfSuperListApi(
         JSON.stringify({ id: Number(this.$route.query.id) })
-      );
+      )
       this.departList = data.superiorDeptInfos.map((e) => {
-        return { name: e.curtDeptName };
-      });
-      this.allDeptData = data.superiorDeptInfos;
-      this.currDept = this.departList[0].name;
+        return { name: e.curtDeptName }
+      })
+      this.allDeptData = data.superiorDeptInfos
+      this.currDept = this.departList[0].name
     },
   },
 };

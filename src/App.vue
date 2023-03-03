@@ -110,6 +110,7 @@ export default {
 #app {
   height: 100%;
   height: 100%;
+  background-color: @bg-color;
   ::-webkit-scrollbar {
     width: 0 !important;
   }

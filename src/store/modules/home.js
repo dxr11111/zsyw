@@ -14,10 +14,10 @@ const mutations = {
     GETHOMELIST(state, result) {
         state.homeListInfo = result
     },
-    // GETLISTDETAIL(state, result) {
-    //     setItem('listDetail', result)
-    //     state.listDetail = result
-    // },
+    GETLISTDETAIL(state, result) {
+        setItem('listDetail', result)
+        state.listDetail = result
+    },
 
 }
 const actions = {

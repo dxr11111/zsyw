@@ -1,6 +1,15 @@
 import vue from '@/main'
 
-export default (result, getContainer, success) => {
+function listDetailOperate(getListDetail) {
+    // 列表详情页面需要自动返回
+    if (getListDetail) {
+        vue.$store.commit("removeThisPage", 'ListDetail');
+        vue.$router.go(-1);
+    }
+}
+
+export default (result, getContainer, success, getListDetail = false) => {
+
     if (result.operationSuccessFlag) {
         if (result?.successMessage.length > 0) vue.$toast(result.successMessage)
         success()
@@ -15,10 +24,15 @@ export default (result, getContainer, success) => {
                     className: 'confirmDialog',
                 }).then(() => {
                     // on close
+                    // 列表详情页面需要自动返回
+                    listDetailOperate(getListDetail)
                 });
             } else if (result.messageModul == 0) {
                 vue.$toast(result.errorMessage)
+                // 列表详情页面需要自动返回
+                listDetailOperate(getListDetail)
             }
+
         }
 
     }

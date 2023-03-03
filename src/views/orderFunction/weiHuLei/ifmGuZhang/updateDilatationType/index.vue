@@ -8,6 +8,7 @@
         v-model="plan"
         placeholder="请选择"
         is-link
+        arrow-direction="down"
         @focus="showChoice = true"
       ></van-field>
       <van-action-sheet
@@ -75,15 +76,15 @@ export default {
 <style lang="less" scoped>
 .input {
   display: flex;
-  height: 80px;
+  height: 70px;
   justify-content: space-between;
-  width: 100%;
   padding: 15px;
-  margin-bottom: 10px;
+  background-color: #fff;
+  margin: 10px 0;
   textarea {
     flex: 1;
     word-wrap: break-word;
-    height: 70px;
+    height: 50px;
     border: 1px solid #eee;
     margin-right: 30px;
     padding: 10px;
@@ -91,7 +92,7 @@ export default {
   }
   span {
     margin-right: 15px;
-    line-height: 80px;
+    line-height: 70px;
     font-size: 15px;
   }
 }

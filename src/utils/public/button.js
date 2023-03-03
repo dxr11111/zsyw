@@ -22,6 +22,7 @@ import {
     reqIfmDiagnoseQuery,
 } from '@/http/button'
 import { getLocation, getLocationH5 } from './positionLoaction'
+import { unicomFunc } from './unicomApp'
 import vue from '@/main'
 // 装机单回复前查询
 import { IomNewFinishQuery } from '@/utils/iomNew/finish'
@@ -442,17 +443,52 @@ export const matchButton = async (buttonInfo, buttonId) => {
                     className: 'confirmDialog',
                 })
                     .then(async () => {
-                        // var location = await getLocationH5()
-                        // console.log('经纬度H5', location)
-                        var location = await getLocation()
-                        setTimeout(async () => {
-                            let params = {
-                                id: buttonInfo.id,
-                                posX: location.lng, // 经度
-                                posY: location.lat, // 纬度
-                                address: location.address || ''
+                        let locationInfo = {}
+                        var code = unicomFunc()
+                        console.log('调用标识', code);
+                        if (code == 0) {
+                            // getLocation().then(res => {
+                            //     console.log('高德-定位结果', res);
+                            //     locationInfo = res
+                            // }).catch(error => {
+                            //     vue.$toast(error)
+                            //     console.log('高德-定位错误信息', error);
+                            // })
+                            getLocationH5().then(res => {
+                                console.log('h5-定位数据', res);
+                                locationInfo = res
+                            }).catch((error) => {
+                                console.log('h5-定位error+', error);
+                                vue.$toast(error)
+                            })
+                        } else if (code == 1) {
+                            // console.log(11111111111111111111);
+                            getLngAndLat()
+                            locationInfo = getlnglatCallBack()
+                        } else if (code == 2) {
+                            region.getLngAndLat()
+                            locationInfo = getlnglatCallBack()
+                            // console.log(222222222222222);
+                        }
+                        function getlnglatCallBack(location) {
+                            //处理逻辑
+                            var arr = location.split(',')
+                            var info = {
+                                lng: arr[0],
+                                lat: arr[1]
                             }
-                            console.log('参数', params);
+                            // console.log('121212121212');
+                            return info
+                        }
+
+                        let params = {
+                            id: buttonInfo.id,
+                            posX: locationInfo.lng, // 经度
+                            posY: locationInfo.lat, // 纬度
+                            address: locationInfo.address || ''
+                        }
+                        console.log('参数', params);
+                        if (params.posX !== '' && params.posX !== undefined) {
                             let data = await GoSiteApi(JSON.stringify(params))
                             if (data.operationSuccessFlag) {
                                 vue.$toast.success(data.successMessage)
@@ -463,7 +499,7 @@ export const matchButton = async (buttonInfo, buttonId) => {
                             } else {
                                 vue.$toast.fail(data.errorMessage)
                             }
-                        }, 2000)
+                        }
                     })
                     .catch(() => {
                         // on cancel
@@ -783,7 +819,7 @@ export const matchButton = async (buttonInfo, buttonId) => {
         case ('bindPos'):
             // POS绑定
             vue.$router.push({
-                path: '/bindPos',
+                name: 'PosBindMain',
                 query: {
                     orderNum: buttonInfo.orderId,
                     id: buttonInfo.id,
@@ -1013,6 +1049,7 @@ export const matchButton = async (buttonInfo, buttonId) => {
                 name: 'AdslNoUnbinding',
                 query: {
                     id: buttonInfo.id,
+                    orderId: buttonInfo.orderId,
                 }
             })
 
@@ -1036,6 +1073,16 @@ export const matchButton = async (buttonInfo, buttonId) => {
                 editCustPhoneShow: true,
                 orderId: buttonInfo.id,
             },)
+            break
+        case ('enterOverTime'):
+            // 确认超时
+            vue.$router.push({
+                name: 'EnterOverTime',
+                query: {
+                    id: buttonInfo.id,
+                    orderId: buttonInfo.orderId,
+                }
+            })
             break
 
         default:

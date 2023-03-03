@@ -87,11 +87,14 @@ export default {
     // 回退
     goBackFn() {
       this.$router.go(-1);
+      this.$store.commit("changeRouteJumpStep", -1);
+      this.$store.commit("removeThisPage", this.$options.name);
     },
     // 点击设备pos信息
     clickDev(item) {
       if (item.posBiaoQian) {
         // 跳转路由
+        this.$store.commit("changeRouteJumpStep", 1);
         this.$router.push({
           name: "PosSubmit",
           query: {
@@ -138,8 +141,8 @@ export default {
       this.qrCodeShow = true;
       let qrcode = new QRCode(this.$refs.qrCodeUrl, {
         text: str, // 需要转换为二维码的内容
-        width: 100,
-        height: 100,
+        width: 200,
+        height: 200,
         colorDark: "#000000",
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H,

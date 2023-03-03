@@ -349,6 +349,7 @@ export default {
   }
   .message {
     display: flex;
+    justify-content: space-around;
     .userNum {
       width: 20px;
       height: 20px;
@@ -361,7 +362,9 @@ export default {
       background: @theme-color;
     }
     .content {
+      flex: 1;
       margin-top: 10px;
+      padding-right: 10px;
       .title {
         display: flex;
         justify-content: space-between;
@@ -370,6 +373,11 @@ export default {
           font-weight: 600;
           color: #1b2035;
           line-height: 20px;
+        }
+        .number {
+          text-align: left;
+          padding-right: 10px;
+          word-break: break-all;
         }
       }
       .address {

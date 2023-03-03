@@ -1,4 +1,5 @@
 <template>
+  <!-- 弃用 -->
   <!-- POS绑定 -->
   <div class="bindPos">
     <!-- <keep-alive :include="include">
@@ -12,14 +13,13 @@
 
 <script>
 export default {
-  name: 'BindPos',
-  data () {
+  name: "BindPos",
+  data() {
     return {
-      include: ['PosInfo', 'PosBindMain'],
-    }
+      include: ["PosInfo", "PosBindMain"],
+    };
   },
-
-}
+};
 </script>
 
 <style scoped lang="less">

@@ -67,7 +67,7 @@ export default {
   methods: {
     goBack() {
       this.$router.go(-1)
-      this.$store.commit('removeThisPage', "ListDetail")
+      this.$store.commit("removeThisPage", this.$options.name);
     },
     updateTerminal(item) {
       this.$router.push({

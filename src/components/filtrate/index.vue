@@ -24,7 +24,7 @@
         <h3 class="title">筛选</h3>
         <!-- 任务工单筛选 -->
         <div class="panel" v-if="isTask == 1">
-          <div class="label">工单种类</div>
+          <div class="label">任务种类</div>
           <div class="opts">
             <div
               class="opt"
@@ -483,7 +483,11 @@ export default {
     if (this.isTask == 1) {
       this.code = this.selectSysId == -1 ? "" : this.selectSysId;
       let sysIds = [];
-      getItem("loginInfo").userIds.forEach((e) => sysIds.push(e.sysId));
+      getItem("loginInfo").userIds.forEach((e) => {
+        if (e.hasTaskList == 1 && e.sysId < 11) {
+          sysIds.push(e.sysId)
+        }
+      });
       let arr = [{ id: "", name: "全部" }];
       for (let i = 0; i < sysIdType.length; i++) {
         const e = sysIdType[i];
@@ -493,6 +497,7 @@ export default {
       }
       console.log("task", arr);
       this.taskTypeList = arr;
+      // 这三种情况不需要加载下面的筛选项
       if (this.code !== 9 && this.code !== 3 && this.code !== 7) {
         this.updateSysId();
         this.echoData();
@@ -997,6 +1002,8 @@ export default {
       } else {
         // 故障单类别的多选
         if (this.ifmCode == 1) {
+          // this.specProdType = ''
+          // this.selectedList = []
           this.selectedList = data;
           let ids = data.map((e) => e.id);
           // console.log(ids);
@@ -1021,6 +1028,9 @@ export default {
           ).children;
           this.optsTitle = { title: item.name, type: "多选" };
           console.log("故障单对应的类别数据", this.optsList);
+        } else {
+          this.selectedList = [];
+          this.specProdType = ''
         }
       }
 

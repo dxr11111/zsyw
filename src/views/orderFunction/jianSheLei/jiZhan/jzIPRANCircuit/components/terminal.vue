@@ -30,7 +30,12 @@
       <Empty v-else />
     </div>
 
-    <Update v-else @changeUpdate="isGoUpdate = true" :updateInfo="updateInfo" :id="id" />
+    <Update
+      v-else
+      @changeUpdate="isGoUpdate = true"
+      :updateInfo="updateInfo"
+      :id="id"
+    />
   </div>
 </template>
 
@@ -71,7 +76,7 @@ export default {
     },
     goBack() {
       this.$router.go(-1)
-      this.$store.commit('removeThisPage', "ListDetail")
+      this.$store.commit("removeThisPage", this.$options.name);
     }
   },
 }
@@ -88,12 +93,12 @@ export default {
       border-radius: 3px;
       margin: 10px;
     }
+    .disabled {
+      pointer-events: none;
+      background-color: rgb(127, 132, 136);
+      border: none;
+    }
   }
-}
-.disabled {
-  pointer-events: none;
-  background-color: rgb(127, 132, 136);
-  border: none;
 }
 ::v-deep .van-cell {
   padding: 5px;

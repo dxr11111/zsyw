@@ -2,13 +2,16 @@ const { defineConfig } = require('@vue/cli-service')
 const path = require('path')
 
 // gzip压缩
-const CompressionWebpackPlugin = require('compression-webpack-plugin')
+// const CompressionWebpackPlugin = require('compression-webpack-plugin')
 
 // 打包文件分析工具
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+
+const Version = new Date().getTime().toString().match(/.*(.{8})/)[1] // 截取时间戳后八位
 
 module.exports = defineConfig({
-  transpileDependencies: true,
+  // transpileDependencies: true,
+  transpileDependencies: process.env.NODE_ENV === "development" ? ["*"] : [],
   lintOnSave: false,
   publicPath: './',
   outputDir: process.env.outputDir,
@@ -16,6 +19,26 @@ module.exports = defineConfig({
   configureWebpack(config) {
     config.devtool = config.mode === "production" ? false : "source-map",
       config.externals = { 'AMap': 'AMap' }
+
+    if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
+      // gzip压缩 
+      /*  const productionGzipExtensions = ['html', 'js', 'css']
+       config.plugins.push(
+         new CompressionWebpackPlugin({
+           filename: '[path][base].gz',
+           algorithm: 'gzip',
+           test: new RegExp('\\.(' + productionGzipExtensions.join('|') + ')$'),
+           threshold: 10240, // 只有大小大于该值的资源会被处理 10240
+           minRatio: 0.8, // 只有压缩率小于这个值的资源才会被处理
+           deleteOriginalAssets: false, // 删除原文件
+         })
+       ) */
+
+      // 给js文件名加上时间戳
+      config.output.filename = `js/[name].${Version}.js`
+      config.output.chunkFilename = `js/chunk[id].${Version}.js`
+    }
+    // new BundleAnalyzerPlugin()
   },
   devServer: {
     proxy: {
@@ -52,28 +75,12 @@ module.exports = defineConfig({
       },
     }
   },
-  // 链式webpack配置函数
-  /*  chainWebpack (config) {
-      config.entry('main').add('babel-polyfill')
-   } */
-  // webpack配置
-  configureWebpack: (config) => {
-    if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
-      /* gzip压缩 */
-      const productionGzipExtensions = ['html', 'js', 'css']
-      config.plugins.push(
-        new CompressionWebpackPlugin({
-          filename: '[path][base].gz',
-          algorithm: 'gzip',
-          test: new RegExp('\\.(' + productionGzipExtensions.join('|') + ')$'),
-          threshold: 10240, // 只有大小大于该值的资源会被处理 10240
-          minRatio: 0.8, // 只有压缩率小于这个值的资源才会被处理
-          deleteOriginalAssets: false, // 删除原文件
-        })
-      )
-    }
-    new BundleAnalyzerPlugin()
 
+  css: {
+    extract: { // 添加时间戳到打包后css文件名称
+      filename: `css/[name].${Version}.css`,
+      chunkFilename: `css/chunk.[id].${Version}.css`,
+    }
   },
 
   // 添加全局less变量

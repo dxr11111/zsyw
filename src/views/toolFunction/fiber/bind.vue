@@ -34,9 +34,8 @@
 
 <script>
 import { reqIfmBindingFiber } from "@/http/tools";
-import axios from "axios";
-import url from "@/http/img";
 import { getItem } from "@/utils/public/sessionStorage";
+import { uploadImg } from "@/utils/public/uploadImg";
 
 export default {
   name: "ToolfiberBind",
@@ -61,43 +60,12 @@ export default {
     },
     // 提交图片 获取图片id
     getPicturesId() {
-      // 清空上一次内容
-      this.pictureIds = [];
-      // 判断如果用户上传图片则获取图片id否则直接提交处理过程
-      if (this.imgList.length > 0) {
-        // 循环图片列表
-        this.imgList.forEach((item, index) => {
-          // 上传 form-data格式 图片
-          let formData = new FormData();
-          formData.append("loginNo", getItem("loginNo"));
-          formData.append("sheetId", "");
-          formData.append("pictype", 3);
-          formData.append("picName", `${index}`);
-          formData.append("file", item.file);
-
-          // 发送图片id请求
-          axios({
-            method: "post",
-            url: url,
-            data: formData,
-          })
-            .then((res) => {
-              console.log("图片id结果", res);
-              // 获取图片id
-              this.pictureIds.push(parseInt(res.data.id));
-              // 判断如果是最后一次图片请求，则请求处理过程接口
-              if (index === this.imgList.length - 1) {
-                // 发送处理过程请求
-                this.onSubmit();
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        });
-      } else {
+      uploadImg(this.imgList, getItem("loginNo"), "").then((pictureIds) => {
+        console.log("获取的图片id结果", pictureIds);
+        this.pictureIds = pictureIds;
+        // 发送处理过程请求
         this.onSubmit();
-      }
+      });
     },
     // 确定提交
     async onSubmit() {

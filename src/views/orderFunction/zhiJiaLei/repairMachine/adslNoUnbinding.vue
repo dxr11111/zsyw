@@ -56,7 +56,7 @@ export default {
   name: "AdslNoUnbinding",
   data() {
     return {
-      headName: `加解绑(${this.$route.query.id})`,
+      headName: `加解绑(${this.$route.query.orderId})`,
       id: parseInt(this.$route.query.id),
       balkAdslAddUnbinds: [], // 查询进度信息
       errorMessage: "", // 当前状态

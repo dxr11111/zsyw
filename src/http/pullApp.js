@@ -1,8 +1,8 @@
 // 拉取app地址
 export const appUrl = {
-    // 装维助手
-    zwzs: "zzhc://",
-    xxz: "lxhf://open.lxhf.shell/awake?info=1010",
+    zwzs: "zzhc://", // 装维助手
+    xxz: "lxhf://open.lxhf.shell/awake?info=1010", // 小小智
+    zyhc: "http://202.106.86.88:8001/?login=login2&jsonparam=", // 基站工单下列表详情点击电路编号跳转资源核查
 }
 
 // 建设中台地址

@@ -56,8 +56,12 @@
 
 <script>
 import { reqIomNewQueryDevice } from "@/http/button";
+import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
+
 export default {
   name: "PosBindMain",
+  mixins: [keepAliveMixin],
+
   data() {
     return {
       headName: `POS绑定(${this.$route.query.orderNum})`,
@@ -69,9 +73,11 @@ export default {
     // 回退
     goBackFn() {
       this.$router.go(-1);
+      this.$store.commit("removeThisPage", this.$options.name);
     },
     // 点击设备信息
     clickDev(item) {
+      this.$store.commit("changeRouteJumpStep", 1);
       this.$router.push({
         name: "PosInfo",
         query: {
@@ -103,6 +109,8 @@ export default {
 
 <style scoped lang="less">
 .posBindMain {
+  height: 100%;
+  background-color: @bg-color;
   .tips {
     padding: 10px;
     color: red;

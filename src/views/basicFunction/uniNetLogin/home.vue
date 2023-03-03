@@ -129,7 +129,7 @@ export default {
       orderActive: ["1"],
       // 基站运维感知地址
       // jzywUrl: "",
-      jsShow: "", // 是否显示建设类
+      jsShow: false, // 是否显示建设类
       titleOrder: [], // 工单内容
       // 建设类工单内容
       jianSheOrder: [
@@ -312,7 +312,7 @@ export default {
 
       // 工单种类顺序：建设类，维护类，优化类，开通类
       // 建设类内容固定
-      if (this.sysIds.includes("11") > -1) {
+      if (this.sysIds.includes(11)) {
         // 含有建设类权限
         this.jsShow = true;
       }
@@ -435,6 +435,9 @@ export default {
           img {
             width: 30px;
             margin-bottom: 10px;
+          }
+          span {
+            text-align: center;
           }
         }
         .toolActiveItem {

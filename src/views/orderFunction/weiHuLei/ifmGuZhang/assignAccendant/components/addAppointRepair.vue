@@ -10,6 +10,7 @@
             label="请选择用户地址"
             v-model="currAddress"
             is-link
+            arrow-direction="down"
             @focus="showChoice = true"
           ></van-field>
           <van-action-sheet

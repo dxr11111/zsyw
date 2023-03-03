@@ -9,6 +9,7 @@
           readonly
           v-model="reason"
           placeholder="请选择"
+          arrow-direction="down"
           is-link
           @focus="showChoice = true"
         ></van-field>

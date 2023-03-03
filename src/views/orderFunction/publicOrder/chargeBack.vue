@@ -6,61 +6,71 @@
     <div class="main">
       <van-form @submit="onSubmit" ref="form">
         <!-- 退单原因 -->
-        <van-field
-          name="chargeBackReason"
-          label="退单原因"
-          :value="chargeBackValue"
-          @click="chargeBackShow = true"
-          is-link
-          readonly
-          arrow-direction="down"
-          class="reason"
-        />
-        <van-action-sheet
-          v-model="chargeBackShow"
-          :actions="chargeBackActions"
-          cancel-text="取消"
-          close-on-click-action
-          @select="selectChargeBack"
-        />
+        <div class="region">
+          <van-field
+            name="chargeBackReason"
+            label="退单原因"
+            :value="chargeBackValue"
+            @click="chargeBackShow = true"
+            is-link
+            readonly
+            arrow-direction="down"
+            class="textRight"
+          />
+          <van-action-sheet
+            v-model="chargeBackShow"
+            :actions="chargeBackActions"
+            cancel-text="取消"
+            close-on-click-action
+            @select="selectChargeBack"
+          />
+        </div>
         <!-- 退单说明 -->
-        <van-field
-          v-model="chargeBackExplain"
-          placeholder="退单说明"
-          name="chargeBackExplain"
-          class="explain"
-          autocomplete="off"
-        />
+        <div class="region">
+          <van-field
+            v-model="chargeBackExplain"
+            label="退单说明"
+            placeholder="请输入退单说明"
+            name="chargeBackExplain"
+            class="inputRegion"
+            autocomplete="off"
+          />
+        </div>
 
         <!-- 超时原因 -->
-        <van-field
-          name="overTimeReason"
-          label="超时原因"
-          :value="overTimeValue"
-          @click="overTimeShow = true"
-          is-link
-          readonly
-          arrow-direction="down"
-          class="explain reason"
-          placeholder="请填写超时原因"
-          v-if="isShowOver && flowNode != 5"
-        />
-        <van-action-sheet
-          v-model="overTimeShow"
-          :actions="overTimeActions"
-          cancel-text="取消"
-          close-on-click-action
-          @select="selectOverTime"
-        />
+        <div class="region">
+          <van-field
+            name="overTimeReason"
+            label="超时原因"
+            :value="overTimeValue"
+            @click="overTimeShow = true"
+            is-link
+            readonly
+            arrow-direction="down"
+            class="textRight"
+            placeholder="请填写超时原因"
+            v-if="isShowOver && flowNode != 5"
+          />
+          <van-action-sheet
+            v-model="overTimeShow"
+            :actions="overTimeActions"
+            cancel-text="取消"
+            close-on-click-action
+            @select="selectOverTime"
+          />
+        </div>
         <!-- 超时说明 -->
-        <van-field
-          v-model="overTimeExplain"
-          placeholder="超时说明"
-          name="overTimeExplain"
-          class="explain"
-          autocomplete="off"
-          v-if="isShowOver"
-        />
+        <div class="region">
+          <van-field
+            v-model="overTimeExplain"
+            label="超时说明"
+            placeholder="请输入超时说明"
+            name="overTimeExplain"
+            class="inputRegion"
+            autocomplete="off"
+            v-if="isShowOver"
+          />
+        </div>
 
         <div style="margin: 30px">
           <van-button round block type="info" native-type="submit"
@@ -73,7 +83,6 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 import { reqChargeBack } from "@/http/button";
 import { removeWatermark } from "@/utils/public/waterMark";
 export default {
@@ -127,7 +136,8 @@ export default {
     async onSubmit(values) {
       // 表单校验
       if (this.chargeBackExplain == "") return this.$toast("请输入退单说明");
-      if (this.overTimeExplain == "") return this.$toast("请输入超时说明");
+      if (this.isShowOver && this.overTimeExplain == "")
+        return this.$toast("请输入超时说明");
 
       let id = parseInt(this.$route.query.id);
       let rejectReason = values.chargeBackReason; // 退单原因
@@ -215,27 +225,5 @@ export default {
 .chargeBack {
   height: 100%;
   background-color: #f8f7fc;
-  .main {
-    /deep/.van-cell__title {
-      width: 20%;
-      color: #000;
-      font-size: 16px;
-    }
-    /deep/.van-cell__value {
-      input {
-        color: #cccccc;
-      }
-    }
-    .explain {
-      margin-top: 10px;
-    }
-    .reason {
-      /deep/.van-cell__value {
-        input {
-          text-align: right;
-        }
-      }
-    }
-  }
 }
 </style>

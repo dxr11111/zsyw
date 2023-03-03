@@ -90,9 +90,9 @@
 
 <script>
 import { reqIfmComplaintProdQuery, reqIfmGq } from "@/http/button";
-import url from "@/http/img";
 import { getItem } from "@/utils/public/sessionStorage";
-import axios from "axios";
+import { uploadImg } from "@/utils/public/uploadImg";
+
 export default {
   name: "IfmGq",
   data() {
@@ -190,32 +190,16 @@ export default {
     },
     // 获取图片id
     getPictureId() {
-      if (this.imgList.length > 0) {
-        // 上传 form-data格式 图片
-        let formData = new FormData();
-        formData.append("loginNo", getItem("loginNo"));
-        formData.append("sheetId", parseInt(this.$route.query.id));
-        formData.append("pictype", 3);
-        formData.append("picName", `${this.$route.query.id}`);
-        formData.append("file", this.imgList[0].file);
-        axios({
-          method: "post",
-          url: url,
-          data: formData,
-        })
-          .then((res) => {
-            console.log("图片id结果", res);
-            // 获取图片id
-            this.fileld = parseInt(res.data.id);
-            this.onSubmit();
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      } else {
-        // 未上传图片，直接提交接口
+      uploadImg(
+        this.imgList,
+        getItem("loginNo"),
+        parseInt(this.$route.query.id)
+      ).then((pictureIds) => {
+        console.log("获取的图片id结果", pictureIds);
+        this.fileld = pictureIds;
+        // 发送处理过程请求
         this.onSubmit();
-      }
+      });
     },
     // 提交
     async onSubmit() {
@@ -268,30 +252,6 @@ export default {
 .ifmGq {
   .main {
     .region {
-      .textRight {
-        /deep/.van-cell__value.van-field__value {
-          input {
-            text-align: right;
-          }
-        }
-      }
-      .inputRegion {
-        /deep/.van-cell__title {
-          span {
-            display: inline-block;
-            margin-top: 5px;
-          }
-        }
-        /deep/.van-cell__value {
-          input {
-            padding: 5px;
-            border: 1px solid #e0e0e0;
-          }
-        }
-      }
-      .submitButton {
-        padding: 30px;
-      }
       .upload {
         display: flex;
         justify-content: flex-start;
@@ -303,6 +263,9 @@ export default {
           margin-bottom: 20px;
         }
       }
+    }
+    .submitButton {
+      padding: 30px;
     }
   }
 }

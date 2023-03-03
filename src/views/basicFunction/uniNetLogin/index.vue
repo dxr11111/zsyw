@@ -25,12 +25,12 @@ export default {
   methods: {
     // 获取accessToken
     async getAccessToken() {
-      // test
+      /* // test
       // 跳转home页
       this.$router.push({
         name: "UniNetLoginHome",
       });
-      return;
+      return; */
 
       let url = window.location.hash;
       console.log("完整url", url);

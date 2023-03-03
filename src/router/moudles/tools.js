@@ -215,4 +215,14 @@ export default [
       myKeepAlive: false,
     },
   },
+
+  {
+    // 资源核查
+    path: "/zyhc",
+    name: "Zyhc",
+    component: () => import("@/views/toolFunction/zyhc"),
+    meta: {
+      myKeepAlive: false,
+    },
+  },
 ];

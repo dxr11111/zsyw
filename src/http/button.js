@@ -639,3 +639,9 @@ export const reqIdmInstrustIssue = (postData) => {
 export const reqIomNewEditCustPhone = (postData) => {
     return requests({ method: 'post', url: '/operation/iomNew/editCustPhone', data: `data=${postData}` })
 }
+
+// 确认超时
+export const reqIfmEnterOverTime = (postData) => {
+    return requests({ method: 'post', url: '/operation/ifm/ifmEnterOverTime', data: `data=${postData}` })
+}
+

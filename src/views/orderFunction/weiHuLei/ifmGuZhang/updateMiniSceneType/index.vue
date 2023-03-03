@@ -8,6 +8,7 @@
         v-model="plan"
         placeholder="请选择"
         is-link
+        arrow-direction="down"
         @focus="showChoice = true"
       ></van-field>
       <van-action-sheet

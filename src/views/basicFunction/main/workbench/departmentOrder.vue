@@ -306,6 +306,10 @@ export default {
         // 将组件高度传给父组件
         this.getBgHeight();
       });
+      if (!result.operationSuccessFlag) {
+        // 将组件高度传给父组件
+        this.getBgHeight();
+      }
     },
     // 将组件高度传给父组件
     getBgHeight() {
@@ -377,7 +381,7 @@ export default {
       // }
       .boardList {
         display: flex;
-        justify-content: space-between;
+        // justify-content: space-between;
         overflow-x: auto;
         text-align: left;
         &::-webkit-scrollbar {

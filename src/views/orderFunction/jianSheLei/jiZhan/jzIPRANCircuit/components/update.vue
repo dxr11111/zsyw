@@ -1,5 +1,5 @@
 <template>
-  <div style="padding-bottom: 77px; height: 100%; background: #fff">
+  <div style="padding-bottom: 77px">
     <MyHeader
       :name="headName"
       left="arrow-left"
@@ -13,6 +13,7 @@
         v-model="currDeviceName"
         placeholder="请选择"
         is-link
+        arrow-direction="down"
         @focus="showDeviceName = true"
       ></van-field>
       <van-action-sheet
@@ -23,44 +24,53 @@
         close-on-click-action
         @select="selectDeviceName"
       />
-      <van-field
-        readonly
-        label="模块名称"
-        v-model="currModuleName"
-        placeholder="请选择"
-        is-link
-        @focus="showModuleName = true"
-      ></van-field>
-      <van-action-sheet
-        v-model="showModuleName"
-        cancel-text="取消"
-        :round="false"
-        :actions="moduleNames"
-        close-on-click-action
-        @select="selectModuleName"
-      />
-      <van-field
-        readonly
-        label="修改原因"
-        v-model="currReason"
-        placeholder="请选择"
-        is-link
-        @focus="showReason = true"
-      ></van-field>
-      <van-action-sheet
-        v-model="showReason"
-        cancel-text="取消"
-        :round="false"
-        :actions="reasonList"
-        close-on-click-action
-        @select="selectReason"
-      />
-      <van-field
-        v-model="intro"
-        label="修改说明"
-        placeholder="请输入修改说明（必填）"
-      />
-      <div class="upload">
+      <div class="region">
+        <van-field
+          readonly
+          label="模块名称"
+          v-model="currModuleName"
+          placeholder="请选择"
+          arrow-direction="down"
+          is-link
+          @focus="showModuleName = true"
+        ></van-field>
+        <van-action-sheet
+          v-model="showModuleName"
+          cancel-text="取消"
+          :round="false"
+          :actions="moduleNames"
+          close-on-click-action
+          @select="selectModuleName"
+        />
+      </div>
+      <div class="region">
+        <van-field
+          readonly
+          label="修改原因"
+          v-model="currReason"
+          placeholder="请选择"
+          arrow-direction="down"
+          is-link
+          @focus="showReason = true"
+        ></van-field>
+        <van-action-sheet
+          v-model="showReason"
+          cancel-text="取消"
+          :round="false"
+          :actions="reasonList"
+          close-on-click-action
+          @select="selectReason"
+        />
+      </div>
+      <div class="region">
+        <van-field
+          class="inputRegion"
+          v-model="intro"
+          label="修改说明"
+          placeholder="请输入修改说明（必填）"
+        />
+      </div>
+      <div class="upload region">
         <p>上传文件（至少一张图片）：</p>
         <van-uploader v-model="updateFile" multiple :max-count="10">
           <van-button icon="plus" type="default"></van-button>
@@ -93,8 +103,7 @@ import {
   JndSpecLineRouteTerminalApi,
   JndUpdateerminalApi,
 } from "@/http/button"
-import url from "@/http/img"
-import axios from "axios"
+import { uploadImg } from "@/utils/public/uploadImg"
 import { getItem } from "@/utils/public/sessionStorage"
 export default {
   // name: 'JzIPRANCircuitUpdate',
@@ -222,7 +231,7 @@ export default {
         houDuanZiId: str, //	后端子ID（格式如：17/18）
         houMokuaiId: this.moduleNames.find((e) => e.name == this.currModuleName)
           .id, //	后模块ID
-        caoZuoYuan: getItem("loginNo"), // 操作员
+        caoZuoYuan: getItem("loginInfo").userName, // 操作员
         gaixinYuanyin: this.reasonList.find((e) => e.name == this.currReason)
           .value, // 修改说明
         duankouMiaoshu: this.intro, //修改原因
@@ -231,39 +240,16 @@ export default {
       this.getFileId()
       // this.sendApi(this.params)
     },
-    async getFileId() {
-      let ids = []
-      this.updateFile.forEach((item, index) => {
-        let formData = new FormData()
-        formData.append("loginNo", getItem("loginNo"))
-        formData.append("sheetId", Number(this.$route.query.id))
-        formData.append("pictype", 3)
-        formData.append("picName", `${Number(this.$route.query.id)}-${index}`)
-        formData.append("file", item.file)
-        // 发送图片id请求
-        axios({
-          method: "post",
-          url: url,
-          data: formData,
-        })
-          .then((res) => {
-            // console.log('图片id结果', res)
-            // 获取图片id
-            ids.push(Number(res.data.id))
-            this.params.tupianIDLiebiao = ids
-            // 判断如果是最后一次图片请求，则发送强制回单/回复 请求
-            if (index === this.updateFile.length - 1) {
-              // 发送强制回单/回复 请求
-              this.sendApi(this.params)
-            }
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+    getFileId() {
+      uploadImg(this.updateFile, getItem("loginNo"), Number(this.$route.query.id)).then((ids) => {
+        console.log("获取的图片id结果", ids)
+        this.params.tupianIDLiebiao = ids
+        // 发送处理过程请求
+        this.sendApi()
       })
     },
-    async sendApi(params) {
-      let data = await JndUpdateerminalApi(JSON.stringify(params))
+    async sendApi() {
+      let data = await JndUpdateerminalApi(JSON.stringify(this.params))
       console.log("data", data)
       data.operationSuccessFlag
         ? this.$toast.success(data.successMessage)
@@ -366,6 +352,8 @@ export default {
   color: #000;
 }
 .position {
+  margin-top: 10px;
+  background-color: #fff;
   p {
     font-size: 14px;
     text-align: left;

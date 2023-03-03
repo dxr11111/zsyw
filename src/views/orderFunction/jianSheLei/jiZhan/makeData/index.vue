@@ -196,10 +196,10 @@ export default {
 <style scoped lang="less">
 .makeData {
   text-align: left;
+  .van-cell {
+    border-bottom: 1px solid #e0e0e0;
+  }
   .showData {
-    .van-cell {
-      border-bottom: 1px solid #e0e0e0;
-    }
     .title {
       padding: 8px 16px;
       background-color: #e5e5e5;

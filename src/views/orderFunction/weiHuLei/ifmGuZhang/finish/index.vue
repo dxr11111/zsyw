@@ -72,7 +72,7 @@
           <div class="region">
             <!-- 故障恢复时间 -->
             <DateTimePicker
-              label="故障恢复时间："
+              label="故障恢复时间"
               placeholder="请选择故障恢复时间（必填）"
               type="3"
               @getExcludeTime="getExcludeTime"
@@ -81,7 +81,7 @@
           <!-- 故障原因 -->
           <div class="region">
             <van-field
-              label="故障原因："
+              label="故障原因"
               :value="faultReasonLevel1Name"
               @click="faultReasonLevel1Show = true"
               placeholder="请选择故障原因"
@@ -101,7 +101,7 @@
           <!-- 子故障原因 -->
           <div class="region">
             <van-field
-              label="子故障原因："
+              label="子故障原因"
               :value="faultReasonLevel2Name"
               @click="faultReasonLevel2Show = true"
               placeholder="请选择子故障原因"
@@ -122,7 +122,7 @@
           <!-- 子故障原因 -->
           <div class="region">
             <van-field
-              label="子故障原因："
+              label="子故障原因"
               :value="faultReasonLevel3Name"
               @click="faultReasonLevel3Show = true"
               placeholder="请选择子故障原因"
@@ -144,7 +144,7 @@
         <!-- 是否需要分公司配合 -->
         <div class="region" v-if="showFgsCoordinate == 1">
           <div class="selectButton">
-            <span class="title">是否需要分公司配合：</span>
+            <span class="title">是否需要分公司配合</span>
             <div class="button">
               <van-button
                 :type="fgsCoordinate === 1 ? 'info' : ''"
@@ -184,7 +184,7 @@
         <!-- 故障已修，提交故障起单部门审核： -->
         <div class="region" v-if="returnDWJ == 1">
           <div class="selectButton">
-            <span class="title">故障已修，提交故障起单部门审核：</span>
+            <span class="title">故障已修，提交故障起单部门审核</span>
             <div class="button">
               <van-button
                 :type="returnTop === '1' ? 'info' : ''"
@@ -210,7 +210,7 @@
         >
           <van-field
             v-model="faultFeedback"
-            label="排障反馈方："
+            label="排障反馈方"
             placeholder="请输入排障反馈方（选填）"
             class="inputRegion"
           />
@@ -224,7 +224,7 @@
         >
           <van-field
             v-model="faultFeedbackInfo"
-            label="排障反馈详情："
+            label="排障反馈详情"
             placeholder="请输入排障反馈详情（选填）"
             class="inputRegion"
           />
@@ -237,7 +237,7 @@
           "
         >
           <DateTimePicker
-            label="处理时间："
+            label="处理时间"
             placeholder="请选择处理时间"
             type="1"
             @getDealDate="getDealDate"
@@ -247,7 +247,7 @@
         <div class="region" v-if="balkSubSortId20Show || balkSubSortId21Show">
           <van-field
             v-model="linkTel"
-            label="联系电话："
+            label="联系电话"
             placeholder="请输入联系电话（选填）"
             class="inputRegion"
           />
@@ -256,7 +256,7 @@
         <div class="region" v-if="balkSubSortId21Show">
           <van-field
             v-model="dealResultFactory"
-            label="排障结果验证厂家："
+            label="排障结果验证厂家"
             placeholder="请输入排障结果验证厂家（选填）"
             class="inputRegion"
           />
@@ -268,7 +268,7 @@
         >
           <van-field
             v-model="verificationResult"
-            label="问题验证结果："
+            label="问题验证结果"
             placeholder="请输入问题验证结果（选填）"
             class="inputRegion"
           />
@@ -282,7 +282,7 @@
             class="inputRegion"
           /> -->
           <DateTimePicker
-            label="验证日期："
+            label="验证日期"
             placeholder="请选择验证日期"
             type="2"
             @getVerificationDate="getVerificationDate"
@@ -292,7 +292,7 @@
         <div class="region" v-if="balkSubSortId21Show">
           <van-field
             v-model="legacyl"
-            label="遗留问题："
+            label="遗留问题"
             placeholder="请输入遗留问题（选填）"
             class="inputRegion"
           />
@@ -301,7 +301,7 @@
         <div class="region" v-if="balkSubSortId21Show">
           <van-field
             v-model="verificationMan"
-            label="验证人员："
+            label="验证人员"
             placeholder="请输入验证人员（选填）"
             class="inputRegion"
           />
@@ -310,7 +310,7 @@
         <div class="region" v-if="balkSubSortId21Show">
           <van-field
             v-model="verificationManTel"
-            label="联系电话："
+            label="联系电话"
             placeholder="请输入验证人员联系电话（选填）"
             class="inputRegion"
           />
@@ -319,7 +319,7 @@
         <div class="region" v-if="balkSubSortId21Show">
           <van-field
             v-model="verificationFactoryRemark"
-            label="验证厂家备注："
+            label="验证厂家备注"
             placeholder="请输入验证厂家备注（选填）"
             class="inputRegion"
           />
@@ -328,7 +328,7 @@
         <div class="region" v-if="balkSubSortId21Show">
           <van-field
             v-model="remark"
-            label="备注："
+            label="备注"
             placeholder="请输入备注（选填）"
             class="inputRegion"
           />
@@ -337,7 +337,7 @@
         <!-- 换盘显示条件：balkSubSortId == 2 && originDeptId == 5962 -->
         <div class="region" v-if="balkSubSortId == 2 && originDeptId == 5962">
           <div class="selectButton">
-            <span class="title">是否多次换盘：</span>
+            <span class="title">是否多次换盘</span>
             <div class="button">
               <van-button
                 :type="huanPan === '1' ? 'info' : ''"
@@ -360,7 +360,7 @@
           <div class="region">
             <van-field
               v-model="xiaoJiaoServiceMan"
-              label="现场维修人员："
+              label="现场维修人员"
               placeholder="请输入现场维修人员（必填）"
               class="inputRegion"
             />
@@ -368,7 +368,7 @@
           <!-- 小交品牌 -->
           <div class="region">
             <van-field
-              label="小交品牌："
+              label="小交品牌"
               :value="xiaoJiaoBrandName"
               @click="xiaoJiaoBrandShow = true"
               placeholder="请选择小交品牌"
@@ -388,7 +388,7 @@
           <!-- 故障原因类型 -->
           <div class="region">
             <van-field
-              label="故障原因类型："
+              label="故障原因类型"
               :value="xiaoJiaoBalkReasonTypeName"
               @click="xiaoJiaoBalkReasonTypeShow = true"
               placeholder="请选择故障原因类型"
@@ -409,7 +409,7 @@
           <div class="region">
             <van-field
               v-model="xiaoJiaoBalkReason"
-              label="故障原因："
+              label="故障原因"
               placeholder="请输入故障原因（必填）"
               class="inputRegion"
             />
@@ -418,7 +418,7 @@
           <div class="region">
             <van-field
               v-model="xiaoJiaoProcMode"
-              label="处理方式："
+              label="处理方式"
               placeholder="请输入处理方式（必填）"
               class="inputRegion"
             />
@@ -426,7 +426,7 @@
           <!-- 故障等级 -->
           <div class="region">
             <van-field
-              label="故障等级："
+              label="故障等级"
               :value="xiaoJiaoBalkGradeName"
               @click="xiaoJiaoBalkGradeShow = true"
               placeholder="请选择故障等级"
@@ -446,7 +446,7 @@
           <!-- 是否更换硬件 -->
           <div class="region">
             <div class="selectButton">
-              <span class="title">是否更换硬件：</span>
+              <span class="title">是否更换硬件</span>
               <div class="button">
                 <van-button
                   :type="isChangeHardware === 1 ? 'info' : ''"
@@ -492,7 +492,7 @@
           <!-- 约定到达时间 -->
           <div class="region">
             <DateTimePicker
-              label="约定到达时间："
+              label="约定到达时间"
               placeholder="请选择约定到达时间"
               type="4"
               @getXiaoJiaoReserveArrayTime="getXiaoJiaoReserveArrayTime"
@@ -501,7 +501,7 @@
           <!-- 实际到达时间 -->
           <div class="region">
             <DateTimePicker
-              label="实际到达时间："
+              label="实际到达时间"
               placeholder="请选择实际到达时间"
               type="5"
               @getXiaoJiaoRealityArrayTime="getXiaoJiaoRealityArrayTime"
@@ -513,7 +513,7 @@
         <!-- 解决方案一 -->
         <div class="region">
           <van-field
-            label="解决方案一："
+            label="解决方案一"
             :value="solution1Name"
             @click="solution1Show = true"
             placeholder="请选择解决方案一"
@@ -534,7 +534,7 @@
         <!-- 解决方案二 -->
         <div class="region">
           <van-field
-            label="解决方案二："
+            label="解决方案二"
             :value="solution2Name"
             @click="solution2Show = true"
             placeholder="请选择解决方案二"
@@ -581,7 +581,7 @@
         >
           <van-field
             v-model="prb"
-            label="基站忙时PRB利用率："
+            label="基站忙时PRB利用率"
             placeholder="请输入基站忙时PRB利用率（必填）"
             class="inputRegion"
           />
@@ -591,7 +591,7 @@
         <div class="region" v-if="workType == 5011 && solution1 == 12">
           <van-field
             v-model="baseStationStatus"
-            label="基站指标情况："
+            label="基站指标情况"
             placeholder="请输入基站指标情况（必填）"
             class="inputRegion"
           />
@@ -601,7 +601,7 @@
         <div class="region" v-if="workType == 5012 && solution1 == 15">
           <van-field
             v-model="rbBaseStationName"
-            label="复建站点名称："
+            label="复建站点名称"
             placeholder="请输入复建站点名称（必填）"
             class="inputRegion"
           />
@@ -609,7 +609,7 @@
         <!-- 复建站点入网时间 -->
         <div class="region" v-if="workType == 5012 && solution1 == 15">
           <DateTimePicker
-            label="复建站点入网时间："
+            label="复建站点入网时间"
             placeholder="请选择复建站点入网时间"
             type="6"
             @getRbBaseStationEnterTime="getRbBaseStationEnterTime"
@@ -619,7 +619,7 @@
       <!-- 超时原因 -->
       <div class="region" v-if="overTimeShow">
         <van-field
-          label="超时原因："
+          label="超时原因"
           :value="overTimeReason"
           @click="overTimeReasonShow = true"
           placeholder="请选择超时原因"
@@ -640,7 +640,7 @@
       <div class="region" v-if="overTimeShow">
         <van-field
           v-model="overTimeIntro"
-          label="超时说明："
+          label="超时说明"
           placeholder="请输入超时说明（必填）"
           class="inputRegion"
         />
@@ -649,7 +649,7 @@
       <div class="region">
         <van-field
           v-model="finishInfo"
-          label="回复信息："
+          label="回复信息"
           placeholder="请输入回复信息（必填）"
           class="inputRegion"
         />
@@ -725,9 +725,8 @@ import {
   reqFinishQueryByTask,
 } from "@/http/button";
 import { mapState } from "vuex";
-import url from "@/http/img";
+import { uploadImg } from "@/utils/public/uploadImg";
 import { getItem } from "@/utils/public/sessionStorage";
-import axios from "axios";
 import DateTimePicker from "./components/dateTimePicker.vue";
 
 export default {
@@ -1087,7 +1086,11 @@ export default {
     // 选中是否更换硬件
     clickIsChangeHardware(bool) {
       if (bool) this.isChangeHardware = 1;
-      else this.isChangeHardware = 0;
+      else {
+        this.isChangeHardware = 0;
+        // 清空新增硬件内容
+        this.changeHardwareInfos.splice(0, this.changeHardwareInfos.length);
+      }
     },
     // 选中铁塔是否按时上站
     clickTtGoSiteOnTime(bool) {
@@ -1708,43 +1711,14 @@ export default {
     // 获取图片id
     getPictureIds() {
       // 提交图片，获取图片id
-      // 清空上一次id列表
-      this.photoIdList = [];
-      // 发送图片id请求
-      if (this.imgList.length > 0) {
-        this.imgList.forEach((item, index) => {
-          // 上传 form-data格式 图片
-          let formData = new FormData();
-          formData.append("loginNo", getItem("loginNo"));
-          formData.append("sheetId", this.id);
-          formData.append("pictype", 3);
-          formData.append("picName", `${this.id}-${index}`);
-          formData.append("file", item.file);
-
-          axios({
-            method: "post",
-            url: url,
-            data: formData,
-          })
-            .then((res) => {
-              console.log("图片id结果", res);
-              // 获取图片id
-              this.photoIdList.push(parseInt(res.data.id));
-              // 判断如果是最后一次图片请求，则发送强制回单/回复 请求
-              if (index === this.imgList.length - 1) {
-                // 发送强制回单/回复 请求
-                this.submitFinish();
-                // console.log('最后一次图片id', index)
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        });
-      } else {
-        // 未上传图片，直接发送请求
-        this.submitFinish();
-      }
+      uploadImg(this.imgList, getItem("loginNo"), this.id).then(
+        (pictureIds) => {
+          console.log("获取的图片id结果", pictureIds);
+          this.photoIdList = pictureIds;
+          // 发送强制回单/回复 请求
+          this.submitFinish();
+        }
+      );
     },
   },
   created() {

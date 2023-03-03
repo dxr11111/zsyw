@@ -120,6 +120,8 @@ export default {
       curtVersion: "", // 当前版本
       quickLoginType: "",
       mobileNumber: "", // 手机号
+      loginTypeCode: JSON.parse(localStorage.getItem("loginTypeCode") || "[]"), // 所有账号的快捷登录设置
+      getPassData: JSON.parse(localStorage.getItem("gestPassword") || "[]"), // 获取存储所有用户的手势密码
     };
   },
   computed: {
@@ -143,14 +145,21 @@ export default {
   methods: {
     // 退出登录
     async logout() {
-      // 退出登录 → 清除页面缓存
-      /*  this.$store.commit('changeLoginOutFlag', true)
-            setTimeout(() => {
-              this.$store.commit('changeLoginOutFlag', '')
-          }, 100) */
-      // return
       await LogoutApi(JSON.stringify({}));
       // console.log(data);
+      // 退出账号时，清空当前账号的密码及快捷标识
+      this.loginTypeCode.forEach(e => {
+        if (e.loginNo == this.loginNo) {
+          e.typeCode = 0
+        }
+      })
+      this.getPassData.forEach((e) => {
+        if (e.loginNo == this.loginNo) {
+          e.gestPassword = []
+        }
+      })
+      localStorage.setItem("loginTypeCode", JSON.stringify(this.loginTypeCode))
+      localStorage.setItem("gestPassword", JSON.stringify(this.getPassData))
       // 从这里退出需要移除账号，避免进入手势登录页
       localStorage.removeItem("loginNo", this.loginNo);
       removeItem("loginInfo");

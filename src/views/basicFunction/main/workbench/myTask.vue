@@ -12,7 +12,11 @@
       <div class="dataSummary" ref="dataSummary">
         <div class="numList numList1">
           <ul>
-            <li v-for="up in upSum" :key="up.id" @click="taskFn(up)">
+            <li
+              v-for="(up, index) in upSum"
+              :key="'up' + index"
+              @click="taskFn(up)"
+            >
               <span class="num">{{ up.sum }}</span>
               <span class="name">{{ up.name }}</span>
             </li>
@@ -21,7 +25,11 @@
         <div class="cutOffRule"></div>
         <div class="numList numList2">
           <ul>
-            <li v-for="down in downSum" :key="down.id" @click="taskFn(down)">
+            <li
+              v-for="(down, index) in downSum"
+              :key="'down' + index"
+              @click="taskFn(down)"
+            >
               <span class="num">{{ down.sum }}</span>
               <span class="name">{{ down.name }}</span>
             </li>
@@ -35,10 +43,10 @@
 <script>
 import { mapGetters } from "vuex";
 import { reqTaskSum } from "@/http";
-import { getSysIds } from "@/utils/public/common";
+import { getHasTaskListSysId } from "@/utils/public/common";
 export default {
   name: "MyTask",
-  props: ["showDataSummary"],
+  props: ["showDataSummary", "selectSysId"],
   data() {
     return {
       dataSummaryBgHeight: "", // div-dataSummaryBg高度
@@ -55,11 +63,22 @@ export default {
       if (value) this.dataSummaryBgDisplay = "block";
       else this.dataSummaryBgDisplay = "none";
     },
+    // 任务页面点击筛选需要重新调用任务看板,sysId为筛选选中的值
+    selectSysId(value) {
+      this.getTaskNum(value);
+    },
   },
   methods: {
     // 获取任务看板数
-    async getTaskNum() {
-      let sysIds = getSysIds(this.getLoginInfo?.userIds);
+    async getTaskNum(sysId) {
+      let sysIds = [];
+      if (sysId) {
+        if (sysId == -1) {
+          sysIds = getHasTaskListSysId(this.getLoginInfo?.userIds);
+        } else sysIds.push(sysId);
+      } else {
+        sysIds = getHasTaskListSysId(this.getLoginInfo?.userIds);
+      }
       let postData = { sysIds };
       let result = await reqTaskSum(JSON.stringify(postData));
       console.log("获取任务看板数", result);
@@ -81,10 +100,20 @@ export default {
     },
     // 点击看板内容
     taskFn(item) {
+      // 获取点击条件 specProdType=14,overTime=1,specProdTypeNotIn=14|15|29
+      let condition = item.condition;
+      let arr = condition.split(",");
+      let siftPara = {};
+      // 将condition转成对象格式
+      arr.forEach((item) => {
+        let key = item.split("=")[0];
+        let value = item.split("=")[1];
+        siftPara[key] = value;
+      });
       // 拿到看板对应id
       let taskType = item.id;
       // 传给父组件
-      this.$emit("getTaskType", taskType);
+      this.$emit("getTaskType", taskType, JSON.stringify(siftPara));
     },
   },
 

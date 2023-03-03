@@ -1,6 +1,7 @@
 <template>
   <div class="externalURL">
-    <MyHeader :name="`业务推广`" left="arrow-left" @goBackEv="goBackFn" />
+    <!-- 基站工单列表详情点击电路编号跳转到资源核查 -->
+    <MyHeader name="资源核查" left="arrow-left" @goBackEv="goBackFn" />
     <template>
       <div class="network_container">
         <iframe
@@ -17,17 +18,17 @@
 
 <script>
 export default {
-  name: "ExternalURL",
+  name: "Zyhc",
   data() {
     return {
-      // src: 'https://vant-contrib.gitee.io/vant/v2'
+      //   src: "https://vant-contrib.gitee.io/vant/v2",
       src: this.$route.query.url || "",
     };
   },
   methods: {
     // 回退
     goBackFn() {
-      this.$router.go(-1);
+      this.$router.go(-2);
     },
   },
 };

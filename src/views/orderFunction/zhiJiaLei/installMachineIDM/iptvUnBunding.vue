@@ -9,91 +9,94 @@
       @rightEv="refreshFn"
     />
     <div class="main">
-      <div class="item" v-for="(item, index) in iptvInfo" :key="index">
-        <!--  解绑 -->
-        <template v-if="item.iptvResultCode === '1'">
-          <div class="left">
-            <div class="num">{{ index + 1 }}</div>
-            <div class="content">
-              <div class="title">
-                <span>账号：</span>
-                <span>产品名称：</span>
-              </div>
-              <div class="value">
-                <span>{{ item.iptvnbr }}</span>
-                <span>{{ item.iptvProdName }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="right">
-            <van-button type="info" @click="iptvUnBunding(item.iptvnbr, '0')"
-              >解绑</van-button
-            >
-          </div>
-        </template>
-        <!-- 正在解绑 -->
-        <template v-if="item.iptvResultCode === '2'">
-          <div class="left">
-            <div class="num">{{ index + 1 }}</div>
-            <div class="content">
-              <div class="title">
-                <span>账号：</span>
-                <span>产品名称：</span>
-              </div>
-              <div class="value">
-                <span>{{ item.iptvnbr }}</span>
-                <span>{{ item.iptvProdName }}</span>
+      <template v-if="iptvInfo.length > 0">
+        <div class="item" v-for="(item, index) in iptvInfo" :key="index">
+          <!--  解绑 -->
+          <template v-if="item.iptvResultCode === '1'">
+            <div class="left">
+              <div class="num">{{ index + 1 }}</div>
+              <div class="content">
+                <div class="title">
+                  <span>账号：</span>
+                  <span>产品名称：</span>
+                </div>
+                <div class="value">
+                  <span>{{ item.iptvnbr }}</span>
+                  <span>{{ item.iptvProdName }}</span>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="right">→正在解绑</div>
-        </template>
-        <!-- 重新解绑/异常 -->
-        <template
-          v-if="item.iptvResultCode === '3' || item.iptvResultCode === '5'"
-        >
-          <div class="left">
-            <div class="num">{{ index + 1 }}</div>
-            <div class="content">
-              <div class="title">
-                <span>账号：</span>
-                <span>产品名称：</span>
-                <span>解绑结果：</span>
-              </div>
-              <div class="value">
-                <span>{{ item.iptvnbr }}</span>
-                <span>{{ item.iptvProdName }}</span>
-                <span style="color: red">{{ item.iptvResult }}</span>
+            <div class="right">
+              <van-button type="info" @click="iptvUnBunding(item.iptvnbr, '0')"
+                >解绑</van-button
+              >
+            </div>
+          </template>
+          <!-- 正在解绑 -->
+          <template v-if="item.iptvResultCode === '2'">
+            <div class="left">
+              <div class="num">{{ index + 1 }}</div>
+              <div class="content">
+                <div class="title">
+                  <span>账号：</span>
+                  <span>产品名称：</span>
+                </div>
+                <div class="value">
+                  <span>{{ item.iptvnbr }}</span>
+                  <span>{{ item.iptvProdName }}</span>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="right">
-            <van-button
-              type="info"
-              style="padding: 0"
-              @click="iptvUnBunding(item.iptvnbr, '1')"
-              >重新解绑</van-button
-            >
-          </div>
-        </template>
-        <!-- 解绑成功 -->
-        <template v-if="item.iptvResultCode === '4'">
-          <div class="left">
-            <div class="num">{{ index + 1 }}</div>
-            <div class="content">
-              <div class="title">
-                <span>账号：</span>
-                <span>产品名称：</span>
-              </div>
-              <div class="value">
-                <span>{{ item.iptvnbr }}</span>
-                <span>{{ item.iptvProdName }}</span>
+            <div class="right">→正在解绑</div>
+          </template>
+          <!-- 重新解绑/异常 -->
+          <template
+            v-if="item.iptvResultCode === '3' || item.iptvResultCode === '5'"
+          >
+            <div class="left">
+              <div class="num">{{ index + 1 }}</div>
+              <div class="content">
+                <div class="title">
+                  <span>账号：</span>
+                  <span>产品名称：</span>
+                  <span>解绑结果：</span>
+                </div>
+                <div class="value">
+                  <span>{{ item.iptvnbr }}</span>
+                  <span>{{ item.iptvProdName }}</span>
+                  <span style="color: red">{{ item.iptvResult }}</span>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="right">√解绑成功</div>
-        </template>
-      </div>
+            <div class="right">
+              <van-button
+                type="info"
+                style="padding: 0"
+                @click="iptvUnBunding(item.iptvnbr, '1')"
+                >重新解绑</van-button
+              >
+            </div>
+          </template>
+          <!-- 解绑成功 -->
+          <template v-if="item.iptvResultCode === '4'">
+            <div class="left">
+              <div class="num">{{ index + 1 }}</div>
+              <div class="content">
+                <div class="title">
+                  <span>账号：</span>
+                  <span>产品名称：</span>
+                </div>
+                <div class="value">
+                  <span>{{ item.iptvnbr }}</span>
+                  <span>{{ item.iptvProdName }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="right">√解绑成功</div>
+          </template>
+        </div>
+      </template>
+      <Empty v-else />
     </div>
   </div>
 </template>

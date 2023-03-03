@@ -148,6 +148,7 @@ export default [
             myKeepAlive: true,
         }
     },
+    // 修机单回复
     {
         path: '/repairMachineFinish',
         name: 'RepairMachineFinish',
@@ -254,41 +255,31 @@ export default [
             myKeepAlive: false,
         }
     },
+
+    // pos绑定
     {
-        // POS 绑定
-        path: '/bindPos',
-        name: 'BindPos',
-        redirect: '/bindPos/posBindMain',
-        component: () => import('@/views/orderFunction/zhiJiaLei/installMachineIDM/bindPos'),
+        path: '/bindPos/posBindMain',
+        name: 'PosBindMain',
+        component: () => import('@/views/orderFunction/zhiJiaLei/installMachineIDM/bindPos/posBindMain'),
+        meta: {
+            myKeepAlive: true,
+        }
+    },
+    {
+        path: '/bindPos/posInfo',
+        name: 'PosInfo',
+        component: () => import('@/views/orderFunction/zhiJiaLei/installMachineIDM/bindPos/posInfo'),
+        meta: {
+            myKeepAlive: true,
+        }
+    },
+    {
+        path: '/bindPos/posSubmit',
+        name: 'PosSubmit',
+        component: () => import('@/views/orderFunction/zhiJiaLei/installMachineIDM/bindPos/posSubmit'),
         meta: {
             myKeepAlive: false,
-        },
-        children: [
-            {
-                path: 'posBindMain',
-                name: 'PosBindMain',
-                component: () => import('@/views/orderFunction/zhiJiaLei/installMachineIDM/bindPos/posBindMain'),
-                meta: {
-                    myKeepAlive: false,
-                }
-            },
-            {
-                path: 'posInfo',
-                name: 'PosInfo',
-                component: () => import('@/views/orderFunction/zhiJiaLei/installMachineIDM/bindPos/posInfo'),
-                meta: {
-                    myKeepAlive: true,
-                }
-            },
-            {
-                path: 'posSubmit',
-                name: 'PosSubmit',
-                component: () => import('@/views/orderFunction/zhiJiaLei/installMachineIDM/bindPos/posSubmit'),
-                meta: {
-                    myKeepAlive: false,
-                }
-            },
-        ]
+        }
     },
     {
         // 装机单回复
@@ -725,5 +716,12 @@ export default [
         path: '/adslNoUnbinding',
         name: 'AdslNoUnbinding',
         component: () => import('@/views/orderFunction/zhiJiaLei/repairMachine/adslNoUnbinding')
+    },
+
+    {
+        // 故障单-确认超时
+        path: '/enterOverTime',
+        name: 'EnterOverTime',
+        component: () => import('@/views/orderFunction/weiHuLei/ifmGuZhang/enterOverTime')
     }
 ]

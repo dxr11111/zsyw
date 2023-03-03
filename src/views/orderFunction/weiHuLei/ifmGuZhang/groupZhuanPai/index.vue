@@ -18,8 +18,10 @@
         <van-field
           readonly
           label="专业"
+          placeholder="请选择专业"
           v-model="dicValue"
           is-link
+          arrow-direction="down"
           @focus="showChoice = true"
         ></van-field>
         <van-action-sheet
@@ -34,10 +36,12 @@
       <!-- 在岗人员 -->
       <van-cell v-else>
         <van-field
+          arrow-direction="down"
           readonly
           label="工程师"
           v-model="ngiValue"
           is-link
+          placeholder="请选择工程师"
           @focus="show = true"
         ></van-field>
         <van-action-sheet v-model="show">
@@ -62,14 +66,18 @@
                   :key="item.userId"
                   @click="chooseSpec(item.userName)"
                 >
-                  <td><span class="index">{{ index+1 }}</span></td>
+                  <td style="width: 3%">
+                    <span class="index">{{ index + 1 }}</span>
+                  </td>
                   <td class="name">{{ item.userName }}</td>
                   <td>{{ item.wwcNum }}</td>
                   <td>{{ item.specName }}</td>
                 </tr>
               </table>
             </div>
-            <div v-else style="text-align: center">暂时没有查询到工程师信息~</div>
+            <div v-else style="text-align: center">
+              暂时没有查询到工程师信息~
+            </div>
           </div>
         </van-action-sheet>
       </van-cell>
@@ -87,7 +95,7 @@
 import { GetGroupPaiQueryApi, GroupPaiSaveApi } from '@/http/button'
 export default {
   name: 'GroupZhuanPai',
-  data () {
+  data() {
     return {
       radio: '1',
       showChoice: false,
@@ -100,11 +108,11 @@ export default {
     }
   },
   computed: {
-    headName () {
+    headName() {
       return `组内转派(${this.$route.query.orderId})`
     },
   },
-  created () {
+  created() {
     GetGroupPaiQueryApi(JSON.stringify({ id: Number(this.$route.query.id) })).then((res) => {
       if (!res.operationSuccessFlag) return this.$toast.fail(res.errorMessage)
       this.dicList = res.dicListItem
@@ -115,10 +123,10 @@ export default {
     })
   },
   methods: {
-    chooseType (v) {
+    chooseType(v) {
       v == 1 ? this.ngiValue = '' : this.dicValue = ''
     },
-    async onSubmit () {
+    async onSubmit() {
       let params = {}
       params.id = Number(this.$route.query.id)
       params.disType = Number(this.radio)
@@ -144,11 +152,11 @@ export default {
         this.$toast.fail(data.errorMessage)
       }
     },
-    onSelect (item) {
+    onSelect(item) {
       this.showChoice = false
       this.dicValue = item.name
     },
-    chooseSpec (name) {
+    chooseSpec(name) {
       this.show = false
       this.ngiValue = name
     }
@@ -162,18 +170,19 @@ export default {
   border-color: #ccc;
   tr {
     line-height: 30px;
-    th, td {
-      &:first-child {
-        width: 10% !important;
-      }
-    // &:nth-child(n+2) {
-    //   width: ~"calc((100% - 30px)/3)";
-    //   // width: 25%;
+    // th,
+    // td {
+    //   &:first-child {
+    //     width: 12px !important;
+    //   }
+    //   // &:nth-child(n+2) {
+    //   //   width: ~"calc((100% - 30px)/3)";
+    //   //   // width: 25%;
+    //   // }
     // }
-    }
   }
   #spec-item td {
-    width: 30%;
+    width: 32%;
   }
   .spec-top {
     pointer-events: none;
@@ -184,6 +193,6 @@ export default {
   justify-content: space-between;
 }
 .content {
-  padding: 20px 0;
+  padding: 15px 12px
 }
 </style>

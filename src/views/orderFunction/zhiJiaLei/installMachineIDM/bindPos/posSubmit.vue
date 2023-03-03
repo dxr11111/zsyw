@@ -238,6 +238,7 @@ export default {
     // 回退
     goBackFn() {
       this.$router.go(-1);
+      this.$store.commit("changeRouteJumpStep", -1);
     },
     // 获取pos信息
     getPosInfo() {
@@ -335,7 +336,10 @@ export default {
       let result = await reqIomPosInfoUpdate(JSON.stringify(postData));
       console.log("pos绑定提交结果", result);
       this.apiResponse(result, ".posSubmit", () => {
-        this.$router.push({ name: "PosBindMain" });
+        // 提交成功后返回详情/工作台并刷新
+        this.resetRouteJumpStep();
+        // 只调用接口按钮操作成功 刷新工单详情/工作台
+        this.operationSuccessRefresh(true);
       });
     },
   },

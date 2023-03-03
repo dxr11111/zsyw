@@ -144,37 +144,6 @@ export default {
 
 <style scoped lang="less">
 .selectMan {
-  .region {
-    margin-top: 10px;
-    background-color: #fff;
-    /deep/.van-cell__title {
-      flex: 0.8;
-    }
-
-    .inputRegion {
-      align-items: center;
-      /deep/.van-cell__title {
-        span {
-          display: inline-block;
-          margin-top: 5px;
-        }
-      }
-      /deep/.van-cell__value {
-        input {
-          padding: 5px;
-          border: 1px solid #e0e0e0;
-        }
-      }
-    }
-    .textRight {
-      align-items: center;
-      /deep/.van-cell__value.van-field__value {
-        input {
-          text-align: right;
-        }
-      }
-    }
-  }
   .submit {
     padding: 30px;
   }

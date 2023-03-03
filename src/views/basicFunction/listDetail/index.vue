@@ -220,6 +220,7 @@
                   <span class="name">{{ arrItem.name }}</span>
                   <!-- 基站状态颜色会改变  -->
                   <!-- sysId=3时网管告警时间和网管告警名称字体颜色为蓝色，要做弹窗显示 -->
+                  <!-- 基站工单 信源/拉远RRU下 点击电路编号要跳转到资源核查页面，电路编号的value要字体变蓝 -->
                   <span
                     class="value"
                     :class="judgeArrInfoColor(arrItem)"
@@ -270,8 +271,8 @@
       <div class="title">附件信息</div>
       <div class="content">
         <span
-          v-for="atta in basicInfoAttachmentInfoList"
-          :key="atta.fileId"
+          v-for="(atta, index) in basicInfoAttachmentInfoList"
+          :key="'atta1' + index"
           @click="clickProcAttachment(atta)"
           >{{ atta.fileName }}</span
         >
@@ -285,8 +286,8 @@
       <div class="title">附件信息</div>
       <div class="content">
         <span
-          v-for="atta in AttachmentInfoList"
-          :key="atta.fileId"
+          v-for="(atta, index) in AttachmentInfoList"
+          :key="'atta2' + index"
           @click="clickProcAttachment(atta)"
           >{{ atta.fileName }}</span
         >
@@ -445,14 +446,14 @@
 
 
 <script>
-import { setWaterMark, removeWatermark } from "@/utils/public/waterMark";
 import { mapState, mapGetters } from "vuex";
+import { setWaterMark, removeWatermark } from "@/utils/public/waterMark";
 import { getItem, setItem } from "@/utils/public/sessionStorage";
 import { matchButton } from "@/utils/public/button";
-import { getSysIds } from "@/utils/public/common";
 import { reqArrive, reqDownloadFile } from "@/http/button";
 import { reqHuJiaoCall } from "@/http/tools";
 import { reqgetListDetail } from "@/http/index";
+import { appUrl } from "@/http/pullApp";
 import PhoneIcon from "@/components/selectCallNumber/phoneIcon.vue";
 import Progress from "@/components/progress";
 import html2canvas from "html2canvas";
@@ -612,10 +613,34 @@ export default {
           this.networkManageHistoryShow = true;
         }
       }
+      // 基站工单 信源/拉远RRU下 点击电路编号要跳转到资源核查页面
+      if (
+        this.sysId == 9 &&
+        this.tabKey == "信源/拉远RRU" &&
+        arrItem.name == "电路编号"
+      ) {
+        // 跳转到资源核查
+        let circuitNumber = arrItem.content;
+        let prefix = appUrl.zyhc;
+        let jsonparam =
+          '{"oprtype":"circuit_route","param":"' + circuitNumber + '"}';
+        // 编码
+        jsonparam = escape(jsonparam);
+        let url = prefix + jsonparam;
+        console.log("资源核查网址", url);
+        this.$router.push({
+          name: "Zyhc",
+          query: {
+            url,
+          },
+        });
+      }
     },
 
     // 判断arrInfo中value的颜色
     judgeArrInfoColor(arrItem) {
+      // 基站工单 信源/拉远RRU下 电路编号类名
+      let RRUCircuitNumber = "";
       // 网管告警的颜色类名
       let networkManage = "";
       // 基站状态的颜色类名
@@ -630,7 +655,16 @@ export default {
         if (arrItem.content == "已修复") status = "statusRecovered";
         else status = "statusUnRepaired";
       }
-      return networkManage + " " + status;
+      // 基站工单 信源/拉远RRU下 点击电路编号要跳转到资源核查页面，电路编号的value要字体变蓝
+      if (
+        this.sysId == 9 &&
+        this.tabKey == "信源/拉远RRU" &&
+        arrItem.name == "电路编号"
+      ) {
+        RRUCircuitNumber = "RRUCircuitNumber";
+      }
+
+      return networkManage + " " + status + " " + RRUCircuitNumber;
     },
 
     // 判断sysId=2时资源信息下的新专线号样式
@@ -842,92 +876,96 @@ export default {
             this.paramsData = { id };
           }
           let result = await reqgetListDetail(JSON.stringify(this.paramsData));
-          setItem("listDetail", result);
-          this.$store.state.home.listDetail = result;
-          console.log("获取列表详情", result);
-
           // await this.$store.dispatch(
           //   "home/getListDetail",
           //   JSON.stringify(this.paramsData)
           // );
-          this.apiResponse(result, ".listDetail", () => {
-            // 获取sysId
-            // 清空buttonList,防止用户连续点击请求，请求结果返回慢造成重复按钮
-            this.buttonList = [];
-            this.buttonActions = [];
-            this.sysId = result.sysId;
-            // 获取标识颜色及名称
-            this.getTag(result.sheetLogo);
+          console.log("获取列表详情", result);
+          this.apiResponse(
+            result,
+            ".listDetail",
+            () => {
+              // 存储listDetail
+              this.$store.commit("home/GETLISTDETAIL", result);
+              // 清空buttonList,防止用户连续点击请求，请求结果返回慢造成重复按钮
+              this.buttonList = [];
+              this.buttonActions = [];
+              // 获取sysId
+              this.sysId = result.sysId;
+              // 获取标识颜色及名称
+              this.getTag(result.sheetLogo);
 
-            // 获取标题
-            this.titleId = result.orderId || result.id;
-            // 获取工单详情数据
-            this.baseInfo = result.data.baseInfo;
-            this.tabKey = this.baseInfo[0]?.key;
-            // 判断数据的key为处理过程时候的数据结构 → 控制折叠 or 展开 显示信息
-            for (let base of this.baseInfo) {
-              if (base.key == "处理过程") {
-                for (let treat of base.value) {
-                  if (treat.hasOwnProperty("key")) {
-                    // value里含有key属性的应该折叠显示
-                    this.treaetProcessCollapseShow = true;
-                    // 将flagActive的结果加到上一级列表内
-                    for (let thirdItem of treat.value) {
-                      if (thirdItem.flagActive == "1") {
-                        this.$set(treat, "flagActive", "1");
-                        break;
+              // 获取标题
+              this.titleId = result.orderId || result.id;
+              // 获取工单详情数据
+              this.baseInfo = result.data.baseInfo;
+              this.tabKey = this.baseInfo[0]?.key;
+              // 判断数据的key为处理过程时候的数据结构 → 控制折叠 or 展开 显示信息
+              for (let base of this.baseInfo) {
+                if (base.key == "处理过程") {
+                  for (let treat of base.value) {
+                    if (treat.hasOwnProperty("key")) {
+                      // value里含有key属性的应该折叠显示
+                      this.treaetProcessCollapseShow = true;
+                      // 将flagActive的结果加到上一级列表内
+                      for (let thirdItem of treat.value) {
+                        if (thirdItem.flagActive == "1") {
+                          this.$set(treat, "flagActive", "1");
+                          break;
+                        }
                       }
                     }
                   }
                 }
               }
-            }
-            // 将arrInfo中key与baseInfo相等的数据追加到baseInfo中
-            let arrInfo = result.data.arrInfo;
-            arrInfo.forEach((arr) => {
-              this.baseInfo.forEach((base) => {
-                if (arr.key == base.key) {
-                  // 将arrInfo中的value追加到baseInfo上
-                  this.$set(base, "arrInfo", arr.value);
-                }
+              // 将arrInfo中key与baseInfo相等的数据追加到baseInfo中
+              let arrInfo = result.data.arrInfo;
+              arrInfo.forEach((arr) => {
+                this.baseInfo.forEach((base) => {
+                  if (arr.key == base.key) {
+                    // 将arrInfo中的value追加到baseInfo上
+                    this.$set(base, "arrInfo", arr.value);
+                  }
+                });
               });
-            });
 
-            // 获取按钮数据
-            console.log("获取按钮数据", result.buttonList);
-            result.buttonList.forEach((button) => {
-              // console.log("遍历按钮数据", button);
-              let obj = {};
-              obj.actionText = button.actionText;
-              obj.actionId = button.actionId;
-              this.buttonList.push(obj);
-            });
-            console.log("最终按钮数据", this.buttonList);
-
-            // 按钮如果大于四个就显示更多选项
-            if (this.buttonList?.length > 4) {
-              let [...buttonList2] = this.buttonList;
-              buttonList2 = buttonList2.splice(3, buttonList2.length);
-              buttonList2.forEach((item) => {
+              // 获取按钮数据
+              console.log("获取按钮数据", result.buttonList);
+              result.buttonList.forEach((button) => {
+                // console.log("遍历按钮数据", button);
                 let obj = {};
-                obj.text = item.actionText;
-                obj.id = item.actionId;
-                this.buttonActions.push(obj);
+                obj.actionText = button.actionText;
+                obj.actionId = button.actionId;
+                this.buttonList.push(obj);
               });
-            }
-            // 在基本信息最末尾展示附件信息basicInfoAttachmentInfoList
-            if (result?.basicInfoAttachmentInfoList)
-              this.basicInfoAttachmentInfoList =
-                result.basicInfoAttachmentInfoList;
-            // 在基本信息最末尾展示附件信息AttachmentInfoList
-            if (result?.attachmentInfoList)
-              this.AttachmentInfoList = result.attachmentInfoList;
-          });
-          if (!result.operationSuccessFlag) {
+              console.log("最终按钮数据", this.buttonList);
+
+              // 按钮如果大于四个就显示更多选项
+              if (this.buttonList?.length > 4) {
+                let [...buttonList2] = this.buttonList;
+                buttonList2 = buttonList2.splice(3, buttonList2.length);
+                buttonList2.forEach((item) => {
+                  let obj = {};
+                  obj.text = item.actionText;
+                  obj.id = item.actionId;
+                  this.buttonActions.push(obj);
+                });
+              }
+              // 在基本信息最末尾展示附件信息basicInfoAttachmentInfoList
+              if (result?.basicInfoAttachmentInfoList)
+                this.basicInfoAttachmentInfoList =
+                  result.basicInfoAttachmentInfoList;
+              // 在基本信息最末尾展示附件信息AttachmentInfoList
+              if (result?.attachmentInfoList)
+                this.AttachmentInfoList = result.attachmentInfoList;
+            },
+            true
+          );
+          /* if (!result.operationSuccessFlag) {
             // 请求失败
             this.$store.commit("removeThisPage", this.$options.name);
             this.$router.go(-1);
-          }
+          } */
         }
       } catch (error) {
         console.log("err", error);
@@ -1055,7 +1093,6 @@ export default {
   created() {
     // 获取列表详情
     this.getListDetail();
-    console.log("listDetail已创建", this.listDetail);
   },
   activated() {
     console.log("listDetail已激活");
@@ -1084,6 +1121,7 @@ export default {
 .listDetail {
   // position: relative;
   min-height: 100%;
+  background-color: #fff;
   .static {
     z-index: 200;
     position: fixed;
@@ -1280,6 +1318,10 @@ export default {
       }
       .networkManage {
         color: #4949e4;
+      }
+      .RRUCircuitNumber {
+        color: #4949e4;
+        text-decoration: underline;
       }
       // .van-cell-group {
       //   .van-cell {
