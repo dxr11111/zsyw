@@ -39,7 +39,7 @@ export const getLocation = function () {
       }
 
       geolocation.getCurrentPosition(function (status, result) {
-        console.log('高德-定位状态和结果', status, result)
+        console.log('高德-定位状态和结果', status, result.position)
         if (status == 'complete') {
           console.log('高德-定位成功', result)
           location.lat = result.position.lat

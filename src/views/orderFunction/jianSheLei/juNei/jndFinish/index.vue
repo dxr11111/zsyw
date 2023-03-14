@@ -279,6 +279,7 @@ export default {
     },
     afterRead (file) {
       console.log('afterRead',file);
+      console.log('文件大小', file.file.size);
     },
     beforeRead(file){
       return this.compressFile(file, true)

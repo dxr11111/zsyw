@@ -385,6 +385,19 @@
           </div>
           <!-- FTTR从设备施工 -默认状态和施工状态显示 -->
           <template v-if="isFttrBuild === '1' || isFttrBuild === ''">
+            <!-- 请点击查询用户主从FTTR设备信息 -->
+            <div class="selectButton">
+              <span class="title"> 请点击查询用户主从FTTR设备信息 </span>
+              <!-- 4.“isFttrSelect”   判断FTTR设备是否可选施工 1-可选（显示施工不施工）   0-不可选 -->
+              <div class="button">
+                <van-button
+                  type="info"
+                  @click="queryDevice"
+                  native-type="button"
+                  >查询主从设备</van-button
+                >
+              </div>
+            </div>
             <!-- 施工布线 -->
             <van-field
               label="施工布线"
@@ -1376,6 +1389,30 @@
           注：近场WIFI速率是指：使用联通测试终端及测试软件检测的速率，家庭WIFI服务路由器使用超五类及以上网线连接光猫，路由器周围1米无遮挡，在距离路由器1米内进行测试，并且断开路由器其他终端连接。
         </p>
       </van-popup>
+      <!-- 用户FTTR主从设备信息弹出层 -->
+      <van-popup v-model="deviceFttrPopShow" class="deviceFttrPop">
+        <div class="title">用户FTTR主从设备信息</div>
+        <table>
+          <tr>
+            <td>FTTR主从设备</td>
+            <td>连接方式</td>
+            <td>光功率</td>
+          </tr>
+          <tr v-for="(item, index) in deviceFttrList" :key="index">
+            <td>
+              <p>{{ item.parentApMac }}</p>
+              <p>{{ item.mac }}</p>
+            </td>
+            <td>{{ item.connectInterface }}</td>
+            <td>{{ item.receivingPower }}dbm</td>
+          </tr>
+        </table>
+        <div class="button">
+          <van-button type="info" @click="deviceFttrPopShow = false"
+            >关闭</van-button
+          >
+        </div>
+      </van-popup>
     </div>
   </div>
 </template>
@@ -1383,15 +1420,19 @@
 
 <script>
 import { getItem, removeItem } from "@/utils/public/sessionStorage";
+import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
+
 import {
   reqIomNewFinishQuery,
   reqIomNewSpeedForm,
   reqIomNewLanInQuire,
   reqIomNewWifiVm,
+  reqIomNewQueryFTTRInfo,
 } from "@/http/button";
 
 export default {
   name: "IomNewReply",
+  mixins: [keepAliveMixin],
   data() {
     return {
       id: -1, // 工单唯一标识
@@ -1427,6 +1468,11 @@ export default {
         { name: "暗线光纤" },
         { name: "网线" },
       ],
+      isQueryDevice: false, // 是否点击过“查询主从设备”按钮
+      // 用户FTTR从设备信息
+      deviceFttrPopShow: false,
+      deviceFttrList: [],
+
       isShenYanBuild: "", // 神眼是否施工为空：默认施工，0：施工 ，1：未施工(备注：不是神眼业务传空)
       shenYanDesc: "", // 神眼不施工描述(备注：不是神眼业务传空)
       remark: "", // 回单备注
@@ -1573,6 +1619,7 @@ export default {
     // 回退
     goBackFn() {
       this.$router.go(-1);
+      this.$store.commit("removeThisPage", this.$options.name);
     },
     // 刷新页面
     refreshFn() {
@@ -1827,6 +1874,27 @@ export default {
       this.wifiPopShow = false;
       // 若取消弹出层，所做的改动不应用
       this.$set(this.wifiList, this.wifiPopIndex, this.tempDevInfo);
+    },
+    // fttr-查询主从设备
+    async queryDevice() {
+      // 记录用户已点开
+      this.isQueryDevice = true;
+      // 传参
+      let id = this.id;
+      let addressList = []; // [String mac] //MAC地址,这个地址为每一个FTTR设备的mac地址
+      this.postData.fttrInfo.forEach((item) => {
+        let obj = {};
+        obj.mac = item.mac;
+        addressList.push(obj);
+      });
+      let result = await reqIomNewQueryFTTRInfo(
+        JSON.stringify({ id, addressList })
+      );
+      this.apiResponse(result, ".reply", () => {
+        // 展示用户FTTR主从设备信息
+        this.deviceFttrList = result.fttrList;
+        this.deviceFttrPopShow = true;
+      });
     },
     // 选中fttr设备出现弹出层
     clickFttrItem(index) {
@@ -2285,6 +2353,8 @@ export default {
             // 如果isFttrBuild选择不施工，即隐藏所有的FTTR从设备Item，向后台传送的对象内容为空即可。
             fttrInfo = [];
           } else if (isFttrBuild === "1") {
+            if (!isQueryDevice)
+              return this.$toast("请至少点击一次“查询主从设备”按钮");
             // 判断是否选择施工布线
             if (fttrBuildWiring == "") return this.$toast("请选择施工布线");
             for (let i = 0; i < fttrInfo.length; i++) {
@@ -2541,7 +2611,6 @@ export default {
         lanRateDesc,
         fttrInfo,
         isFttrBuild,
-        isFttrBuild,
         ability,
         ottList,
         pjzList,
@@ -2730,7 +2799,6 @@ export default {
 </script>
 
 <style scoped lang="less">
-@theme-color: #1989fa;
 @import "@/assets/css/confirmDialog.less";
 .reply {
   // width: 100%;
@@ -2745,6 +2813,10 @@ export default {
     color: red;
     background-color: rgb(248, 248, 140);
     font-size: 14px;
+  }
+  .van-popup {
+    width: 90%;
+    padding: 10px;
   }
   .main {
     width: 100%;
@@ -3018,6 +3090,34 @@ export default {
       p {
         text-align: left;
         margin-top: 10px;
+      }
+    }
+
+    .deviceFttrPop {
+      padding: 10px;
+      border: 1px solid @theme-color;
+      .title {
+        padding: 10px;
+        border: 1px solid @theme-color;
+        font-weight: 600;
+      }
+      table {
+        width: 100%;
+        border: 1px solid @theme-color;
+        border-collapse: collapse;
+        td {
+          padding: 5px;
+          border: 1px solid @theme-color;
+          font-size: 14px;
+        }
+      }
+      .button {
+        padding: 10px;
+        border: 1px solid @theme-color;
+        .van-button {
+          height: 36px;
+          width: 30%;
+        }
       }
     }
   }

@@ -51,7 +51,7 @@ export const IsPosCodePop = (result) => {
         vue.$store.commit('button/CHANGEBZDZFIT', -1)
         let params = JSON.stringify(result)
         vue.$router.push({
-            path: '/iomNewFinish',
+            path: '/iomNewReply',
             query: {
                 params
             }

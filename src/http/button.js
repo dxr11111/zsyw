@@ -484,6 +484,10 @@ export const reqIomNewIptvUnBunding = (postData) => {
 export const reqIomNewFinishQuery = (postData) => {
     return requests({ method: 'post', url: '/operation/iomNew/iomNewFinishQuery', data: `data=${postData}` })
 }
+// 回复-fttr-查询主从设备
+export const reqIomNewQueryFTTRInfo = (postData) => {
+    return requests({ method: 'post', url: '/operation/iomNew/iomNewQueryFTTRInfo', data: `data=${postData}` })
+}
 // 回复-回复提交
 export const reqIomNewFinish = (postData) => {
     return requests({ method: 'post', url: '/operation/iomNew/iomNewFinish', data: `data=${postData}` })

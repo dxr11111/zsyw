@@ -1,5 +1,14 @@
 export default [
     {
+        // 定位测试
+        path: '/position',
+        name: 'Position',
+        component: () => import('@/views/position-test.vue'),
+        meta: {
+            myKeepAlive: false,
+        }
+    },
+    {
         // 沃推荐跳转的URL
         path: '/externalURL',
         name: 'ExternalURL',
@@ -281,34 +290,26 @@ export default [
             myKeepAlive: false,
         }
     },
+
     {
         // 装机单回复
-        path: '/iomNewFinish',
-        name: 'IomNewFinish',
-        component: () => import('@/views/orderFunction/zhiJiaLei/installMachineIDM/finish'),
-        redirect: '/iomNewFinish/iomNewReply',
+        path: '/iomNewReply',
+        name: 'IomNewReply',
+        component: () => import('@/views/orderFunction/zhiJiaLei/installMachineIDM/finish/reply'),
         meta: {
             myKeepAlive: true,
-        },
-        children: [
-            {
-                path: 'iomNewReply',
-                name: 'IomNewReply',
-                component: () => import('@/views/orderFunction/zhiJiaLei/installMachineIDM/finish/reply'),
-                meta: {
-                    myKeepAlive: false,
-                }
-            },
-            {
-                path: 'iomNewFinishSignature',
-                name: 'IomNewFinishSignature',
-                component: () => import('@/views/orderFunction/zhiJiaLei/installMachineIDM/finish/signature'),
-                meta: {
-                    myKeepAlive: false,
-                }
-            },
-        ],
+        }
     },
+    {
+        // 装机单回复-签名页面
+        path: '/iomNewFinishSignature',
+        name: 'IomNewFinishSignature',
+        component: () => import('@/views/orderFunction/zhiJiaLei/installMachineIDM/finish/signature'),
+        meta: {
+            myKeepAlive: false,
+        }
+    },
+
     {
         // 拆机
         path: '/dismantle',

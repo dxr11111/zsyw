@@ -17,6 +17,12 @@ const state = {
         orderId: -1,
     },
 
+    // 我已到达-随销单生成提示
+    arriveTipsShow: false,
+
+    // 修机单-回复-光纤尾码照片
+    finishPhotoIdList: [],
+
     // 回复任务
     finishTask: {
         popShow: false,
@@ -27,6 +33,15 @@ const state = {
     }
 }
 const mutations = {
+    // 存入光纤尾码照片
+    changeFinishPhotoIdList(state, result) {
+        state.finishPhotoIdList = result
+    },
+    // 修改我已到达弹出层是否显示
+    changeArriveTipsShow(state, result) {
+        state.arriveTipsShow = result
+    },
+
     // 修改回复任务参数
     changeFinishTask(state, result) {
         state.finishTask = result

@@ -1,6 +1,7 @@
 import { reqFinishQuery } from '@/http/button'
 import vue from '@/main'
 import apiResponse from '../public/apiResponse'
+import '@/assets/css/confirmDialog.less'
 
 
 // 回复-回单前查询
@@ -10,13 +11,43 @@ let finishQuery = async (buttonInfo) => {
         console.log('回单前查询', result)
         apiResponse(result, '#app', () => {
             // 无法跳转页面的情况
-            if (result.cansubmit) {
-                // 回复是否可以提交 false 可以提交，true 不可以提交
-                return vue.$toast('换机未完成无法提交')
-            } else if (result.testReportCount === 2) {
-                // 是否有测试报告提交记录 2：弹出未检测到测试报告，不跳转页面
-                return vue.$toast('未检测到测试报告')
+            if (result.cansubmit && result.testReportCount === 2) {
+                // 两种清况都显示
+                return vue.$dialog.alert({
+                    message: '换机单未竣工，请先完成换机单，再回单',
+                    className: 'confirmDialog',
+                    getContainer: '#app',
+                }).then(
+                    () => {
+                        vue.$dialog.alert({
+                            message: '需要生成[健康报告]后，再回单（具体操作：工单详情->健康报告）',
+                            className: 'confirmDialog',
+                            getContainer: '#app',
+                        }).then()
+                    }
+                )
+            } else {
+                if (result.cansubmit) {
+                    // 回复是否可以提交 false 可以提交，true 不可以提交
+                    // 显示(换机单未竣工，请先完成换机单，再回单)
+                    vue.$dialog.alert({
+                        message: '换机单未竣工，请先完成换机单，再回单',
+                        className: 'confirmDialog',
+                        getContainer: '#app',
+                    }).then()
+                    return
+                } else if (result.testReportCount === 2) {
+                    // 是否有测试报告提交记录 2：弹出未检测到测试报告，不跳转页面
+                    // 显示"需要生成[健康报告]后，再回单（具体操作：工单详情->健康报告）"
+                    vue.$dialog.alert({
+                        message: '需要生成[健康报告]后，再回单（具体操作：工单详情->健康报告）',
+                        className: 'confirmDialog',
+                        getContainer: '#app',
+                    }).then()
+                    return
+                }
             }
+
 
             // 选择是否跳转页面的情况
             // 获取是否有预约记录
@@ -65,7 +96,7 @@ let IsAlertQRCode = (buttonInfo, result) => {
             // 弹窗样式
             vue.$dialog.alert({
                 title: '回单提示',
-                message: '该用户设备已贴码，提醒用户下次保障可扫码',
+                message: '该用户设备已贴码，提醒用户下次报障可扫码',
                 className: 'alertQRCodeInfo',
                 confirmButtonText: '我知道了',
                 getContainer: '#app',

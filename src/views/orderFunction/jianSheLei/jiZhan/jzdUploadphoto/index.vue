@@ -34,7 +34,8 @@ export default {
     },
     afterRead(info) {
       // 此时可以自行将文件上传至服务器
-      console.log(info)
+      console.log('文件信息', info)
+      console.log('文件大小', info.file.size)
       // console.log(file.content.split(',')[1])
       this.params.push({
         photoFile: info.content.split(',')[1],

@@ -99,7 +99,7 @@
 <script>
 import $ from "jquery";
 import url from "@/http/img";
-import { getRequests } from "@/utils/public/uploadImg";
+import { getRequests, uploadImg } from "@/utils/public/uploadImg";
 import SignaturePad from "signature_pad";
 import { rotateBase64Img } from "@/utils/public/common";
 import { reqifmFinish } from "@/http/button";
@@ -109,7 +109,7 @@ export default {
   data() {
     return {
       loginNo: getItem("loginNo"), // 登录人
-      sheetId: this.$route.query.id, // 工单号
+      sheetId: parseInt(this.$route.query.id), // 工单号
       headName: `签名(${this.$route.query.orderNum})`,
       canvasNode: null,
       previewImage: null,
@@ -203,21 +203,47 @@ export default {
         this.getPictureId();
       }
     },
-    // 提交强制回单/回复 请求
-    async onSubmit() {
+    // 判断强制回单/回复参数
+    judgeParams() {
       let satisfied = this.satisfied; // 满意度
       let isBuildImage = this.isBuildImage; // 是否上传施工照片
       let pictureId = this.pictureId; // 签字图片id
       let cfgCustPhotoIds = this.cfgCustPhotoIds; // 外线回单用户现场图片id-回复
-      let postData = this.$route.params.postData; // 强制回单页面传过来的请求参数
-      postData = {
-        ...postData,
-        satisfied,
-        isBuildImage,
-        pictureId,
-        cfgCustPhotoIds,
-      };
+      let postData = JSON.parse(this.$route.query.postData); // 强制回单/回复页面传过来的请求参数
 
+      // 修机单回复-光纤尾码会上传照片
+      if (this.fromName === "RepairMachineFinish") {
+        // 从vuex中取出photoIdList
+        let photoList = this.$store.state.button.finishPhotoIdList;
+        uploadImg(
+          photoList,
+          getItem("loginNo"),
+          parseInt(this.$route.query.id)
+        ).then((pictureIds) => {
+          console.log("获取的光纤尾码图片id结果", pictureIds);
+          postData = {
+            ...postData,
+            photoIdList: pictureIds,
+            satisfied,
+            isBuildImage,
+            pictureId,
+            cfgCustPhotoIds,
+          };
+          this.onSubmit(postData);
+        });
+      } else {
+        postData = {
+          ...postData,
+          satisfied,
+          isBuildImage,
+          pictureId,
+          cfgCustPhotoIds,
+        };
+        this.onSubmit(postData);
+      }
+    },
+    // 提交请求
+    async onSubmit(postData) {
       try {
         let result = await reqifmFinish(JSON.stringify(postData));
         console.log("提交结果", result);
@@ -253,7 +279,7 @@ export default {
             // 请填写超时原因-跳转到前一个页面
             this.$router.push({
               name: this.fromName, // 前一个页面 回复/强制回单
-              params: { overTimeShow: true },
+              query: { overTimeShow: true },
             });
           }
         }
@@ -261,6 +287,7 @@ export default {
         console.log("err", error);
       }
     },
+
     // 保存画布图案到本地
     /*  saveImg() {
       let a = document.createElement("a");
@@ -305,44 +332,20 @@ export default {
           // 获取用户回执照片图片id
           if (this.isBuildImage === 0) {
             // 有上传照片
-            this.buildImageList.forEach((item, index) => {
-              // 获取图片后缀
-              let imageName = item.file.name;
-              let suffix = imageName.split(".")[1];
-              // 上传 form-data格式 图片
-              let formData = new FormData();
-              formData.append("loginNo", this.loginNo);
-              formData.append("sheetId", this.sheetId);
-              formData.append("pictype", 3);
-              formData.append("picName", `${this.sheetId}-${index}.${suffix}`);
-              formData.append("file", item.file);
-
-              // 发送图片id请求
-              imgRequests({
-                method: "post",
-                url: url,
-                data: formData,
-              })
-                .then((res) => {
-                  console.log("图片id结果", res);
-                  // 获取图片id
-                  this.cfgCustPhotoIds.push(parseInt(res.id));
-                  // 判断如果是最后一次图片请求，则发送强制回单/回复 请求
-                  if (
-                    this.buildImageList.length === this.cfgCustPhotoIds.length
-                  ) {
-                    // 发送强制回单/回复 请求
-                    this.onSubmit();
-                  }
-                })
-                .catch((err) => {
-                  console.log(err);
-                });
+            uploadImg(
+              this.buildImageList,
+              getItem("loginNo"),
+              parseInt(this.$route.query.id)
+            ).then((pictureIds) => {
+              console.log("获取用户回执图片id结果", pictureIds);
+              this.cfgCustPhotoIds = pictureIds;
+              // 发送强制回单/回复 请求
+              this.judgeParams();
             });
           } else {
             // 未上传照片
             // 发送强制回单/回复 请求
-            this.onSubmit();
+            this.judgeParams();
           }
         })
         .catch((err) => {

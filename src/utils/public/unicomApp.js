@@ -5,10 +5,10 @@ export const unicomFunc = function () {
   if (_this.$store.state.projectFlag == 1) {
     flag = 0
   } else {
-    const UA = window.navigator.userAgent.toLowerCase();
+    const UA = window.navigator.userAgent.toLowerCase()
     // console.log('UA', UA);
-    const isIos = (UA && /iphone|ipad|ipod|ios/.test(UA)) || false;
-    console.log('是否是ios', isIos);
+    const isIos = (UA && /iphone|ipad|ipod|ios/.test(UA)) || false
+    console.log('是否是ios', isIos)
     if (isIos) {
       flag = 1
     } else {
@@ -16,4 +16,26 @@ export const unicomFunc = function () {
     }
   }
   return flag
+}
+
+
+// 扫码
+export const codeScanView = function () {
+  function getQRCodeScanUrl(qrUrl) {
+    //处理逻辑
+    return qrUrl
+  }
+  let result = null
+  var code = unicomFunc()
+  if (code == 0) {
+    // vue扫码逻辑
+    result = 'local'
+  } else if (code == 1) {
+    openQRCodeScanView()
+    result = getQRCodeScanUrl()
+  } else {
+    region.openQRCodeScanView()
+    result = getQRCodeScanUrl()
+  }
+  return result
 }

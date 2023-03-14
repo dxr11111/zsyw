@@ -1,9 +1,5 @@
 <template>
   <div id="app">
-    <!-- <keep-alive :max="10">
-      <router-view v-if="$route.meta.myKeepAlive" />
-    </keep-alive>
-    <router-view v-if="!$route.meta.myKeepAlive" /> -->
     <keep-alive :include="keepPages">
       <router-view></router-view>
     </keep-alive>
@@ -14,6 +10,8 @@
     <EditCustPhone v-if="$store.state.button.editCustPhone.editCustPhoneShow" />
     <!-- 任务回复finishTask弹出层 -->
     <FinishTask v-if="$store.state.button.finishTask.popShow" />
+    <!-- 我已到达-随销单生成提示 -->
+    <ArriveTips v-if="$store.state.button.arriveTipsShow" />
 
     <!-- 路由过渡 -->
     <!--  <transition :name="transitionName" v-if="isTransition">
@@ -30,15 +28,21 @@ import MyLoading from "@/components/myLoading";
 import IomNewFinishPosCode from "@/views/orderFunction/zhiJiaLei/installMachineIDM/finish/components/iomNewFinishPosCode.vue";
 import EditCustPhone from "@/views/orderFunction/zhiJiaLei/installMachineIDM/editCustPhone";
 import FinishTask from "@/views/orderFunction/publicOrder/finishTask.vue";
+import ArriveTips from "@/views/orderFunction/publicOrder/arriveTips.vue";
 import { mapState } from "vuex";
 import judgeProject from "./utils/public/judgeProject";
 
 export default {
   name: "App",
-  components: { MyLoading, IomNewFinishPosCode, EditCustPhone, FinishTask },
+  components: {
+    MyLoading,
+    IomNewFinishPosCode,
+    EditCustPhone,
+    FinishTask,
+    ArriveTips,
+  },
   data() {
     return {
-      // include: ['Main', 'ListDetail', 'Finish', 'IomNewFinish', 'Circuit'], // 需要缓存的路由组件
       // 路由过渡
       // transitionName: '',
       // isTransition: false,
@@ -86,13 +90,7 @@ export default {
     //#endregion
   },
 
-  methods: {
-    // 返回路由的key
-    /*   keepAliveKey($route) {
-      if ($route.meta.parentPath == "/main") return "/main";
-      else return $route.fullPath;
-    }, */
-  },
+  methods: {},
   created() {
     // 判断是否要增加头部高度
     let Addhead = localStorage.getItem("Addhead");

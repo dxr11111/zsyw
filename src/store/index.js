@@ -3,7 +3,7 @@ import Vue from 'vue'
 Vue.use(Vuex)
 
 
-import { setItem, getItem } from '@/utils/public/sessionStorage'
+import { setItem, getItem, removeItem } from '@/utils/public/sessionStorage'
 import home from './modules/home'
 import workOrder from './modules/workOrder'
 import workBench from './modules/workBench'
@@ -35,6 +35,17 @@ export default new Vuex.Store({
 
     },
     mutations: {
+        // 清空用户信息
+        clearUserInfo(state) {
+            sessionStorage.clear()
+            state.loginInfo = ""
+            state.loginNo = ""
+
+            localStorage.removeItem('userName')
+            localStorage.removeItem('userPwd')
+            localStorage.removeItem('account')
+        },
+
         changeProjectFlag(state, result) {
             state.projectFlag = result
         },

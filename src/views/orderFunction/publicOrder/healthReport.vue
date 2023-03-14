@@ -327,6 +327,8 @@ export default {
       );
       console.log("健康报告提交结果", result);
       this.apiResponse(result, ".healthReport", () => {
+        // 刷新健康报告页面
+        this.refreshFn();
         // 操作成功 刷新列表/工作台
         this.operationSuccessRefresh(true);
       });
@@ -336,6 +338,8 @@ export default {
       let id = parseInt(this.$route.query.id);
       try {
         let result = await reqHealthQuery(JSON.stringify({ id }));
+        console.log("健康报告查询结果", result);
+
         this.apiResponse(result, ".healthReport", () => {
           this.reportList = result.balkAdslTestReportInfoList;
         });

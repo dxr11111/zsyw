@@ -50,8 +50,8 @@ export default {
 
 <style scoped lang="less">
 .treatProcess {
-  height: 100%;
-  background-color: #f8f7fc;
+  min-height: 100%;
+  background-color: @bg-color;
   .main {
     margin-top: 48px;
     .row {

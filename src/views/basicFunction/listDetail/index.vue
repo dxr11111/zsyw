@@ -441,6 +441,12 @@
         }"
       />
     </van-popup>
+
+    <!-- 点击截图 图片弹出层 -->
+    <van-popup v-model="photoShow" :style="{ width: '90%', height: '90%' }">
+      <p :style="{ color: 'red' }">长按图片保存</p>
+      <img :src="photoUrl" alt="" style="width: 100%" />
+    </van-popup>
   </div>
 </template>
 
@@ -448,9 +454,9 @@
 <script>
 import { mapState, mapGetters } from "vuex";
 import { setWaterMark, removeWatermark } from "@/utils/public/waterMark";
-import { getItem, setItem } from "@/utils/public/sessionStorage";
-import { matchButton } from "@/utils/public/button";
-import { reqArrive, reqDownloadFile } from "@/http/button";
+import { getItem } from "@/utils/public/sessionStorage";
+import buttonSuccess from "@/utils/gdMethods/buttonSuccess";
+import { reqDownloadFile } from "@/http/button";
 import { reqHuJiaoCall } from "@/http/tools";
 import { reqgetListDetail } from "@/http/index";
 import { appUrl } from "@/http/pullApp";
@@ -517,6 +523,9 @@ export default {
       // 查看附件信息
       attachmentShow: false,
       attachmentUrl: "",
+      // 截屏
+      photoShow: false,
+      photoUrl: "",
     };
   },
   provide() {
@@ -573,22 +582,14 @@ export default {
     },
     //保存图片
     saveImage() {
+      this.photoShow = true;
       // 第一个参数是需要生成截图的元素,第二个是自己需要配置的参数,宽高等
       html2canvas(document.getElementById("canvas"), {
         // backgroundColor: null, //画出来的图片有白色的边框,不要可设置背景为透明色（null）
         useCORS: true, //支持图片跨域
         scale: 1, //设置放大的倍数
       }).then((canvas) => {
-        // 把生成的base64位图片上传到服务器,生成在线图片地址
-        let url = canvas.toDataURL("image/png"); // toDataURL: 图片格式转成 base64
-        this.imgUrl = url;
-        //将图片下载到pc端本地
-        let a = document.createElement("a"); // 生成一个a元素
-        let event = new MouseEvent("click"); // 创建一个单击事件
-        a.download = "listDetailPhoto"; // 设置图片名称没有设置则为默认
-        a.href = this.imgUrl; // 将生成的URL设置为a.href属性
-        a.dispatchEvent(event); // 触发a的单击事件
-        console.log("点击截屏");
+        this.photoUrl = canvas.toDataURL("image/png"); // toDataURL: 图片格式转成 base64
       });
     },
     // sysId=3时点击网管告警名称或网管告警时间
@@ -706,18 +707,19 @@ export default {
 
     // 刷新
     refreshFn() {
-      // 清空buttonList
+      // 刷新当前路由
+      this.$store.commit("removeThisPage", this.$options.name);
+      this.$router.replace({
+        path: "/refresh",
+      });
+
+      /* // 清空buttonList
       this.buttonList = [];
       this.buttonActions = [];
       // 重新获取列表详情
       this.getListDetail();
       // 关闭更多按钮弹出层
-      if (this.buttonPopover) this.buttonPopover = false;
-      // this.$router.go(0); // 刷新整个页面
-      // 刷新当前路由
-      /* this.$router.replace({
-        path: "/refresh",
-      }); */
+      if (this.buttonPopover) this.buttonPopover = false; */
       // 竖轴置顶
       // document.body.scrollTop = document.documentElement.scrollTop = 0;
     },
@@ -731,42 +733,7 @@ export default {
     },
     // 点击按钮选项
     async clickButton(buttonId) {
-      // 我已到达需要在页面展示弹出框
-      if (buttonId == "arrive") {
-        // 弹出提示
-        this.$dialog
-          .confirm({
-            title: "您是否操作我已到达？",
-            className: "confirmDialog",
-            getContainer: ".listDetail",
-          })
-          .then(async () => {
-            let id = this.listDetail.id; // 工单唯一标识
-            let longitude = ""; // 经度
-            let latitude = ""; // 纬度
-            let address = ""; // 所属地址
-            try {
-              let result = await reqArrive(
-                JSON.stringify({ id, longitude, latitude, address })
-              );
-              this.apiResponse(result, ".listDetail", () => {
-                // 操作成功刷新页面并跳转到沃推荐
-              });
-            } catch (error) {
-              console.log("err", error);
-            }
-          })
-          .catch(() => {
-            // on cancel
-          });
-      } else {
-        let isOperate = await matchButton(this.listDetail, buttonId);
-        // 按钮操作成功 刷新当前页面和上一个页面
-        if (isOperate) {
-          // 只调用接口按钮操作成功 刷新工单详情/工作台
-          this.operationSuccessRefresh(true);
-        }
-      }
+      buttonSuccess(buttonId, this.listDetail);
     },
     // 获取列表详情
     async getListDetail() {
@@ -961,14 +928,11 @@ export default {
             },
             true
           );
-          /* if (!result.operationSuccessFlag) {
-            // 请求失败
-            this.$store.commit("removeThisPage", this.$options.name);
-            this.$router.go(-1);
-          } */
         }
       } catch (error) {
         console.log("err", error);
+        // 请求失败 → 返回上一个页面
+        this.goBackFn();
       }
     },
     // 获取标识字段及颜色

@@ -79,10 +79,9 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from "vuex";
+import { mapGetters } from "vuex";
 import { reqIfmShowButton } from "@/http";
-import { reqArrive } from "@/http/button";
-import { matchButton } from "@/utils/public/button";
+import buttonSuccess from "@/utils/gdMethods/buttonSuccess";
 
 export default {
   name: "ContentInfo",
@@ -92,7 +91,7 @@ export default {
       // 是否展开列表
       oddInfoShow: false,
       tagArr: [], // 标识对应颜色及名称
-      buttonList: this.contentInfo.button, // 按钮
+      buttonList: this.contentInfo.button || this.contentInfo.buttonList, // 按钮
     };
   },
   computed: {
@@ -159,40 +158,7 @@ export default {
 
       // 将值传给按钮
       // 我已到达需要在页面展示弹出框
-      if (buttonId == "arrive") {
-        this.$dialog
-          .confirm({
-            title: "您是否操作我已到达？",
-            className: "confirmDialog",
-            getContainer: ".workbench",
-          })
-          .then(async () => {
-            let id = contentInfo.id; // 工单唯一标识
-            let longitude = ""; // 经度
-            let latitude = ""; // 纬度
-            let address = ""; // 所属地址
-            try {
-              let result = await reqArrive(
-                JSON.stringify({ id, longitude, latitude, address })
-              );
-              this.apiResponse(result, ".listDetail", () => {
-                // 操作成功刷新页面并跳转到沃推荐
-              });
-            } catch (error) {
-              console.log("err", error);
-            }
-          })
-          .catch(() => {
-            // on cancel
-          });
-      } else {
-        // 其他按钮
-        let isOperate = await matchButton(contentInfo, buttonId);
-        if (isOperate) {
-          // 只调用接口按钮操作成功 刷新工单详情/工作台
-          this.operationSuccessRefresh(true);
-        }
-      }
+      buttonSuccess(buttonId, contentInfo);
     },
     // 点击待办里的用户单号信息
     clickTodoUserInfo() {

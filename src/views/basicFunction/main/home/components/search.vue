@@ -240,7 +240,7 @@ export default {
   .result-item {
     width: 100%;
     background: #fff;
-    padding: 12px;
+    // padding: 12px;
     box-sizing: border-box;
     margin-bottom: 15px;
     .title {
@@ -248,6 +248,7 @@ export default {
       display: flex;
       justify-content: space-between;
       border-bottom: 1px solid #eee;
+      padding: 0 12px;
       .type {
         font-size: 18px;
         font-weight: bold;

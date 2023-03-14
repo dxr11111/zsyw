@@ -108,10 +108,12 @@ export default {
     async switchEv() {
       // 关闭更多界面
       this.$emit("changeMoreShow");
+      this.$emit("clearLoginNo"); // 点击切换账号，清空用户名
       // 调用退出登录接口
       await this.$store.dispatch("getLoginOut");
       // 清空本地登录信息
-      removeItem("loginInfo");
+      this.$store.commit("clearUserInfo");
+
       this.isChangeNo = false;
       // 切换账号/退出登录时要清除本地存储的userInfo,页面显示上一次登录名从本地存储loginNo获取
       // if (getItem("loginNo")) {

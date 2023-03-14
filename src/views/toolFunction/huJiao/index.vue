@@ -33,27 +33,30 @@
               </span>
             </div>
           </div>
-          <!--  <div class="info">
-            <div class="top">
-              <span class="custName">{{ item.custName }}</span>
-              <span class="mobileNum">{{ item.mobileNum }}</span>
-            </div>
-            <div class="bottom">
-              <span class="workInfo">{{ item.workInfo }}</span>
-            </div>
-          </div>
-          <div class="right">
-            <div class="delete" @click="deleteItem(item.id)">
-              <van-icon name="delete-o" />
-            </div>
-            <span class="backTime">
-              {{ item.backTime }}
-            </span>
-          </div> -->
         </div>
       </div>
     </div>
     <Empty v-else></Empty>
+    <!-- 呼叫号码弹出层 -->
+    <van-popup
+      v-model="callNumberShow"
+      class="callNumber"
+      @click-overlay="cancelCall"
+    >
+      <ul>
+        <li class="title">确认呼出</li>
+        <li class="checkBox">
+          <!-- 被叫手机显示XXX的本机号码 -->
+          <van-checkbox v-model="dialFlagChecked" shape="square"
+            >被叫手机显示{{ loginNo }}的本机号码</van-checkbox
+          >
+        </li>
+        <li class="selectRegion">
+          <span @click="confirmCall">确认呼出</span>
+          <span @click="cancelCall">取消</span>
+        </li>
+      </ul>
+    </van-popup>
   </div>
 </template>
 
@@ -68,6 +71,11 @@ export default {
   data() {
     return {
       missBackList: [],
+      // 呼出号码
+      mobileNum: "",
+      callNumberShow: false,
+      dialFlagChecked: false,
+      loginNo: localStorage.getItem("userName") || "",
     };
   },
   methods: {
@@ -87,7 +95,9 @@ export default {
     },
     // 点击电话标识
     clickPhone(mobileNum) {
-      this.$dialog
+      this.callNumberShow = true;
+      this.mobileNum = mobileNum;
+      /*       this.$dialog
         .confirm({
           message: mobileNum,
           getContainer: ".toolHuJiao",
@@ -105,10 +115,9 @@ export default {
             JSON.stringify({ id, called, callNumberType, hujiaoFlag })
           );
           console.log("云入户呼叫结果", result);
-          this.apiResponse(result, ".toolHuJiao", () => {});
-          this.getQuery();
+          this.apiResponse(result, ".toolHuJiao", () => {this.getQuery();});
         })
-        .catch(() => {});
+        .catch(() => {}); */
     },
     // 点击删除标识
     async deleteItem(id) {
@@ -116,6 +125,29 @@ export default {
       console.log("删除结果", result);
       this.apiResponse(result, ".toolHuJiao", () => {});
       this.getQuery();
+    },
+    // 确认呼出
+    async confirmCall() {
+      // 点击云入户呼叫
+      let id = 0;
+      let called = this.mobileNum;
+      let callNumberType = "漏话回拨";
+      let hujiaoFlag = 1;
+      let dialFlag = 0;
+      if (this.dialFlagChecked) dialFlag = 1;
+      let result = await reqHuJiaoCall(
+        JSON.stringify({ id, called, callNumberType, hujiaoFlag, dialFlag })
+      );
+      console.log("云入户呼叫结果", result);
+      this.apiResponse(result, ".toolHuJiao", () => {
+        this.getQuery();
+        this.cancelCall();
+      });
+    },
+    // 取消呼出
+    cancelCall() {
+      this.callNumberShow = false;
+      this.dialFlagChecked = false;
     },
   },
   created() {
@@ -219,6 +251,41 @@ export default {
         }
         .right {
           text-align: right;
+        }
+      }
+    }
+  }
+  .callNumber {
+    border-radius: 10px;
+    background-color: #ebeaef;
+    ul {
+      width: 300px;
+      li {
+        padding: 10px;
+        &.title {
+          color: #000;
+          border: 1px solid #4472c4;
+        }
+        &.checkBox {
+          height: 50px;
+        }
+        &.selectRegion {
+          display: flex;
+          justify-content: space-around;
+          border: 1px solid #4472c4;
+          span {
+            width: 30%;
+            padding: 5px;
+            margin-left: 5px;
+            border-radius: 5px;
+            background: #4472c4;
+            color: #fff;
+            font-size: 14px;
+            &:first-child {
+              border-right: 1px solid #e0e0e0;
+              margin-left: 0;
+            }
+          }
         }
       }
     }

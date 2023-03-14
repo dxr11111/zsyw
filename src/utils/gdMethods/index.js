@@ -1393,7 +1393,7 @@ export const MonitIndList = [
         name: "下行PDSCH信道PRB平均利用率",
       },
       {
-        name: "小区内用户下行平均速率",
+        name: "小区内用户下行平均速率(BWO0BWP1)",
       },
       {
         name: "小区内用户下行平均速率(BWP0BWP1)",

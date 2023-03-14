@@ -51,6 +51,7 @@
       :isLogin="true"
       :isLoginInfo="isLoginInfo"
       @changeMoreShow="moreListShow = false"
+      @clearLoginNo="clearLoginNo"
     />
   </div>
 </template>
@@ -69,7 +70,7 @@ export default {
       isLoginInfo: false, // 当前是否有登录信息
       // lastLoginNo: "", // 切换账号后显示的上一个登录人
       userName: localStorage.getItem("userName") || "", // 圆形头像下的字
-      loginNo: "", // 切换账号时，要显示上一个账号
+      loginNo: "",
       password: "",
       moreListShow: false,
       pwdResetShow: false,
@@ -82,6 +83,11 @@ export default {
     ...mapGetters(["getLoginInfo"]),
   },
   methods: {
+    // 清空用户填入的用户名及密码
+    clearLoginNo() {
+      this.loginNo = "";
+      this.password = "";
+    },
     moreFn() {
       this.moreListShow = true;
     },

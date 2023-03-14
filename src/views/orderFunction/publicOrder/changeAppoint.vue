@@ -157,10 +157,9 @@ export default {
       this.$router.go(-1);
     },
     // 发送请求
-    async onSubmit(values) {
+    onSubmit(values) {
       // 表单校验
       if (this.dateValue == "") return this.$toast("请选择预约时间");
-      if (this.nextDateValue == "") return this.$toast("请选择下次预约时间");
       if (this.hourValue == "") return this.$toast("请选择小时");
       if (this.minuteValue == "") return this.$toast("请选择分钟");
       if (this.remark == "") return this.$toast("请填写备注");
@@ -168,13 +167,34 @@ export default {
       // 日期格式 yyyy-mm-dd hh：mm：ss
       let reservTime = `${values.datePicker} ${values.hourPicker}:${values.minutePicker}:00`;
       // 获取当前时间戳
-      let nowData = Date.now();
+      let nowDate = Date.now();
       // 获取选择预约时间的时间戳
       let pickDate = Date.parse(reservTime);
-      if (pickDate < nowData) {
+      if (pickDate < nowDate) {
         return this.$toast("您选择的时间应大于当前时间");
       }
-
+      // 选择的预约时间超过30天要添加提示
+      // 计算30天的时间戳
+      let day30 = 1000 * 60 * 60 * 24 * 30;
+      if (pickDate - nowDate > day30) {
+        // 超过30天
+        this.$dialog
+          .confirm({
+            title: "提示",
+            message: "温馨提示：您填写的预约时间是30天之后，确定提交吗？",
+            getContainer: ".changeAppoint",
+            className: "confirmDialog",
+          })
+          .then(() => {
+            this.editReserve(reservTime);
+          })
+          .catch(() => {});
+      } else {
+        this.editReserve(reservTime);
+      }
+    },
+    // 调用修改预约接口
+    async editReserve(reservTime) {
       let id = parseInt(this.$route.query.id);
       let phoneNumber = this.custPhone;
       let reason = this.remark;
@@ -187,6 +207,7 @@ export default {
       let postData = { id, reservTime, phoneNumber, reason, tmpRevFlag };
       try {
         let result = await reqEditReserve(JSON.stringify(postData));
+
         this.apiResponse(result, ".changeAppoint", () => {
           this.$toast("修改预约成功");
           // 接口按钮操作成功 刷新工单详情/工作台
@@ -231,18 +252,13 @@ export default {
       this.minuteValue = value;
       this.showMinutePicker = false;
     },
-    // 呼出号码弹出框
-    // showNumberPopup () {
-    //   this.callNumberShow = true
-    // },
-    // 如果工单只有1个电话，且格式符合要求(8或11位)，则直接调用后台打电话接口，
+
+    // 显示呼叫号码组件
     async judgeCustPhone() {
       let custPhone = this.custPhone;
       let phoneList = custPhone.split(",");
-      if (phoneList.length == 1) {
+      if (phoneList.length > 0) {
         // 请求云入户呼叫
-        this.cloudCall(phoneList[0], "预约拨号", false);
-      } else {
         this.$store.commit("workBench/CHANGECALLNUMBERSTATE", {
           callNumberShow: true,
           keyShow: false,
@@ -251,8 +267,8 @@ export default {
     },
 
     // 点击选中的单个号码
-    async judgeSelectPhone(phone) {
-      this.cloudCall(phone, "预约拨号", false);
+    async judgeSelectPhone(phone, dialFlagChecked) {
+      this.cloudCall(phone, "预约拨号", dialFlagChecked);
     },
 
     // 云入户呼叫
@@ -286,7 +302,7 @@ export default {
   created() {
     removeWatermark(); // 删除水印
     this.generateHourColumns(); // 生成小时数
-    // 判断电话号码是否只有一个，只有一个则直接拨打电话
+    // 显示呼叫号码组件
     this.judgeCustPhone();
   },
 };

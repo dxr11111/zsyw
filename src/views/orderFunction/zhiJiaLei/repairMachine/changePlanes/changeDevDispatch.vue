@@ -6,31 +6,36 @@
       <div class="top">
         <div class="enter" @click="enterNewDev">[录入新设备]</div>
       </div>
-      <div class="listInfo" v-for="(item, index) in devList" :key="index">
-        <div class="left">
-          <!-- 终端型号 -->
-          <div class="title" v-if="item.resType == 1">ONU</div>
-          <div class="title" v-if="item.resType == 4">IPTV</div>
-          <div class="title" v-if="item.resType == 6">沃家产品</div>
-          <div class="content">
-            <span>厂{{ "\u3000\u3000" }}家：{{ item.supplierName }}</span>
-            <span>终端串码：{{ item.sn }}</span>
-            <span>终端MAC：{{ item.mac }}</span>
-            <span>终端型号：{{ item.resModelName }}</span>
+      <template v-if="devList.length > 0">
+        <div class="listInfo" v-for="(item, index) in devList" :key="index">
+          <div class="left">
+            <!-- 终端型号 -->
+            <div class="title" v-if="item.resType == 1">ONU</div>
+            <div class="title" v-if="item.resType == 4">IPTV</div>
+            <div class="title" v-if="item.resType == 6">沃家产品</div>
+            <div class="content">
+              <span>厂{{ "\u3000\u3000" }}家：{{ item.supplierName }}</span>
+              <span>终端串码：{{ item.sn }}</span>
+              <span>终端MAC：{{ item.mac }}</span>
+              <span>终端型号：{{ item.resModelName }}</span>
+            </div>
+          </div>
+          <div class="right">
+            <van-button type="danger" @click="changeDev(item)">{{
+              item.canChange === 1 ? "更换" : "更换中"
+            }}</van-button>
+            <van-button
+              type="danger"
+              @click="changeRecord(item.devSeq)"
+              v-if="item.hasChange"
+              >换机记录</van-button
+            >
           </div>
         </div>
-        <div class="right">
-          <van-button type="danger" @click="changeDev(item)">{{
-            item.canChange === 1 ? "更换" : "更换中"
-          }}</van-button>
-          <van-button
-            type="danger"
-            @click="changeRecord(item.devSeq)"
-            v-if="item.hasChange"
-            >换机记录</van-button
-          >
-        </div>
-      </div>
+      </template>
+      <template v-else>
+        <Empty />
+      </template>
     </div>
     <!-- 录入新设备弹出层 -->
     <van-popup v-model="showEnter">
@@ -71,6 +76,7 @@
             right-icon="scan"
             placeholder="扫描或录入应收终端串码"
             v-if="isChange == true"
+            readonly
           />
           <van-field
             v-model="changeMAC"
@@ -78,6 +84,7 @@
             right-icon="scan"
             placeholder="扫描或录入应收MAC地址"
             v-if="isChange == true"
+            readonly
           />
 
           <van-field
@@ -472,7 +479,7 @@ export default {
       }
       this.showNewOldData = false; // 关闭弹出层
       let id = parseInt(this.$route.query.id);
-      let changeType = this.resType; // 当前resType的值
+      let changeType = this.resType.toString(); // 当前resType的值
       let oldMsg = this.oldMsg; // onu时传
       let newMsg = this.newMsg; // onu时传
       let changeSheetNo = ""; // 点击录入新设备传空

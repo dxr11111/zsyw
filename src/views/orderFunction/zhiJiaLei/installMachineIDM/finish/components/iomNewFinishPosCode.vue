@@ -32,133 +32,128 @@
 </template>
 
 <script>
-import QRCode from 'qrcodejs2'
-import { IsPosCodePop } from '@/utils/iomNew/finish'
+import QRCode from "qrcodejs2";
+import { IsPosCodePop } from "@/utils/iomNew/finish";
 export default {
-  name: 'IomNewFinishPosCode',
-  data () {
-    return {
-
-    }
+  name: "IomNewFinishPosCode",
+  data() {
+    return {};
   },
   computed: {
     show: {
-      get () {
-        return this.$store.state.button.posCodePopShow
+      get() {
+        return this.$store.state.button.posCodePopShow;
       },
-      set () {
-      }
+      set() {},
     },
-    posAddress () {
-      return this.$store.state.button.posAddress
+    posAddress() {
+      return this.$store.state.button.posAddress;
     },
-    posCodeSign () {
-      return this.$store.state.button.posCodeSign
+    posCodeSign() {
+      return this.$store.state.button.posCodeSign;
     },
-    posCode () {
-      return this.$store.state.button.posCode
+    posCode() {
+      return this.$store.state.button.posCode;
     },
-    bzdzFit () {
-      return this.$store.state.button.bzdzFit
-    }
-
+    bzdzFit() {
+      return this.$store.state.button.bzdzFit;
+    },
   },
   watch: {
-    posCode (value) {
+    posCode(value) {
       if (value === 1) {
-        this.creatQrCode()
+        this.creatQrCode();
       }
     },
-    bzdzFit (value) {
+    bzdzFit(value) {
       if (value === 0) {
-        this.$dialog.confirm({
-          title: '验证修改标准地址',
-          message: this.$store.state.bzdzMark,
-          confirmButtonText: '继续回单',
-          cancelButtonText: '修改标准地址',
-          getContainer: '.iomNewFinishPosCode',
-          className: 'confirmDialog',
-        }).then(() => {
-          // 继续回单
-          // 判断是否弹出pos二维码弹框
-          let params = this.$store.state.button.iomNewFinishParams
-          IsPosCodePop(params)
-
-        }).catch(() => {
-          // 修改标准地址
-          // 跳到退工单页面
-          this.$router.push({
-            name: 'ReturnSheet',
-            query: {
-              orderNum: this.$store.state.home.listDetail.orderId,
-              id: this.$store.state.home.listDetail.id,
-            }
+        this.$dialog
+          .confirm({
+            title: "验证修改标准地址",
+            message: this.$store.state.bzdzMark,
+            confirmButtonText: "继续回单",
+            cancelButtonText: "修改标准地址",
+            getContainer: ".iomNewFinishPosCode",
+            className: "confirmDialog",
           })
-
-        });
-
+          .then(() => {
+            // 继续回单
+            // 判断是否弹出pos二维码弹框
+            let params = this.$store.state.button.iomNewFinishParams;
+            IsPosCodePop(params);
+          })
+          .catch(() => {
+            // 修改标准地址
+            // 跳到退工单页面
+            this.$router.push({
+              name: "ReturnSheet",
+              query: {
+                orderNum: this.$store.state.home.listDetail.orderId,
+                id: this.$store.state.home.listDetail.id,
+              },
+            });
+          });
       }
-    }
+    },
   },
   methods: {
     // 点击遮罩层
-    clickOverlay () {
-      this.$store.commit('button/CHANGEPOSPOPSHOW', false)
+    clickOverlay() {
+      this.$store.commit("button/CHANGEPOSPOPSHOW", false);
       // 还原标准地址标识
-      this.$store.commit('button/CHANGEBZDZFIT', -1)
+      this.$store.commit("button/CHANGEBZDZFIT", -1);
     },
     // 字符串生成二维码
-    creatQrCode (str) {
+    creatQrCode(str) {
       this.$nextTick(() => {
         let qrcode = new QRCode(this.$refs.qrCodeUrl, {
           text: this.posCode, // 需要转换为二维码的内容
           width: 100,
           height: 100,
-          colorDark: '#000000',
-          colorLight: '#ffffff',
-          correctLevel: QRCode.CorrectLevel.H
-        })
-      })
-
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H,
+        });
+      });
     },
     // 正常进入回单页面
-    enterToFinish () {
+    enterToFinish() {
       // 还原标准地址标识
-      this.$store.commit('button/CHANGEBZDZFIT', -1)
-      this.$store.commit('button/CHANGEPOSPOPSHOW', false)
-      let params = JSON.stringify(this.$store.state.button.iomNewFinishParams)
+      this.$store.commit("button/CHANGEBZDZFIT", -1);
+      this.$store.commit("button/CHANGEPOSPOPSHOW", false);
+      let params = JSON.stringify(this.$store.state.button.iomNewFinishParams);
       this.$router.push({
-        path: '/iomNewFinish',
+        path: "/iomNewReply",
         query: {
-          params
-        }
-      })
+          params,
+        },
+      });
     },
     // 强制进入回单页面。
-    forceToFinish () {
+    forceToFinish() {
       // 还原标准地址标识
-      this.$store.commit('button/CHANGEBZDZFIT', -1)
-      this.$store.commit('button/CHANGEPOSPOPSHOW', false)
-      let posCodeForceFinish = 1
-      let iomNewFinishParams = this.$store.state.button.iomNewFinishParams
-      let params = JSON.stringify({ ...iomNewFinishParams, posCodeForceFinish })
+      this.$store.commit("button/CHANGEBZDZFIT", -1);
+      this.$store.commit("button/CHANGEPOSPOPSHOW", false);
+      let posCodeForceFinish = 1;
+      let iomNewFinishParams = this.$store.state.button.iomNewFinishParams;
+      let params = JSON.stringify({
+        ...iomNewFinishParams,
+        posCodeForceFinish,
+      });
       this.$router.push({
-        path: '/iomNewFinish',
+        path: "/iomNewReply",
         query: {
-          params
-        }
-      })
-
+          params,
+        },
+      });
     },
   },
-  created () {
-  }
-
-}
+  created() {},
+};
 </script>
 
 <style scoped lang="less">
-@import '@/assets/css/confirmDialog.less';
+@import "@/assets/css/confirmDialog.less";
 .iomNewFinishPosCode {
   .van-popup {
     width: 80%;

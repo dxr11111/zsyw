@@ -8,7 +8,6 @@ import axios from "axios";
 import url from "@/http/img";
 import store from '@/store'
 import vue from '@/main'
-import { getItem } from '@/utils/public/sessionStorage'
 
 
 // 文件类型判断

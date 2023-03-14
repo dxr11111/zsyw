@@ -7,7 +7,11 @@
         <!-- 是否预约成功 -->
         <van-field name="successReserve" label="是否预约成功">
           <template #input>
-            <van-switch v-model="successReserve" size="20" />
+            <van-switch
+              v-model="successReserve"
+              size="20"
+              @change="changeSwitch"
+            />
           </template>
         </van-field>
         <!-- 暂约 只有sysId=1时有暂约标识-->
@@ -67,7 +71,7 @@
           />
         </van-popup>
         <!-- 预约小时分钟 -->
-        <div class="timePicker">
+        <div class="timePicker" v-show="successReserve">
           <van-field
             readonly
             clickable
@@ -188,12 +192,18 @@ export default {
   },
   methods: {
     // 点击确认键
-    confirmEvent(res) {
+    confirmEvent(res, dialFlagChecked) {
       console.log("确认键：", res);
       // 判断号码格式是否正确 请求云入户
       this.cloudCall(res, "手工拨号", dialFlagChecked);
     },
-
+    //改变是否预约成功
+    changeSwitch(val) {
+      if (!val) {
+        this.successReserve = true;
+        return this.$toast("暂不支持该功能");
+      }
+    },
     // 回退
     goBackFn() {
       this.$router.go(-1);
@@ -201,10 +211,13 @@ export default {
     // 发送请求
     async onSubmit(values) {
       // 表单校验
-      if (this.dateValue == "") return this.$toast("请选择预约时间");
-      if (this.nextDateValue == "") return this.$toast("请选择下次预约时间");
-      if (this.hourValue == "") return this.$toast("请选择小时");
-      if (this.minuteValue == "") return this.$toast("请选择分钟");
+      if (this.successReserve) {
+        if (this.dateValue == "") return this.$toast("请选择预约时间");
+        if (this.hourValue == "") return this.$toast("请选择小时");
+        if (this.minuteValue == "") return this.$toast("请选择分钟");
+      } else {
+        if (this.nextDateValue == "") return this.$toast("请选择下次预约时间");
+      }
 
       // 日期格式 yyyy-mm-dd hh：mm：ss
       let reservTime = `${values.datePicker} ${values.hourPicker}:${values.minutePicker}:00`;
@@ -227,12 +240,17 @@ export default {
       }
       let postData = { id, reservTime, phoneNumber, remark, tmpRevFlag };
       try {
-        let result = await reqReserve(JSON.stringify(postData));
-        this.apiResponse(result, ".appointment", () => {
-          this.$router.go(-1);
-          // 接口按钮操作成功 刷新工单详情/工作台
-          this.operationSuccessRefresh(true);
-        });
+        // 是否预约成功 是：调用接口 否：调用日历
+        if (this.successReserve) {
+          let result = await reqReserve(JSON.stringify(postData));
+          this.apiResponse(result, ".appointment", () => {
+            this.$router.go(-1);
+            // 接口按钮操作成功 刷新工单详情/工作台
+            this.operationSuccessRefresh(true);
+          });
+        } else {
+          // 调用日历
+        }
       } catch (error) {
         console.log("err", error);
       }
@@ -281,14 +299,12 @@ export default {
        this.callNumberShow = true
      }, */
 
-    // 如果工单只有1个电话，且格式符合要求(8或11位)，则直接调用后台打电话接口，
+    // 显示呼叫号码组件
     async judgeCustPhone() {
       let custPhone = this.custPhone;
       let phoneList = custPhone.split(",");
-      if (phoneList.length == 1) {
+      if (phoneList.length > 0) {
         // 请求云入户呼叫
-        this.cloudCall(phoneList[0], "预约拨号", false);
-      } else {
         this.$store.commit("workBench/CHANGECALLNUMBERSTATE", {
           callNumberShow: true,
           keyShow: false,
@@ -297,8 +313,8 @@ export default {
     },
 
     // 点击选中的单个号码
-    async judgeSelectPhone(phone) {
-      this.cloudCall(phone, "预约拨号", false);
+    async judgeSelectPhone(phone, dialFlagChecked) {
+      this.cloudCall(phone, "预约拨号", dialFlagChecked);
     },
 
     // 云入户呼叫
@@ -332,7 +348,7 @@ export default {
   created() {
     removeWatermark(); // 删除水印
     this.generateHourColumns(); // 生成小时数
-    // 判断电话号码是否只有一个，只有一个则直接拨打电话
+    // 显示呼叫号码组件
     this.judgeCustPhone();
   },
 };

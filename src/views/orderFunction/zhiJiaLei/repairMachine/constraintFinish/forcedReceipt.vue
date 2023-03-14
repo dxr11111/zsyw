@@ -28,6 +28,7 @@
           arrow-direction="down"
           placeholder="请选择"
           class="textRight borderTop"
+          readonly
         />
         <van-action-sheet
           v-model="repairResultShow"
@@ -73,6 +74,7 @@
           <!-- 光功率 -->
           <van-field
             v-model="dBm"
+            type="number"
             center
             label="光功率"
             placeholder="请输入光功率"
@@ -123,6 +125,7 @@
 
           <!-- wifi测速的速率 -->
           <van-field
+            type="number"
             v-show="wifiSpeed === '已测速'"
             v-model="wifiRate"
             center
@@ -169,9 +172,12 @@
 
 <script>
 import { getItem, removeItem } from "@/utils/public/sessionStorage";
-import { reqConstraintFinish, reqifmFinish } from "@/http/button";
+import { reqConstraintFinish } from "@/http/button";
+import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
+
 export default {
   name: "ForcedReceipt",
+  mixins: [keepAliveMixin],
   data() {
     return {
       headName: `强制回单(${this.$route.query.orderNum})`,
@@ -336,15 +342,15 @@ export default {
         coldWeather,
         ...config,
       };
+      postData = JSON.stringify(postData);
+
       this.$router.push({
         name: "Signature",
         // 将接口参数传到签名页面
-        params: {
-          postData,
-        },
         query: {
           id: this.$route.query.id,
           orderNum: this.$route.query.orderNum,
+          postData,
         },
       });
     },
@@ -352,15 +358,12 @@ export default {
   created() {
     // 端到端强制回单前查询
     this.getConstraintFinish();
-    console.log("创建");
   },
   activated() {
     // 获取外包材料
     this.getMaterialInfo();
-    console.log("激活");
   },
   beforeDestroy() {
-    console.log("即将销毁");
     removeItem("saveMaterialInfo"); // 销毁
   },
 };

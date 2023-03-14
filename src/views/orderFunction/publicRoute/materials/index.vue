@@ -121,12 +121,13 @@
 
 <script>
 import { getItem, setItem } from "@/utils/public/sessionStorage";
+import { mapState } from "vuex";
 export default {
   name: "Materials",
   data() {
     return {
       headName: `外包材料(${this.$route.query.orderNum})`,
-      // 外包材料-输入的数据
+      // 外包材料-输入的数据,装机单和修机单外包材料内容不一样
       MaterialInfo: {
         indoorLine: "", // 二芯室内线 米
         blackLine: "", //铁芯电话线（黑皮） 米
@@ -142,6 +143,9 @@ export default {
       fromName: "",
     };
   },
+  computed: {
+    ...mapState("home", ["listDetail"]),
+  },
   methods: {
     // 回退
     goBackFn() {
@@ -153,7 +157,26 @@ export default {
     },
     // 保存材料
     saveFn() {
-      setItem("saveMaterialInfo", this.MaterialInfo);
+      // 判断是什么单子 → 装机单和修机单的外包材料内容不一样
+      // 修机单（回单，强制回单） → 替换外包材料的参数名称
+      if (this.listDetail.sysId == 1) {
+        let newMaterialInfo = JSON.parse(
+          JSON.stringify(this.MaterialInfo)
+            .replace("indoorLine", "materialExsnx")
+            .replace("blackLine", "materialTxdhx")
+            .replace("netLine", "materialWx")
+            .replace("lightSkinIn", "materialSngpx")
+            .replace("lightSkinOut", "materialSwgpx")
+            .replace("pigtail", "materialGxwx")
+            .replace("coldPlug", "materialLjct")
+            .replace("hotPlug", "materialRrct")
+            .replace("crystalHead", "materialSjt")
+            .replace("opticalPatchCord", "materialGtx")
+        );
+        setItem("saveMaterialInfo", newMaterialInfo);
+      } else {
+        setItem("saveMaterialInfo", this.MaterialInfo);
+      }
       this.$router.go(-1);
     },
   },

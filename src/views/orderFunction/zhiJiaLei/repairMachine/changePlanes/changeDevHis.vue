@@ -4,6 +4,13 @@
     <div class="main">
       <div class="contentInfo" v-for="(item, index) in recordList" :key="index">
         <!-- sheetStatus //换机单状态 0 未完成  1 完成  3 失败 -->
+
+        <van-cell
+          title="换机状态："
+          value="未完成"
+          class="unfinish"
+          v-if="item.sheetStatus == 0"
+        />
         <van-cell
           title="换机状态："
           value="已完成"
@@ -12,9 +19,9 @@
         />
         <van-cell
           title="换机状态："
-          value="未完成"
-          class="unfinish"
-          v-else-if="item.sheetStatus == 0"
+          value="作废"
+          class="finish"
+          v-if="item.sheetStatus == 2"
         />
         <van-cell
           title="换机状态："
@@ -118,11 +125,14 @@ export default {
     // 点击重试
     async clickRetry() {
       let changeSheetNo = this.changeSheetNo;
-      let id = this.$route.query.id;
+      let id = parseInt(this.$route.query.id);
       let result = await reqretryChangeDev(
         JSON.stringify({ id, changeSheetNo })
       );
-      this.apiResponse(result, ".changeDevHis", () => {});
+      this.apiResponse(result, ".changeDevHis", () => {
+        // 重新获取换机记录
+        this.getHistory();
+      });
     },
   },
   created() {

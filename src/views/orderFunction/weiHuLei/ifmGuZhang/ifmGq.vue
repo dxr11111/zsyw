@@ -71,6 +71,7 @@
               v-model="imgList"
               multiple
               :max-count="1"
+              :before-read="beforeRead"
               :after-read="afterRead"
             >
               <van-button icon="plus" type="default"></van-button>
@@ -116,6 +117,9 @@ export default {
     };
   },
   methods: {
+    beforeRead(file){
+      return this.compressFile(file, false)
+    },
     goBackFn() {
       this.$router.go(-1);
     },
@@ -186,7 +190,8 @@ export default {
     },
     // 图片读取完成
     async afterRead(file) {
-      // console.log('file', file)
+      console.log('file', file)
+      console.log('file文件大小', file.file.size)
     },
     // 获取图片id
     getPictureId() {
@@ -207,9 +212,9 @@ export default {
       let reservationTime = this.reservationTime;
       let remark = this.remark;
       let reservationType = this.reservationType;
-      let fileld = this.fileld;
+      let fileId = this.fileld[0];
       let result = await reqIfmGq(
-        JSON.stringify({ id, reservationTime, remark, reservationType, fileld })
+        JSON.stringify({ id, reservationTime, remark, reservationType, fileId })
       );
       console.log("提交结果", result);
       this.apiResponse(result, ".ifmGq", () => {
