@@ -54,6 +54,7 @@
             v-model="updateFile"
             multiple
             :max-count="1"
+            :before-read="beforeRead"
             :after-read="afterRead"
             accept="*"
           >
@@ -133,6 +134,9 @@ export default {
     onSonSelect(item) {
       this.showSonChoice = false
       this.subcause = item.name
+    },
+    beforeRead(file){
+      return this.compressFile(file, false)
     },
     // 文件上传未完成
     afterRead(file) {

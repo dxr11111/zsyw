@@ -263,25 +263,35 @@
                 </div>
                 <div class="content">
                   <p>
-                    <span class="left">终端厂商：{{ item.supplierName }}</span>
+                    <span class="left"
+                      >终端厂商：{{ item.supplierName || "--" }}</span
+                    >
                     <template>
                       <span v-if="item.resType == 1" class="right"
                         >终端类型：ONU</span
                       >
-                      <span v-if="item.resType == 4" class="right"
+                      <span v-else-if="item.resType == 4" class="right"
                         >终端类型：IPTV</span
                       >
                     </template>
                   </p>
                   <span>终端串码：{{ item.sn }}</span>
                   <span>终端MAC：{{ item.mac }}</span>
-                  <span>终端型号：{{ item.resModelName }}</span>
+                  <span>终端型号：{{ item.resModelName || "--" }}</span>
                 </div>
                 <!-- 更换角标 -->
                 <template v-if="item.isChange == true">
                   <div class="changeFlag">
                     <span>
                       <em>更换</em>
+                    </span>
+                  </div>
+                </template>
+                <!-- 新增角标 -->
+                <template v-if="item.isNewAdd == true">
+                  <div class="changeFlag newFlag">
+                    <span>
+                      <em>新增</em>
                     </span>
                   </div>
                 </template>
@@ -515,7 +525,6 @@
             type="info"
             v-for="(item, index) in selectType"
             :key="index"
-            @click="clickType(item)"
             :class="item.value == resType ? 'activeButton' : ''"
             >{{ item.name }}</van-button
           >
@@ -627,7 +636,7 @@ export default {
       // 故障分类
       faultCateShow: false,
       faultCate: "用户侧原因",
-      buwei: "600", // 传参-故障分类
+      buwei: -1, // 传参-故障分类 默认-1
       faultCateActions: [
         { name: "用户侧原因", value: "600" },
         { name: "线路侧原因", value: "650" },
@@ -772,50 +781,70 @@ export default {
     },
     // 点击录入新设备
     enterNewDev() {
-      return this.$toast("录入新设备暂不可用");
-      // 重置按钮-终端类型
-      this.resType = 1;
+      // 先清空输入框内容
+      this.ysSN = "";
+      this.ysMAC = "";
+      this.ssSN = "";
+      this.ssMAC = "";
+      this.newSN = "";
+      this.newMAC = "";
+      // 故障原因为机顶盒类故障 → 录入新设备为iptv
+      // 故障原因为光猫类终端故障 → 录入新设备为onu
+      if (this.leibie == "608") this.resType = 1;
+      else if (this.leibie == "609") this.resType = 4;
       // 确认点击是新设备
       this.isChange = false;
       this.enterOnuIptvPopShow = true;
     },
     // 点击已有设备类型
     changeDev(item, index) {
+      this.resType = item.resType;
       this.changeIndex = index;
-      // 先清空输入框内容
+      // 替换输入框内容
       this.ssSN = item.ssSN || "";
       this.ssMAC = item.ssMAC || "";
       this.newSN = item.newSN || "";
       this.newMAC = item.newMAC || "";
 
-      // 记录更换的设备信息
-      this.resType = item.resType;
-      this.changeSn = item.sn;
-      this.changeMAC = item.mac;
+      // 判断点击的是否为新增设备
+      if (item.isNewAdd) {
+        this.ysSN = item.sn;
+        this.ysMAC = item.mac;
+      } else {
+        // 记录更换的设备信息
+        this.changeSn = item.sn;
+        this.changeMAC = item.mac;
+        // 标识当前弹框点击的是更换按钮
+        this.isChange = true;
+      }
 
-      // 标识当前弹框点击的是更换按钮
-      this.isChange = true;
       this.enterOnuIptvPopShow = true;
       // 记录当前弹出层是否显示删除按键
       this.devChanged = false;
-      if (this.dealOnuIptvList[index].isChange) this.devChanged = true;
-    },
-    // 点击设备弹出框里的终端类型
-    clickType(item) {
-      // 只有录入新设备时才可点击切换终端型号
-      if (!this.isChange) this.resType = item.value;
+      if (
+        this.dealOnuIptvList[index].isChange ||
+        this.dealOnuIptvList[index].isNewAdd
+      )
+        this.devChanged = true;
     },
 
-    // 删除更换的设备内容
+    // 删除设备内容
     deleteDev() {
-      // 清空：ssSN,ssMAC,newSN,newMAC
-      this.$set(this.dealOnuIptvList[this.changeIndex], "ssSN", "");
-      this.$set(this.dealOnuIptvList[this.changeIndex], "ssMAC", "");
-      this.$set(this.dealOnuIptvList[this.changeIndex], "newSN", "");
-      this.$set(this.dealOnuIptvList[this.changeIndex], "newMAC", "");
+      // 判断删除的是更换内容还是新增的内容
+      if (this.dealOnuIptvList[this.changeIndex]?.isNewAdd) {
+        // 删除新增的整个设备
+        this.dealOnuIptvList.splice(this.changeIndex, 1);
+        this.devChanged = false; // 弹出层取消删除按钮
+      } else {
+        // 清空：ssSN,ssMAC,newSN,newMAC
+        this.$set(this.dealOnuIptvList[this.changeIndex], "ssSN", "");
+        this.$set(this.dealOnuIptvList[this.changeIndex], "ssMAC", "");
+        this.$set(this.dealOnuIptvList[this.changeIndex], "newSN", "");
+        this.$set(this.dealOnuIptvList[this.changeIndex], "newMAC", "");
 
-      // 页面取消更换标识
-      this.$set(this.dealOnuIptvList[this.changeIndex], "isChange", false);
+        // 页面取消更换标识
+        this.$set(this.dealOnuIptvList[this.changeIndex], "isChange", false);
+      }
       // 关闭录入新设备/更换弹出层
       this.enterOnuIptvPopShow = false;
     },
@@ -891,22 +920,54 @@ export default {
         // 页面显示更换标识
         this.$set(this.dealOnuIptvList[this.changeIndex], "isChange", true);
       } else {
-        // 暂不可用
-        // 录入新设备 1.onuIptvList追加一条
-      }
+        // 录入新设备
+        // 1.判断是否有新增标识 有 → 修改输入框内容 无 → dealOnuIptvList追加一条
+        if (this.dealOnuIptvList[this.changeIndex]?.isNewAdd) {
+          this.$set(
+            this.dealOnuIptvList[this.changeIndex],
+            "sn",
+            this.ysSN.trim()
+          );
+          this.$set(
+            this.dealOnuIptvList[this.changeIndex],
+            "mac",
+            this.ysMAC.trim()
+          );
 
-      // 拿到录入新设备 → 追加一条/更换信息 → 替换
-      /* let onuIptvChangeInfoItem = {
-        resType: this.resType,
-        seq: "",
-        oldSeq: "",
-        ysSN: this.ysSN.trim(),
-        ysMAC: this.ysMAC.trim(),
-        ssSN: this.ssSN.trim(),
-        ssMAC: this.ssMAC.trim(),
-        newSN: this.newSN.trim(),
-        newMAC: this.newMAC.trim(),
-      }; */
+          this.$set(
+            this.dealOnuIptvList[this.changeIndex],
+            "ssSN",
+            this.ssSN.trim()
+          );
+          this.$set(
+            this.dealOnuIptvList[this.changeIndex],
+            "ssMAC",
+            this.ssMAC.trim()
+          );
+          this.$set(
+            this.dealOnuIptvList[this.changeIndex],
+            "newSN",
+            this.newSN.trim()
+          );
+          this.$set(
+            this.dealOnuIptvList[this.changeIndex],
+            "newMAC",
+            this.newMAC.trim()
+          );
+        } else {
+          let obj = {};
+          obj.sn = this.ysSN.trim();
+          obj.mac = this.ysMAC.trim();
+          obj.ssSN = this.ssSN.trim();
+          obj.ssMAC = this.ssMAC.trim();
+          obj.newSN = this.newSN.trim();
+          obj.newMAC = this.newMAC.trim();
+          obj.resType = this.resType;
+          // 存入新增标识
+          obj.isNewAdd = true;
+          this.dealOnuIptvList.push(obj);
+        }
+      }
     },
     // 时间选择器格式化
     formatter(type, val) {
@@ -1027,6 +1088,8 @@ export default {
         if (this.speedError !== 1) {
           // 障碍类别显示时
           this.balkType = result.piaType;
+          // 故障分类显示时
+          this.buwei = "600";
         }
         // 获取回单前是否必须上传现场照片
         this.isMustUploadPhoto = result.isMustUploadPhoto;
@@ -1110,6 +1173,20 @@ export default {
           { name: "户内线路故障", value: "607" },
           { name: "光猫类终端故障", value: "608" },
           { name: "机顶盒类故障", value: "609" },
+          { name: "路由器、交换设备故障", value: "610" },
+          { name: "低端高载", value: "611" },
+          { name: "路由器等能力不匹配", value: "612" },
+        ];
+      } else {
+        this.faultReasonActions = [
+          { name: "用户自有设备问题", value: "601" },
+          { name: "用户侧其他问题", value: "602" },
+          { name: "wifi信号覆盖问题造成视频感知差", value: "603" },
+          { name: "申告网速慢但测速正常", value: "604" },
+          { name: "查中自恢复", value: "605" },
+          { name: "用户操作问题", value: "606" },
+          { name: "户内线路故障", value: "607" },
+          { name: "光猫类终端故障", value: "608" },
           { name: "路由器、交换设备故障", value: "610" },
           { name: "低端高载", value: "611" },
           { name: "路由器等能力不匹配", value: "612" },
@@ -1289,8 +1366,8 @@ export default {
         } else {
           // 选择回客服时，标准地址不为空但长度不符合规则时，提示“标准地址长度需大于5小于1000 “
           if (
-            this.inputRightAddress.length > 1000 ||
-            this.inputRightAddress.length < 5
+            this.inputRightAddress.length >= 1000 ||
+            this.inputRightAddress.length <= 5
           ) {
             return this.$dialog
               .alert({
@@ -1380,7 +1457,7 @@ export default {
       this.dealOnuIptvList.forEach((item) => {
         let obj = {};
         obj.resType = item.resType;
-        obj.seq = item.devSeq;
+        obj.seq = item.devSeq.toString() || "";
         obj.oldSeq = "";
         obj.ysSN = item.sn;
         obj.ysMAC = item.mac;
@@ -1713,6 +1790,11 @@ export default {
               transform: rotate(315deg);
               -webkit-transform: rotate(315deg);
             }
+          }
+        }
+        .newFlag {
+          span {
+            border-bottom: 40px solid #4bd181;
           }
         }
       }

@@ -1,258 +1,295 @@
 <template>
   <!-- 拆机进度页面 -->
   <div class="diamante">
-    <div class="header">
-      <MyHeader
-        left="arrow-left"
-        right="replay"
-        :name="headName"
-        @goBackEv="goBackFn"
-        @rightEv="getQueryProgress"
-      />
-      <!-- 环节 状态 标头 -->
-      <div class="thead">
-        <div class="link">环节</div>
-        <div class="status">状态</div>
+    <!-- showFlag=3 -->
+    <template v-if="$route.query.showFlag == 3">
+      <MyHeader left="arrow-left" :name="headName" @goBackEv="goBackFn" />
+      <div class="selectButton region">
+        <span class="title">是否更换POS设备：</span>
+        <div class="button">
+          <van-button
+            :type="isChangePosDev === 1 ? 'info' : ''"
+            @click="clickChangePosDev(true)"
+            >是</van-button
+          >
+          <van-button
+            :type="isChangePosDev === 0 ? 'info' : ''"
+            @click="clickChangePosDev(false)"
+            >否</van-button
+          >
+        </div>
       </div>
-    </div>
-    <div class="main" v-if="bottomStage !== 2">
-      <div class="row" v-for="(item, index) in infoList" :key="index">
-        <div class="link">
-          <div class="typeName">
-            <span>{{ item.zeroconfigTypeName }}</span>
+      <div class="buttonRegion" style="padding: 30px">
+        <van-button
+          type="info"
+          style="width: 100%; border-radius: 5px"
+          @click="clickDismantle"
+          >拆机</van-button
+        >
+      </div>
+    </template>
+    <template v-else>
+      <div class="header" ref="header">
+        <MyHeader
+          left="arrow-left"
+          right="replay"
+          :name="headName"
+          @goBackEv="goBackFn"
+          @rightEv="getQueryProgress"
+        />
+        <!-- 环节 状态 标头 -->
+        <div class="thead">
+          <div class="link">环节</div>
+          <div class="status">状态</div>
+        </div>
+      </div>
+      <div
+        class="main"
+        v-if="bottomStage !== 2"
+        :style="{ paddingTop: mainPaddingTop }"
+      >
+        <div class="row" v-for="(item, index) in infoList" :key="index">
+          <div class="link">
+            <div class="typeName">
+              <span>{{ item.zeroconfigTypeName }}</span>
+            </div>
+            <div class="linkRegion">
+              <!-- 图标 -->
+              <van-icon
+                name="orders-o"
+                v-if="item.failDealDesc"
+                @click="clickIcon(item)"
+              />
+              <!-- 文字 -->
+              <div class="stageContent">
+                <!-- 零配置环节名称 -->
+                <p class="stageName">{{ item.zeroconfigStageName }}</p>
+                <!-- 零配置备注 -->
+                <p
+                  class="result"
+                  v-if="
+                    item.zeroconfigStatus === 6 ||
+                    item.zeroconfigStatus === 10 ||
+                    item.zeroconfigStatus === 11 ||
+                    item.zeroconfigStatus === 13 ||
+                    item.zeroconfigStatus === 15
+                  "
+                >
+                  {{ item.zeroconfigResult }}
+                </p>
+              </div>
+            </div>
           </div>
-          <div class="linkRegion">
-            <!-- 图标 -->
-            <van-icon
-              name="orders-o"
-              v-if="item.failDealDesc"
-              @click="clickIcon(item)"
-            />
-            <!-- 文字 -->
-            <div class="stageContent">
-              <!-- 零配置环节名称 -->
-              <p class="stageName">{{ item.zeroconfigStageName }}</p>
-              <!-- 零配置备注 -->
-              <p
-                class="result"
-                v-if="
-                  item.zeroconfigStatus === 6 ||
-                  item.zeroconfigStatus === 10 ||
-                  item.zeroconfigStatus === 11 ||
-                  item.zeroconfigStatus === 13 ||
-                  item.zeroconfigStatus === 15
-                "
+          <div class="status">
+            <!-- 显示按钮 zeroconfigStatus=6 -->
+            <template
+              v-if="
+                item.zeroconfigStatus === 6 ||
+                item.zeroconfigStatus === 10 ||
+                item.zeroconfigStatus === 11 ||
+                item.zeroconfigStatus === 13 ||
+                item.zeroconfigStatus === 15
+              "
+            >
+              <van-button
+                type="info"
+                v-for="(btn, index) in item.buttonKeys"
+                :key="index"
+                @click="clickbuttonKey(btn, item)"
+                >{{ btn.name }}</van-button
               >
-                {{ item.zeroconfigResult }}
-              </p>
+            </template>
+            <!-- 显示文字 -->
+            <div v-else class="text">
+              <template
+                v-if="item.zeroconfigStatus == 1 || item.zeroconfigStatus == 2"
+              >
+                <span class="logo">
+                  <i class="iconfont icon-xiangyou"></i>
+                </span>
+                <span class="statusName"
+                  >&nbsp;{{ item.zeroconfigStatusName }}&nbsp;</span
+                >
+                <span class="lastTime">{{ item.lastTimeStr }}</span>
+              </template>
+              <template v-else-if="item.zeroconfigStatus == 5">
+                <span class="logo">
+                  <i class="iconfont icon-icon_duihao-mian"></i>
+                </span>
+                <span class="statusName"
+                  >&nbsp;{{ item.zeroconfigStatusName }}&nbsp;</span
+                >
+              </template>
             </div>
           </div>
         </div>
-        <div class="status">
-          <!-- 显示按钮 zeroconfigStatus=6 -->
-          <template
-            v-if="
-              item.zeroconfigStatus === 6 ||
-              item.zeroconfigStatus === 10 ||
-              item.zeroconfigStatus === 11 ||
-              item.zeroconfigStatus === 13 ||
-              item.zeroconfigStatus === 15
-            "
+      </div>
+      <!-- 页面底部按钮 zeroconfigStage -->
+      <template v-if="bottomStage === -1">
+        <div class="bottom">
+          <!-- 显示自动刷新 -->
+          <div class="refresh">
+            <van-radio-group v-model="isAutoRefresh">
+              <van-radio name="1" shape="square" @click="clickIsRefresh('1')"
+                >自动刷新({{ refreshCounDown }})</van-radio
+              >
+            </van-radio-group>
+          </div>
+          <!--  <div class="afresh">
+          <van-button type="info" @click="resetZeroConfig"
+            >重新零配置</van-button
           >
-            <van-button
-              type="info"
-              v-for="(btn, index) in item.buttonKeys"
-              :key="index"
-              @click="clickbuttonKey(btn, item)"
-              >{{ btn.name }}</van-button
+        </div> -->
+        </div>
+      </template>
+
+      <!-- 显示零配置成功 -->
+      <template v-if="bottomStage === 0">
+        <div class="bottom">
+          <div class="configSuccess">
+            <p><i class="iconfont icon-icon_duihao-mian"></i>零配置成功</p>
+            <van-button type="info" @click="resetZeroConfig"
+              >重新零配置</van-button
             >
-          </template>
-          <!-- 显示文字 -->
-          <div v-else class="text">
-            <template
-              v-if="item.zeroconfigStatus == 1 || item.zeroconfigStatus == 2"
-            >
-              <span class="logo">
-                <i class="iconfont icon-xiangyou"></i>
-              </span>
-              <span class="statusName"
-                >&nbsp;{{ item.zeroconfigStatusName }}&nbsp;</span
-              >
-              <span class="lastTime">{{ item.lastTimeStr }}</span>
-            </template>
-            <template v-else-if="item.zeroconfigStatus == 5">
-              <span class="logo">
-                <i class="iconfont icon-icon_duihao-mian"></i>
-              </span>
-              <span class="statusName"
-                >&nbsp;{{ item.zeroconfigStatusName }}&nbsp;</span
-              >
-            </template>
           </div>
         </div>
-      </div>
-    </div>
-    <!-- 页面底部按钮 zeroconfigStage -->
-    <template v-if="bottomStage === -1">
-      <div class="bottom">
-        <!-- 显示自动刷新 -->
-        <div class="refresh">
-          <van-radio-group v-model="isAutoRefresh">
-            <van-radio name="1" shape="square" @click="clickIsRefresh('1')"
-              >自动刷新({{ refreshCounDown }})</van-radio
-            >
-          </van-radio-group>
-        </div>
-        <!--  <div class="afresh">
-          <van-button type="info" @click="resetZeroConfig"
-            >重新零配置</van-button
-          >
-        </div> -->
-      </div>
-    </template>
-
-    <!-- 显示零配置成功 -->
-    <template v-if="bottomStage === 0">
-      <div class="bottom">
-        <div class="configSuccess">
-          <p><i class="iconfont icon-icon_duihao-mian"></i>零配置成功</p>
-          <van-button type="info" @click="resetZeroConfig"
-            >重新零配置</van-button
-          >
-        </div>
-      </div>
-    </template>
-    <!-- 显示拆机成功 -->
-    <template v-if="bottomStage === 3">
-      <div class="teardowmSuccess">
-        <div class="success">
-          <p><i class="iconfont icon-icon_duihao-mian"></i>拆机成功</p>
-        </div>
-        <!-- <div class="refresh">
+      </template>
+      <!-- 显示拆机成功 -->
+      <template v-if="bottomStage === 3">
+        <div class="teardowmSuccess">
+          <div class="success">
+            <p><i class="iconfont icon-icon_duihao-mian"></i>拆机成功</p>
+          </div>
+          <!-- <div class="refresh">
           <van-radio-group v-model="isAutoRefresh">
             <van-radio name="1" shape="square" @click="clickIsRefresh('1')"
               >自动刷新({{ refreshCounDown }})</van-radio
             >
           </van-radio-group>
         </div> -->
-      </div>
-    </template>
+        </div>
+      </template>
 
-    <!-- 环节执行失败弹出层 -->
-    <van-popup
-      v-model="linkFailShow"
-      get-container=".diamante"
-      class="linkFailPop"
-    >
-      <div class="title">
-        <div class="failLogo">
-          <van-icon name="close" />
-        </div>
-        <div class="failText">
-          <p>执行失败</p>
-          <p>{{ linkFailPopText.zeroconfigStageName }}，如何处理？</p>
-        </div>
-      </div>
-      <div class="content">
-        <p>
-          {{ linkFailPopText.failDealDesc }}{{ linkFailPopText.phoneNumber }}
-        </p>
-      </div>
-      <div class="footer" @click="linkFailShow = false">
-        <p>我知道了</p>
-      </div>
-    </van-popup>
-    <!-- 点击状态下的按钮 弹出层 -->
-    <template>
-      <!-- 继续施工弹出层 -->
+      <!-- 环节执行失败弹出层 -->
       <van-popup
-        v-model="continueWork.popShow"
+        v-model="linkFailShow"
         get-container=".diamante"
-        class="continueWorkPop"
+        class="linkFailPop"
       >
         <div class="title">
-          <p>继续施工</p>
+          <div class="failLogo">
+            <van-icon name="close" />
+          </div>
+          <div class="failText">
+            <p>执行失败</p>
+            <p>{{ linkFailPopText.zeroconfigStageName }}，如何处理？</p>
+          </div>
         </div>
         <div class="content">
-          <!-- 原因 -->
-          <van-field
-            label="原因"
-            :value="continueWork.backResonInfo"
-            @click="continueWork.reasonShow = true"
-            is-link
-            arrow-direction="down"
-            readonly
-            class="reason"
-          />
-          <van-action-sheet
-            v-model="continueWork.reasonShow"
-            :actions="continueWork.reasonActions"
-            cancel-text="取消"
-            close-on-click-action
-            get-container=".diamante"
-            @select="selectContinueWorkReason"
-          />
-          <!-- 描述 -->
-          <van-field
-            label="描述"
-            v-model="continueWork.receiptDesc"
-            placeholder="请输入描述"
-            class="desc"
-          />
-        </div>
-        <div class="buttonRegion">
-          <van-button type="info" @click="cancelContinueWork">取消</van-button>
-          <van-button type="info" @click="submitContinueWork">确定</van-button>
-        </div>
-      </van-popup>
-      <!-- 点击确认新装-身份确认弹出层 -->
-      <van-popup
-        v-model="newInstall.popShow"
-        get-container=".diamante"
-        class="newInstallPop"
-      >
-        <div class="title">
-          <p>身份确认</p>
-        </div>
-        <div class="warning">
           <p>
-            警告：清除业务数据会将该设备上所有的资源数据清理，请确认该设备没有承载用户信息，清理后将无法恢复！请谨慎操作。（设备数据清理后，可当作新设备继续使用）
+            {{ linkFailPopText.failDealDesc }}{{ linkFailPopText.phoneNumber }}
           </p>
         </div>
-        <div class="tips">
-          <p>请输入掌上运维登录账号，请输入掌上运维登录密码</p>
-        </div>
-        <van-cell-group>
-          <van-field v-model="newInstall.username" placeholder="请输入账号" />
-          <van-field
-            v-model="newInstall.password"
-            placeholder="请输入密码"
-            type="password"
-          />
-        </van-cell-group>
-        <div class="buttonRegion">
-          <van-button type="info" @click="newInstall.popShow = false"
-            >取消</van-button
-          >
-          <van-button type="info" @click="confirmNewInstall">确认</van-button>
+        <div class="footer" @click="linkFailShow = false">
+          <p>我知道了</p>
         </div>
       </van-popup>
-      <!-- 驳回弹出层 -->
-      <van-popup
-        v-model="reject.popShow"
-        get-container=".diamante"
-        class="rejectPop"
-      >
-        <van-field
-          v-model="reject.intro"
-          autosize
-          type="textarea"
-          placeholder="请输入驳回说明"
-        />
-        <van-button type="info" block @click="submitReject"
-          >提交驳回</van-button
+      <!-- 点击状态下的按钮 弹出层 -->
+      <template>
+        <!-- 继续施工弹出层 -->
+        <van-popup
+          v-model="continueWork.popShow"
+          get-container=".diamante"
+          class="continueWorkPop"
         >
-      </van-popup>
+          <div class="title">
+            <p>继续施工</p>
+          </div>
+          <div class="content">
+            <!-- 原因 -->
+            <van-field
+              label="原因"
+              :value="continueWork.backResonInfo"
+              @click="continueWork.reasonShow = true"
+              is-link
+              arrow-direction="down"
+              readonly
+              class="reason"
+            />
+            <van-action-sheet
+              v-model="continueWork.reasonShow"
+              :actions="continueWork.reasonActions"
+              cancel-text="取消"
+              close-on-click-action
+              get-container=".diamante"
+              @select="selectContinueWorkReason"
+            />
+            <!-- 描述 -->
+            <van-field
+              label="描述"
+              v-model="continueWork.receiptDesc"
+              placeholder="请输入描述"
+              class="desc"
+            />
+          </div>
+          <div class="buttonRegion">
+            <van-button type="info" @click="cancelContinueWork"
+              >取消</van-button
+            >
+            <van-button type="info" @click="submitContinueWork"
+              >确定</van-button
+            >
+          </div>
+        </van-popup>
+        <!-- 点击确认新装-身份确认弹出层 -->
+        <van-popup
+          v-model="newInstall.popShow"
+          get-container=".diamante"
+          class="newInstallPop"
+        >
+          <div class="title">
+            <p>身份确认</p>
+          </div>
+          <div class="warning">
+            <p>
+              警告：清除业务数据会将该设备上所有的资源数据清理，请确认该设备没有承载用户信息，清理后将无法恢复！请谨慎操作。（设备数据清理后，可当作新设备继续使用）
+            </p>
+          </div>
+          <div class="tips">
+            <p>请输入掌上运维登录账号，请输入掌上运维登录密码</p>
+          </div>
+          <van-cell-group>
+            <van-field v-model="newInstall.username" placeholder="请输入账号" />
+            <van-field
+              v-model="newInstall.password"
+              placeholder="请输入密码"
+              type="password"
+            />
+          </van-cell-group>
+          <div class="buttonRegion">
+            <van-button type="info" @click="newInstall.popShow = false"
+              >取消</van-button
+            >
+            <van-button type="info" @click="confirmNewInstall">确认</van-button>
+          </div>
+        </van-popup>
+        <!-- 驳回弹出层 -->
+        <van-popup
+          v-model="reject.popShow"
+          get-container=".diamante"
+          class="rejectPop"
+        >
+          <van-field
+            v-model="reject.intro"
+            autosize
+            type="textarea"
+            placeholder="请输入驳回说明"
+          />
+          <van-button type="info" block @click="submitReject"
+            >提交驳回</van-button
+          >
+        </van-popup>
+      </template>
     </template>
   </div>
 </template>
@@ -260,6 +297,7 @@
 <script>
 import { mapState } from "vuex";
 import { getItem } from "@/utils/public/sessionStorage";
+import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
 import {
   reqIomNewZeroConfigQueryProgress,
   reqIomNewZeroConfigGoOnWroking,
@@ -273,8 +311,12 @@ import {
 } from "@/http/button";
 export default {
   name: "Dismantle",
+  mixins: [keepAliveMixin],
+
   data() {
     return {
+      mainPaddingTop: "87px", // main元素距离顶部高度
+      isChangePosDev: -1, // 是否更换POS设备
       bottomStage: -1, // 底部环节 0：零配置成功 2：清空列表 3：拆机成功
       isAutoRefresh: "1", // 自动刷新
       oldRadio: "0", // 上一次选中的值
@@ -326,6 +368,66 @@ export default {
     // 回退
     goBackFn() {
       this.$router.go(-1);
+      this.$store.commit("removeThisPage", this.$options.name);
+    },
+    // 是否更换POS设备
+    clickChangePosDev(bool) {
+      if (bool) this.isChangePosDev = 1;
+      else this.isChangePosDev = 0;
+    },
+    // 点击拆机按钮
+    clickDismantle() {
+      if (this.isChangePosDev == 1) {
+        // 选择是 → 判断iscanceliptv参数
+        // iscanceliptv为“1” → 弹框提示“该工单无需拆机，更换POS设备可直接零配置（取消/零配置）”
+        if (this.listDetail.iscanceliptv == "1") {
+          this.$dialog
+            .confirm({
+              title: "提示",
+              message: "该工单无需拆机，更换POS设备可直接零配置",
+              getContainer: ".diamante",
+              className: "confirmDialog",
+              confirmButtonText: "零配置",
+            })
+            .then(() => {
+              // 跳转到零配置页面
+              this.$router.push({
+                name: "NotConfig",
+                query: {
+                  orderNum: this.listDetail.orderId,
+                  id: this.listDetail.id,
+                  iscanceliptv: "1",
+                },
+              });
+            })
+            .catch(() => {
+              // on cancel
+            });
+        }
+      } else {
+        // 选择否/不选 → 弹框提示“没有更换POS设备，可直接回单”
+        this.$dialog
+          .confirm({
+            title: "",
+            message: "没有更换POS设备，可直接回单",
+            getContainer: ".diamante",
+            className: "confirmDialog",
+            confirmButtonText: "回单",
+          })
+          .then(() => {
+            // 跳转到回单页面
+            this.$router.push({
+              name: "DismantleFinish",
+              query: {
+                orderNum: this.listDetail.orderId,
+                id: this.listDetail.id,
+              },
+            });
+          })
+          .catch(() => {
+            // on cancel
+          });
+      }
     },
     // 点击自动刷新
     clickIsRefresh(val) {
@@ -856,8 +958,15 @@ export default {
   created() {
     // 如果拆机前查询showFlag=2，点击确认进入拆机进度页面，过10秒获取进度查询结果
     // 如果showFlag=1，直接进入拆机进度页面，使用拆机前查询的infoList渲染页面，点击刷新按钮获取进度查询结果
+    // 如果showFlag=3，页面只显示是否更换POS设备选择框
     // 判断是否拆机，有无进度信息
     this.judgeShowFlag();
+  },
+  mounted() {
+    // 判断头部高度获取main元素padding-top
+    if (this.$refs.header.clientHeight > 0) {
+      this.mainPaddingTop = this.$refs.header.clientHeight + "px";
+    }
   },
   beforeDestroy() {
     // 清除定时器
@@ -905,7 +1014,7 @@ export default {
   }
 
   .main {
-    padding-top: 87px;
+    // padding-top: 119px; // 87px
     padding-bottom: 50px;
     .row {
       display: flex;

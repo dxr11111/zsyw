@@ -183,7 +183,25 @@ export default {
 
   created() {
     if (getItem("saveMaterialInfo")) {
-      this.MaterialInfo = getItem("saveMaterialInfo");
+      // 修机单（回单，强制回单） → 替换外包材料的参数名称
+      let MaterialInfo = getItem("saveMaterialInfo");
+
+      if (this.listDetail.sysId == 1) {
+        MaterialInfo = JSON.parse(
+          JSON.stringify(MaterialInfo)
+            .replace("materialExsnx", "indoorLine")
+            .replace("materialTxdhx", "blackLine")
+            .replace("materialWx", "netLine")
+            .replace("materialSngpx", "lightSkinIn")
+            .replace("materialSwgpx", "lightSkinOut")
+            .replace("materialGxwx", "pigtail")
+            .replace("materialLjct", "coldPlug")
+            .replace("materialRrct", "hotPlug")
+            .replace("materialSjt", "crystalHead")
+            .replace("materialGtx", "opticalPatchCord")
+        );
+      }
+      this.MaterialInfo = MaterialInfo;
     }
   },
 };

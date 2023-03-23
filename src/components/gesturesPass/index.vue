@@ -53,7 +53,7 @@
 import { getItem } from "@/utils/public/sessionStorage";
 export default {
   props: {
-    // 设置或验证手势密码页面设置true获取false
+    // 设置或验证手势密码页面设置true或者false
     setOrCheck: {
       type: Boolean,
       default: true,

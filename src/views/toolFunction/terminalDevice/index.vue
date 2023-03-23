@@ -149,7 +149,7 @@ import { codeScanView } from '@/utils/public/unicomApp'
 import ScanView from '@/components/scanView/index.vue'
 export default {
   name: "TerminalDevice",
-  components: { ScanView  },
+  components: { ScanView },
   data() {
     return {
       userInfo: getItem("loginInfo"),

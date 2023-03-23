@@ -46,15 +46,15 @@ import { getCompressFile } from '@/utils/public/common'
 Vue.prototype.compressFile = getCompressFile
 
 
-// import ResizeObserver from 'resize-observer-polyfill'
+/* import ResizeObserver from 'resize-observer-polyfill'
 // 挂载到window上，因为插件内是使用的new语法 会直接在window上找
-// window.ResizeObserver = ResizeObserver
+window.ResizeObserver = ResizeObserver
 // 引入 Vconsole
-// import Vconsole from 'vconsole'
+import Vconsole from 'vconsole'
 // 所有环境均使用
-// new Vconsole()
+new Vconsole()
 // 在 test 环境才使用
-// process.env.NODE_ENV === 'test' ? new Vconsole() : ''
+// process.env.NODE_ENV === 'test' ? new Vconsole() : '' */
 
 
 const vue = new Vue({

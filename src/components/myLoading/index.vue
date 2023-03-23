@@ -2,13 +2,21 @@
   <div class="loading">
     <van-overlay :show="show" @click="show = false">
       <div class="wrapper" @click.stop>
+        <!-- 常规加载提示 -->
+        <!-- 加载标识超过规定时间显示取消按钮 -->
         <div class="block">
           <van-loading size="36px" vertical>加载中...</van-loading>
-          <!-- 加载标识超过规定时间显示取消按钮 -->
           <van-button type="info" @click="cancelRequest" v-show="isShowCancel"
             >取消请求</van-button
           >
         </div>
+        <!-- 提交零配置查询端口时要显示动态图片 -->
+        <!--  <div class="zeroConfig">
+          <img
+            src="../../assets/images/common/3910ad4451aa929b8b5af154076c92cc.gif"
+            alt=""
+          />
+        </div> -->
       </div>
     </van-overlay>
   </div>

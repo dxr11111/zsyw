@@ -1,103 +1,129 @@
- .region {
-     margin-top: 10px;
-     background-color: #fff;
+// 初始化全局样式
+.region {
+    margin-top: 10px;
+    background-color: #fff;
 
-     .van-cell__title {
-         flex: 0.5;
-         color: #000;
-     }
+    .van-cell__title {
+        flex: 0.5;
+        color: #000;
+    }
 
-     .van-cell__value {
-         input {
-             color: #cccccc;
-         }
-     }
+    .van-cell__value {
+        input {
+            color: #cccccc;
+        }
+    }
 
-     .inputRegion {
-         align-items: center;
+    .inputRegion {
+        align-items: center;
 
-         .van-cell__title {
-             span {
-                 display: inline-block;
-                 margin-top: 5px;
-             }
-         }
+        .van-cell__title {
+            span {
+                display: inline-block;
+                margin-top: 5px;
+            }
+        }
 
-         .van-cell__value {
-             input {
-                 padding: 5px;
-                 border: 1px solid #e0e0e0;
-             }
-         }
-     }
+        .van-cell__value {
+            input {
+                padding: 5px;
+                border: 1px solid #e0e0e0;
+            }
+        }
+    }
 
-     .textRight {
-         align-items: center;
+    .textRight {
+        align-items: center;
 
-         .van-cell__value.van-field__value {
-             input {
-                 text-align: right;
-             }
-         }
-     }
- }
+        .van-cell__value.van-field__value {
+            input {
+                text-align: right;
+            }
+        }
+    }
+}
+
+.selectButton {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 45px;
+    padding: 0 10px 0 16px;
+    background-color: #fff;
+
+    .title {
+        display: flex;
+        align-items: center;
+        color: #000;
+        font-size: 14px;
+    }
+
+    .button {
+        .van-button {
+            width: 90px;
+            height: 35px;
+            padding: 5px;
+            font-size: 13px;
+        }
+    }
+}
 
 
- body,
- div,
- dl,
- dt,
- dd,
- ul,
- ol,
- li,
- h1,
- h2,
- h3,
- h4,
- h5,
- h6,
- pre,
- form,
- fieldset,
- legend,
- textarea,
- button,
- p,
- blockquote,
- th,
- td {
-     margin: 0;
-     padding: 0;
- }
+body,
+div,
+dl,
+dt,
+dd,
+ul,
+ol,
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+pre,
+form,
+fieldset,
+legend,
+textarea,
+button,
+p,
+blockquote,
+th,
+td {
+    margin: 0;
+    padding: 0;
+}
 
- body {
-     text-align: center;
-     font-family: Helvetica Neue, Helvetica, Arial, Microsoft Yahei, Hiragino Sans GB, Heiti SC, WenQuanYi Micro Hei, sans-serif;
-     font-family: PingFangSC-Medium, PingFang SC, Microsoft Yahei;
- }
+body {
+    text-align: center;
+    font-family: Helvetica Neue, Helvetica, Arial, Microsoft Yahei, Hiragino Sans GB, Heiti SC, WenQuanYi Micro Hei, sans-serif;
+    font-family: PingFangSC-Medium, PingFang SC, Microsoft Yahei;
+}
 
- html,
- body {
-     width: 100%;
-     /* 全屏显示的页面必须要给 html,body设置高度100% */
-     height: 100%;
- }
+html,
+body {
+    width: 100%;
+    /* 全屏显示的页面必须要给 html,body设置高度100% */
+    height: 100%;
+}
 
- ul,
- ol,
- li {
-     list-style: none;
- }
+ul,
+ol,
+li {
+    list-style: none;
+}
 
- a {
-     text-decoration: none;
- }
+a {
+    text-decoration: none;
+}
 
- input,
- button,
- img {
-     border: none;
-     vertical-align: middle;
-     outline: 0;
- }
+input,
+button,
+img {
+    border: none;
+    vertical-align: middle;
+    outline: 0;
+}

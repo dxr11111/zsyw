@@ -10,6 +10,8 @@
     <EditCustPhone v-if="$store.state.button.editCustPhone.editCustPhoneShow" />
     <!-- 任务回复finishTask弹出层 -->
     <FinishTask v-if="$store.state.button.finishTask.popShow" />
+    <!-- 获取经纬度弹出层 -->
+    <Location v-if="$store.state.button.getLocalPopup.isShow" />
     <!-- 我已到达-随销单生成提示 -->
     <ArriveTips v-if="$store.state.button.arriveTipsShow" />
 
@@ -28,6 +30,7 @@ import MyLoading from "@/components/myLoading";
 import IomNewFinishPosCode from "@/views/orderFunction/zhiJiaLei/installMachineIDM/finish/components/iomNewFinishPosCode.vue";
 import EditCustPhone from "@/views/orderFunction/zhiJiaLei/installMachineIDM/editCustPhone";
 import FinishTask from "@/views/orderFunction/publicOrder/finishTask.vue";
+import Location from "@/views/orderFunction/publicOrder/getLocation.vue";
 import ArriveTips from "@/views/orderFunction/publicOrder/arriveTips.vue";
 import { mapState } from "vuex";
 import judgeProject from "./utils/public/judgeProject";
@@ -39,6 +42,7 @@ export default {
     IomNewFinishPosCode,
     EditCustPhone,
     FinishTask,
+    Location,
     ArriveTips,
   },
   data() {

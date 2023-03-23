@@ -152,6 +152,8 @@ export default {
     // 回退
     goBackFn() {
       this.$router.go(-1);
+      this.$store.commit("removeThisPage", this.$options.name);
+
     },
     // 历史记录
     historyRecord() {

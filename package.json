@@ -5,12 +5,13 @@
   "scripts": {
     "serve": "vue-cli-service serve --mode development",
     "test": "vue-cli-service build --mode test",
-    "build": "vue-cli-service build -mode production",
+    "build": "vue-cli-service build --mode production",
     "lint": "vue-cli-service lint",
     "build:report": "vue-cli-service build --report"
   },
   "dependencies": {
     "@antv/g6": "^4.7.10",
+    "@zxing/library": "^0.19.2",
     "axios": "^0.27.2",
     "babel-polyfill": "^6.26.0",
     "compression-webpack-plugin": "^10.0.0",

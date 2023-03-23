@@ -1,58 +1,60 @@
 <template>
-  <div>
+  <div class="loginContainer">
     <PassLogin v-if="pageType == 'index'" />
     <GestLogin v-if="pageType == 'gest'" />
   </div>
 </template>
 
 <script>
-
 export default {
-  name: 'Login',
+  name: "Login",
   components: {
-    PassLogin: () => import('./passLogin.vue'),
-    GestLogin: () => import('./gestPassLogin.vue')
+    PassLogin: () => import("./passLogin.vue"),
+    GestLogin: () => import("./gestPassLogin.vue"),
   },
-  data () {
+  data() {
     return {
-      pageType: 'index',
-      prevName: '',
-      loginTypeCode: JSON.parse(localStorage.getItem('loginTypeCode') || '[]'), // 所有账号的快捷登录设置  
-    }
+      pageType: "index",
+      prevName: "",
+      loginTypeCode: JSON.parse(localStorage.getItem("loginTypeCode") || "[]"), // 所有账号的快捷登录设置
+    };
   },
-  created () {
+  created() {
     console.log(this.prevName);
-    if (this.prevName == null || this.prevName == '') {
-      let loginNo = localStorage.getItem('loginNo')
-      console.log('进入判断loginNo:', loginNo);
-      let code = -1
+    if (this.prevName == null || this.prevName == "") {
+      let loginNo = localStorage.getItem("loginNo");
+      console.log("进入判断loginNo:", loginNo);
+      let code = -1;
       if (loginNo) {
-        this.loginTypeCode.forEach(e => {
+        this.loginTypeCode.forEach((e) => {
           if (e.loginNo == loginNo) {
-            code = e.typeCode
+            code = e.typeCode;
           }
-        })
-        console.log('登录类型', code);
+        });
+        console.log("登录类型", code);
         if (code == 0 || code == -1) {
-          this.pageType = 'index'
+          this.pageType = "index";
         } else if (code == 1) {
-          this.pageType = 'gest'
+          this.pageType = "gest";
         } else if (code == 2) {
-          this.pageType = 'fing'
+          this.pageType = "fing";
         }
-      }else {
-        this.passLogin = 'index'
+      } else {
+        this.passLogin = "index";
       }
     }
   },
-  beforeRouteEnter (to, form, next) {
-    next(vm => {
-      console.log('登录页路由form', form);
-      vm.prevName = form.name
-    })
+  beforeRouteEnter(to, form, next) {
+    next((vm) => {
+      console.log("登录页路由form", form);
+      vm.prevName = form.name;
+    });
   },
-}
+};
 </script>
 
-<style>
+<style scoped lang="less">
+.loginContainer {
+  height: 100%;
+}
 </style>

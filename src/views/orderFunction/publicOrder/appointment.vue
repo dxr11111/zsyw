@@ -148,8 +148,8 @@
 
 <script>
 import { reqReserve } from "@/http/button";
-import { reqHuJiaoCall } from "@/http/tools";
 import { removeWatermark } from "@/utils/public/waterMark";
+import { cloudCall } from "@/utils/gdMethods/cloudCall";
 import SelectCallNumber from "@/components/selectCallNumber";
 
 export default {
@@ -195,13 +195,13 @@ export default {
     confirmEvent(res, dialFlagChecked) {
       console.log("确认键：", res);
       // 判断号码格式是否正确 请求云入户
-      this.cloudCall(res, "手工拨号", dialFlagChecked);
+      cloudCall(res, "预约拨号", dialFlagChecked);
     },
     //改变是否预约成功
     changeSwitch(val) {
       if (!val) {
         this.successReserve = true;
-        return this.$toast("暂不支持该功能");
+        return this.$toast("暂不支持预约失败");
       }
     },
     // 回退
@@ -222,17 +222,40 @@ export default {
       // 日期格式 yyyy-mm-dd hh：mm：ss
       let reservTime = `${values.datePicker} ${values.hourPicker}:${values.minutePicker}:00`;
       // 获取当前时间戳
-      let nowData = Date.now();
+      let nowDate = Date.now();
       // 获取选择预约时间的时间戳
       let pickDate = Date.parse(reservTime);
-      if (pickDate < nowData) {
+      if (pickDate < nowDate) {
         return this.$toast("您选择的时间应大于当前时间");
       }
 
+      // 选择的预约时间超过30天要添加提示
+      // 计算30天的时间戳
+      let day30 = 1000 * 60 * 60 * 24 * 30;
+      if (pickDate - nowDate > day30) {
+        // 超过30天
+        this.$dialog
+          .confirm({
+            title: "提示",
+            message: "温馨提示：您填写的预约时间是30天之后，确定提交吗？",
+            getContainer: ".appointment",
+            className: "confirmDialog",
+          })
+          .then(() => {
+            this.editReserve(reservTime);
+          })
+          .catch(() => {});
+      } else {
+        this.editReserve(reservTime);
+      }
+    },
+    // 调用修改预约接口
+    async editReserve(reservTime) {
       let id = parseInt(this.$route.query.id);
       let phoneNumber = this.custPhone;
       let remark = this.remark;
       let tmpRevFlag = -1; //暂约标识，选中时，传1，未选中时，传0，没有“暂约”标识，传-1（写死，sysId为1,2,10时有“暂约”标识）
+
       if (this.momentReserve) {
         tmpRevFlag = 1;
       } else {
@@ -244,8 +267,8 @@ export default {
         if (this.successReserve) {
           let result = await reqReserve(JSON.stringify(postData));
           this.apiResponse(result, ".appointment", () => {
-            this.$router.go(-1);
             // 接口按钮操作成功 刷新工单详情/工作台
+            this.$router.go(-1);
             this.operationSuccessRefresh(true);
           });
         } else {
@@ -314,35 +337,7 @@ export default {
 
     // 点击选中的单个号码
     async judgeSelectPhone(phone, dialFlagChecked) {
-      this.cloudCall(phone, "预约拨号", dialFlagChecked);
-    },
-
-    // 云入户呼叫
-    async cloudCall(num, type, dialFlagChecked) {
-      if (num.length == 8 || num.length == 11) {
-        // 隐藏选择呼出号码弹出层
-        this.$store.commit("workBench/CHANGECALLNUMBERSTATE", {
-          callNumberShow: false,
-          keyShow: false,
-        });
-
-        // 请求云入户呼叫
-        let id = parseInt(this.$route.query.id);
-        let called = num;
-        let callNumberType = type;
-        let hujiaoFlag = 1;
-        let dialFlag = 0;
-        if (dialFlagChecked) {
-          dialFlag = 1;
-        }
-        let result = await reqHuJiaoCall(
-          JSON.stringify({ id, called, callNumberType, hujiaoFlag, dialFlag })
-        );
-        console.log("云入户呼叫结果", result);
-        this.apiResponse(result, ".appointment", () => {});
-      } else {
-        this.$toast("格式不正确，需要8位或者11位");
-      }
+      cloudCall(phone, "预约拨号", dialFlagChecked);
     },
   },
   created() {

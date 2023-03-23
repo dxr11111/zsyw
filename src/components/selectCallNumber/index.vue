@@ -12,8 +12,8 @@
           <div
             v-for="(phone, index) in phoneList"
             :key="index"
-            @click="clickPhone(phone)"
-            :class="phone === pickPhone ? 'checked' : ''"
+            @click="clickPhone(phone, index)"
+            :class="index === pickPhoneIndex ? 'checked' : ''"
           >
             {{ phone }}
           </div>
@@ -52,6 +52,7 @@ export default {
   data() {
     return {
       pickPhone: "", // 选中状态的电话号
+      pickPhoneIndex: -1, // 选中状态的电话号索引
       dialFlagChecked: false,
       loginNo: localStorage.getItem("userName") || "",
     };
@@ -62,6 +63,7 @@ export default {
         let phoneList = this.custPhone.split(",");
         if (phoneList.length == 1) {
           this.pickPhone = phoneList[0];
+          this.pickPhoneIndex = 0;
         }
         return phoneList;
       }
@@ -97,8 +99,9 @@ export default {
     },
 
     // 点击单个号码
-    clickPhone(phone) {
+    clickPhone(phone, index) {
       this.pickPhone = phone;
+      this.pickPhoneIndex = index;
     },
     // 确认呼出
     confirmCall() {

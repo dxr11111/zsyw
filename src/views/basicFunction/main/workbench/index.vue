@@ -243,7 +243,6 @@
 import { reqBillListTab, reqgetOrderList, reqFastQuery } from "@/http/index";
 import { getItem, removeItem, setItem } from "@/utils/public/sessionStorage";
 import { getHasTaskListSysId } from "@/utils/public/common";
-import { reqHuJiaoCall } from "@/http/tools";
 import ContentInfo from "@/components/contentInfo";
 import Filtrate from "@/components/filtrate";
 import MyTask from "./myTask.vue";
@@ -254,6 +253,7 @@ import { mapGetters, mapState } from "vuex";
 import { throttle } from "@/utils/public/throttle";
 import UniNetHeader from "@/components/myHeader/uniNet.vue";
 import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
+import { cloudCall } from "@/utils/gdMethods/cloudCall";
 
 export default {
   name: "WorkBench",
@@ -1130,33 +1130,9 @@ export default {
     async confirmEvent(res, dialFlagChecked) {
       console.log("确认键：", res);
       // 判断号码格式是否正确 请求云入户
-      this.cloudCall(res, "手工拨号", dialFlagChecked);
+      cloudCall(res, "手工拨号", dialFlagChecked);
     },
-    // 云入户呼叫
-    async cloudCall(num, type, dialFlagChecked) {
-      if (num.length == 8 || num.length == 11) {
-        this.$store.commit("workBench/CHANGECALLNUMBERSTATE", {
-          callNumberShow: false,
-          keyShow: false,
-        });
-        // 请求云入户呼叫
-        let id = -1;
-        let called = num;
-        let callNumberType = type;
-        let hujiaoFlag = 1;
-        let dialFlag = 0;
-        if (dialFlagChecked) {
-          dialFlag = 1;
-        }
-        let result = await reqHuJiaoCall(
-          JSON.stringify({ id, called, callNumberType, hujiaoFlag, dialFlag })
-        );
-        console.log("云入户呼叫结果", result);
-        this.apiResponse(result, ".workbench", () => {});
-      } else {
-        this.$toast("格式不正确，需要8位或者11位");
-      }
-    },
+
     // 判断是否显示电话图标
     judgePhoneIcon() {
       let arr = [1, 10];

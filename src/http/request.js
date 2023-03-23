@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { getItem } from '@/utils/public/sessionStorage'
 import store from '@/store'
 import vue from '@/main'
 
@@ -44,7 +43,7 @@ requests.interceptors.request.use(config => {
     if (config.url !== '/loginUni') {
         // 给非登录接口加上通用参数
         // 获取本地存储的loginInfo
-        let loginInfo = getItem('loginInfo')
+        let loginInfo = store.getters.getLoginInfo
         // 将data转为对象拼接通用参数
         let data = JSON.parse((config.data).substr(5))
         // console.log('data', data)

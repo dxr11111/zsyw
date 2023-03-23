@@ -457,13 +457,13 @@ import { setWaterMark, removeWatermark } from "@/utils/public/waterMark";
 import { getItem } from "@/utils/public/sessionStorage";
 import buttonSuccess from "@/utils/gdMethods/buttonSuccess";
 import { reqDownloadFile } from "@/http/button";
-import { reqHuJiaoCall } from "@/http/tools";
 import { reqgetListDetail } from "@/http/index";
 import { appUrl } from "@/http/pullApp";
 import PhoneIcon from "@/components/selectCallNumber/phoneIcon.vue";
 import Progress from "@/components/progress";
 import html2canvas from "html2canvas";
 import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
+import { cloudCall } from "@/utils/gdMethods/cloudCall";
 
 export default {
   name: "ListDetail",
@@ -541,9 +541,11 @@ export default {
     },
     // 是否显示电话标识
     showPhoneIcon() {
-      // 列表详情返回的sysId，在[1,2,10]之间，就显示电话标识
+      /* // 列表详情返回的sysId，在[1,2,10]之间，就显示电话标识
       let arr = [1, 2, 10];
-      if (arr.indexOf(this.sysId) > -1) return true;
+      if (arr.indexOf(this.sysId) > -1) return true; */
+      // 判断详情返回字段showPhone
+      if (this.listDetail.showPhone) return true;
     },
   },
   watch: {
@@ -997,40 +999,15 @@ export default {
 
     // 点击选中的单个号码
     async judgeSelectPhone(phone) {
-      this.cloudCall(phone, "手工拨号", false);
+      cloudCall(phone, "手工拨号", false);
     },
     // 点击确认键
     async confirmEvent(res, dialFlagChecked) {
       console.log("确认键：", res);
       // 判断号码格式是否正确 请求云入户
-      this.cloudCall(res, "手工拨号", dialFlagChecked);
+      cloudCall(res, "手工拨号", dialFlagChecked);
     },
 
-    // 云入户呼叫
-    async cloudCall(num, type, dialFlagChecked) {
-      if (num.length == 8 || num.length == 11) {
-        this.$store.commit("workBench/CHANGECALLNUMBERSTATE", {
-          callNumberShow: false,
-          keyShow: false,
-        });
-        // 请求云入户呼叫
-        let id = parseInt(this.$route.query.id);
-        let called = num;
-        let callNumberType = type;
-        let hujiaoFlag = 1;
-        let dialFlag = 0;
-        if (dialFlagChecked) {
-          dialFlag = 1;
-        }
-        let result = await reqHuJiaoCall(
-          JSON.stringify({ id, called, callNumberType, hujiaoFlag, dialFlag })
-        );
-        console.log("云入户呼叫结果", result);
-        this.apiResponse(result, ".changeAppoint", () => {});
-      } else {
-        this.$toast("格式不正确，需要8位或者11位");
-      }
-    },
     // 处理过程查看附件
     async clickProcAttachment(attachment) {
       let sysId = attachment.sysId;

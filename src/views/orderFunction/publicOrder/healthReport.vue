@@ -82,15 +82,16 @@
         >
 
         <van-collapse v-model="foldItems">
-          <!-- 测试状态 -->
+          <!-- 测试状态testStatus 1/2:测试中 4:测试成功 3/5：测试失败 9:测试异常 -->
           <van-collapse-item
             :value="report.testStatusName"
             v-for="(report, index) in reportList"
             :key="index"
+            :value-class="getTestStatusStyle(report.testStatus)"
           >
             <template #title>
               <span class="num">{{ index + 1 }}</span>
-              <span class="title">{{ report.sendTime }}</span>
+              <span class="title">测试时间：{{ report.sendTime }}</span>
             </template>
             <table>
               <th>基本信息</th>
@@ -301,6 +302,17 @@ export default {
     selectConnectType(action) {
       this.connectTypeValue = action?.name;
     },
+    // 获取测试状态样式名
+    getTestStatusStyle(testStatus) {
+      switch (testStatus) {
+        case 4:
+          return "testStatusGreen";
+        case 3:
+        case 5:
+        case 9:
+          return "testStatusRed";
+      }
+    },
     // 健康报告提交
     async onSubmit(values) {
       // 表单校验
@@ -404,6 +416,7 @@ export default {
         .van-collapse-item {
           /deep/.van-cell__title {
             display: flex;
+            align-items: center;
             flex: 2;
             .num {
               display: inline-block;
@@ -415,6 +428,15 @@ export default {
               background-color: #1989fa;
               color: #fff;
             }
+            .title {
+              white-space: nowrap;
+            }
+          }
+          /deep/ .testStatusRed {
+            color: red;
+          }
+          /deep/ .testStatusGreen {
+            color: #4fd84f;
           }
         }
         /deep/.van-collapse-item__content {

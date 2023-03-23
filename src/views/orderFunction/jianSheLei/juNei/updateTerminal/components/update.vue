@@ -72,7 +72,7 @@
       </div>
       <div class="upload region">
         <p>上传文件（至少一张图片）：</p>
-        <van-uploader v-model="updateFile" multiple :max-count="10">
+        <van-uploader v-model="updateFile" multiple :before-read="beforeRead" :max-count="10">
           <van-button icon="plus" type="default"></van-button>
         </van-uploader>
       </div>
@@ -233,6 +233,9 @@ export default {
       console.log("接口参数", this.params)
       this.getFileId()
       // this.sendApi(this.params)
+    },
+    beforeRead(file){
+      return this.compressFile(file, true)
     },
     getFileId() {
       uploadImg(this.updateFile, getItem("loginNo"), Number(this.$route.query.id)).then((ids) => {

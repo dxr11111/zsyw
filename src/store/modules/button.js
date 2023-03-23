@@ -30,9 +30,22 @@ const state = {
         orderId: "",
         flowNode: "",
         workType: -1,
+    },
+
+    // 获取经纬度地址--上站、开始处理IFM
+    getLocalPopup: {
+        code: '', // 判断是哪个操作
+        isShow: false,
+        id: -1
     }
+
 }
 const mutations = {
+    // 修改获取经纬度参数
+    changeLocalPopup (state, res) {
+        state.getLocalPopup = res
+    },
+
     // 存入光纤尾码照片
     changeFinishPhotoIdList(state, result) {
         state.finishPhotoIdList = result

@@ -9,18 +9,29 @@
           label="接入方式"
           :value="accessWay"
           @click="accessWayShow = true"
-          is-link
-          arrow-direction="down"
           readonly
           class="textRight borderBottom"
+          v-if="$route.query.iscanceliptv == '1'"
         />
-        <van-action-sheet
-          v-model="accessWayShow"
-          :actions="accessWayActions"
-          cancel-text="取消"
-          close-on-click-action
-          @select="selectAccessWay"
-        />
+        <template v-else>
+          <van-field
+            label="接入方式"
+            :value="accessWay"
+            @click="accessWayShow = true"
+            is-link
+            arrow-direction="down"
+            readonly
+            class="textRight borderBottom"
+          />
+          <van-action-sheet
+            v-model="accessWayShow"
+            :actions="accessWayActions"
+            cancel-text="取消"
+            close-on-click-action
+            @select="selectAccessWay"
+          />
+        </template>
+
         <template v-if="accessWay === 'FTTB' || accessWay === 'FTTH'">
           <!-- 录入或扫码 -->
           <!-- 设备编号 -->
@@ -40,7 +51,9 @@
             @click-right-icon="clickScan(deviceMAC)"
           />
         </template>
-        <template v-if="accessWay === 'FTTH'">
+        <template
+          v-if="accessWay === 'FTTH' && $route.query.iscanceliptv !== '1'"
+        >
           <!-- 拨号方式 -->
           <van-field
             label="拨号方式"
@@ -222,10 +235,11 @@ export default {
     // 回退
     goBackFn() {
       this.$router.go(-1);
+      this.$store.commit("removeThisPage", this.$options.name);
     },
     // 点击扫码
     clickScan(dataName) {
-      console.log("11111111111扫码");
+      console.log("扫码");
       CallScanCodeHandler();
     },
     // 表单校验
@@ -234,10 +248,35 @@ export default {
         if (this.deviceNum == "") return this.$toast("请扫描或录入设备编号");
         if (this.deviceMAC == "") return this.$toast("请扫描或录入设备MAC");
       }
-      if (this.accessWay === "FTTH" && this.dialWay == "")
-        return this.$toast("请选择拨号方式");
+      if (this.$route.query.iscanceliptv !== "1") {
+        if (this.accessWay === "FTTH" && this.dialWay == "")
+          return this.$toast("请选择拨号方式");
+      }
 
       this.onSubmit(); // 提交
+    },
+    // 提交成功，调用零配置前查询，进入进度页面
+    enterConfigStatus() {
+      this.$store
+        .dispatch(
+          "zeroConfig/getIomNewZeroConfigQuery",
+          JSON.stringify({ id: parseInt(this.$route.query.id) })
+        )
+        .then((res) => {
+          this.apiResponse(res, ".notConfig", () => {
+            let showFlag = res.showFlag;
+            if (showFlag === 1) {
+              // 进入进度页面
+              this.$router.push({
+                name: "ConfigStatus",
+                query: {
+                  orderNum: this.$route.query.orderNum,
+                  id: parseInt(this.$route.query.id),
+                },
+              });
+            }
+          });
+        });
     },
     // 提交
     async onSubmit() {
@@ -254,7 +293,7 @@ export default {
       switch (this.accessWay) {
         case "FTTH":
           // 判断必选项是否已选
-          if (this.useDevice === -1) {
+          if (this.useDevice === -1 && this.$route.query.iscanceliptv !== "1") {
             return this.$toast("请选择是否使用用户家现有设备");
           }
           // 提交之前弹出提示框确认录入设备
@@ -296,7 +335,10 @@ export default {
                   JSON.stringify(postData)
                 );
                 console.log("ftth-提交结果", result);
-                this.apiResponse(result, ".notConfig", () => {});
+                this.apiResponse(result, ".notConfig", () => {
+                  // 提交成功，调用零配置前查询，进入进度页面
+                  this.enterConfigStatus();
+                });
               } catch (error) {
                 console.log("err", error);
               }
@@ -584,10 +626,15 @@ export default {
     },
   },
   created() {
-    // 获取零配置前查询信息
-    this.getZeroConfigInfoList();
-    // 获取 AG-查询端口范围下拉列表内容
-    this.getQueryPortRangeActions();
+    // 判断是否是iscanceliptv为“1”时从拆机页面进入零配置
+    if (this.$route.query.iscanceliptv == "1") {
+      this.accessWay = "FTTH";
+    } else {
+      // 获取零配置前查询信息
+      this.getZeroConfigInfoList();
+      // 获取 AG-查询端口范围下拉列表内容
+      this.getQueryPortRangeActions();
+    }
   },
   beforeRouteEnter(to, from, next) {
     // 获取上一个路由名称

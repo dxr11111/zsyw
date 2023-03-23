@@ -24,18 +24,23 @@
 
       <div class="result">
         <h3>申请结果</h3>
-        <div class="data" v-for="(item, index) in resultList" :key="index">
-          <div class="left">
-            <span class="num">{{ index + 1 }}</span>
-            <div class="text">
-              <span class="time">{{ item.applyTime }}</span>
-              <span class="content">{{ item.applyContent }}</span>
+        <template v-if="resultList.length > 0">
+          <div class="data" v-for="(item, index) in resultList" :key="index">
+            <div class="left">
+              <span class="num">{{ index + 1 }}</span>
+              <div class="text">
+                <span class="time">{{ item.applyTime }}</span>
+                <span class="content">{{ item.applyContent }}</span>
+              </div>
+            </div>
+            <div class="right">
+              <span :class="getStatusStyle(item.applyStatus)">{{
+                item.applyStatus
+              }}</span>
             </div>
           </div>
-          <div class="right">
-            <span class="status">{{ item.applyStatus }}</span>
-          </div>
-        </div>
+        </template>
+        <Empty v-else :style="{ background: '#f3f4f5' }" />
       </div>
     </div>
   </div>
@@ -43,7 +48,9 @@
 
 <script>
 import { reqGroupBarrierQuery, reqGroupBarrierSubmit } from "@/http/button";
+import empty from "@/components/empty.vue";
 export default {
+  components: { empty },
   name: "GroupBarrier",
   data() {
     return {
@@ -73,6 +80,12 @@ export default {
     // 刷新结果
     refreshFn() {
       this.groupBarrierQuery();
+    },
+    // 获取申请结果状态样式
+    getStatusStyle(applyStatus) {
+      if (applyStatus == "已通过") {
+        return "statusGreen";
+      } else if (applyStatus == "未通过") return "statusRed";
     },
     // 申请提交
     async onSubmit(values) {
@@ -105,7 +118,6 @@ export default {
 <style lang="less" scoped>
 .groupBarrier {
   height: 100%;
-  background-color: #f8f7fc;
   .main {
     .buttonRegion {
       display: flex;
@@ -152,6 +164,14 @@ export default {
               padding: 5px;
               word-break: break-all;
             }
+          }
+        }
+        .right {
+          .statusRed {
+            color: red;
+          }
+          .statusGreen {
+            color: #4fd84f;
           }
         }
       }

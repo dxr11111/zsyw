@@ -3,7 +3,25 @@ export default [
         // 定位测试
         path: '/position',
         name: 'Position',
-        component: () => import('@/views/position-test.vue'),
+        component: () => import('@/views/orderFunction/publicRoute/position-test.vue'),
+        meta: {
+            myKeepAlive: false,
+        }
+    },
+    {
+        // hbuilder-定位测试
+        path: '/geoLocation',
+        name: 'GeoLocation',
+        component: () => import('@/views/orderFunction/publicRoute/geoLocation.vue'),
+        meta: {
+            myKeepAlive: false,
+        }
+    },
+    {
+        // hbuilder-扫码测试
+        path: '/scanQrcode',
+        name: 'ScanQrcode',
+        component: () => import('@/views/orderFunction/publicRoute/scanQrcode.vue'),
         meta: {
             myKeepAlive: false,
         }
@@ -315,6 +333,15 @@ export default [
         path: '/dismantle',
         name: 'Dismantle',
         component: () => import('@/views/orderFunction/zhiJiaLei/installMachineIDM/dismantle'),
+        meta: {
+            myKeepAlive: true,
+        }
+    },
+    {
+        // 拆机跳转的回单
+        path: '/dismantleFinish',
+        name: 'DismantleFinish',
+        component: () => import('@/views/orderFunction/zhiJiaLei/installMachineIDM/dismantle/finish'),
         meta: {
             myKeepAlive: false,
         }

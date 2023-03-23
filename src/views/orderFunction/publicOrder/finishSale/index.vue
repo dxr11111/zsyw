@@ -1,4 +1,5 @@
 <template>
+  <!-- 随销单回复 -->
   <div class="big-box">
     <MyHeader :name="headName" left="arrow-left" @goBackEv="$router.go(-1)" />
     <div class="form">
@@ -17,7 +18,7 @@
           >
         </div>
       </div>
-      <div class="field" style="margin-bottom: 10px;" v-if="isContact !== '0'">
+      <div class="field" style="margin-bottom: 10px" v-if="isContact !== '0'">
         <div class="label">联系用户时间</div>
         <div style="color: gray" @click="showTime = true">
           <input v-model="currDate" readonly placeholder="请选择联系用户时间" />
@@ -40,7 +41,7 @@
           />
         </van-popup>
       </div>
-      <div class="field" style="margin-bottom: 10px;">
+      <div class="field" style="margin-bottom: 10px">
         <div class="label">用户办理意向</div>
         <div class="radio-box" :model="userSituation">
           <span
@@ -81,7 +82,7 @@
           <i class="iconfont icon-jianhao1" @click="delItem('bus', e)"></i>
         </div>
         <!-- 设备信息 -->
-        <div class="field"  style="margin-top: 10px;">
+        <div class="field" style="margin-top: 10px">
           <div class="label">设备信息</div>
           <div style="color: gray; margin-right: 15px">
             添加用户更换或购买新设备

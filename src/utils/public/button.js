@@ -428,88 +428,14 @@ export const matchButton = async (buttonInfo, buttonId) => {
 
         // 上站功能
         case ('goSite'):
-            vue.$router.push({path: '/position'})
-            console.log('gosite', buttonInfo)
-            // vue.$store.commit('button/updatePositionFlag', true)
-            // vue.$dialog.alert({
-            //     title: '提示',
-            //     message: '上站操作只能提交一次，系统将记录经纬度坐标和地址，请确认到达指定地点后再操作，操作成功之后将无法修改或重复提交',
-            //     getContainer: '#app',
-            //     className: 'confirmDialog',
-            // }).then(() => {
-            //     vue.$dialog.confirm({
-            //         title: '提示',
-            //         message: '确认上站操作嘛？',
-            //         getContainer: '#app',
-            //         className: 'confirmDialog',
-            //     })
-            //         .then(async () => {
-            //             let locationInfo = {}
-            //             var code = unicomFunc()
-            //             console.log('调用标识', code);
-            //             // if (code == 0) {
-            //                 setTimeout(() => {                              
-            //                     getLocation().then(res => {
-            //                         vue.$toast(`高德-经度：${res.lng}; 纬度：${res.lat}`)
-            //                         console.log('高德-定位结果', res);
-            //                         locationInfo = res
-            //                     }).catch(error => {
-            //                         vue.$toast('高德' + error)
-            //                         console.log('高德-定位错误信息', error);
-            //                     })
-            //                 }, 3000);
-            //                 getLocationH5().then(res => {
-            //                     vue.$toast(`h5-经度：${res.lng}; 纬度：${res.lat}`)
-            //                     console.log('h5-定位数据', res);
-            //                     locationInfo = res
-            //                 }).catch((error) => {
-            //                     console.log('h5-定位error+', error);
-            //                     vue.$toast('h5' + error)
-            //                 })
-            //             // } else if (code == 1) {
-            //             //     // console.log(11111111111111111111);
-            //             //     getLngAndLat()
-            //             //     locationInfo = getlnglatCallBack()
-            //             // } else if (code == 2) {
-            //             //     region.getLngAndLat()
-            //             //     locationInfo = getlnglatCallBack()
-            //             //     // console.log(222222222222222);
-            //             // }
-            //             function getlnglatCallBack(location) {
-            //                 //处理逻辑
-            //                 var arr = location.split(',')
-            //                 var info = {
-            //                     lng: arr[0],
-            //                     lat: arr[1]
-            //                 }
-            //                 // console.log('121212121212');
-            //                 return info
-            //             }
+            // vue.$router.push({path: '/position'})
+            vue.$store.commit('button/changeLocalPopup', {
+                code: buttonId,
+                isShow: true,
+                id: buttonInfo.id
+            })
 
-            //             // let params = {
-            //             //     id: buttonInfo.id,
-            //             //     posX: locationInfo.lng, // 经度
-            //             //     posY: locationInfo.lat, // 纬度
-            //             //     address: locationInfo.address || ''
-            //             // }
-            //             // console.log('参数', params);
-            //             // if (params.posX !== '' && params.posX !== undefined) {
-            //             //     let data = await GoSiteApi(JSON.stringify(params))
-            //             //     if (data.operationSuccessFlag) {
-            //             //         vue.$toast.success(data.successMessage)
-            //             //         // if (vue.$route.path !== '/main/workBench') {
-            //             //         //     vue.$router.push('/main/workBench')
-            //             //         // }
-            //             //         vue.operationSuccessRefresh(true)
-            //             //     } else {
-            //             //         vue.$toast.fail(data.errorMessage)
-            //             //     }
-            //             // }
-            //         })
-            //         .catch(() => {
-            //             // on cancel
-            //         })
-            // })
+            console.log('gosite', buttonInfo)
             break
 
         // 组内转派
@@ -847,7 +773,7 @@ export const matchButton = async (buttonInfo, buttonId) => {
             // 拆机
             let dismantlingResult = await reqIomNewDismantlingQuery(JSON.stringify({ id: buttonInfo.id, iscanceliptv: buttonInfo.iscanceliptv }))
             console.log('拆机前查询结果', dismantlingResult)
-            this.apiResponse(dismantlingResult, "#app", () => {
+            vue.apiResponse(dismantlingResult, "#app", () => {
                 if (dismantlingResult.showFlag == 2) {
                     // 2:未做拆机
                     // 弹框
@@ -872,12 +798,12 @@ export const matchButton = async (buttonInfo, buttonId) => {
                         // 关闭弹框
                     })
                 }
-                else if (dismantlingResult.showFlag == 1) {
+                else if (dismantlingResult.showFlag == 1 || dismantlingResult.showFlag == 3) {
                     // 跳到拆机进度页面
                     vue.$router.push({
                         name: 'Dismantle',
                         query: {
-                            showFlag: 1, // 拆机标识
+                            showFlag: dismantlingResult.showFlag, // 拆机标识
                             zeroConfigInfoList: dismantlingResult.zeroConfigInfoList // 进度信息
                         }
                     })

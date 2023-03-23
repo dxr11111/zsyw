@@ -84,6 +84,8 @@ export default {
     // 回退
     goBackFn() {
       this.$router.go(-1);
+      this.$store.commit("removeThisPage", this.$options.name);
+
     },
     // 点击信息跳转详情
     clickInfo(id) {

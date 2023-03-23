@@ -91,7 +91,7 @@ export default {
       // 是否展开列表
       oddInfoShow: false,
       tagArr: [], // 标识对应颜色及名称
-      buttonList: this.contentInfo.button || this.contentInfo.buttonList, // 按钮
+      buttonList: this.contentInfo.button, // 按钮
     };
   },
   computed: {

@@ -29,6 +29,7 @@
             :type="!passwordStatus ? 'password' : 'text'"
             @click-right-icon="passwordStatus = !passwordStatus"
             clearable
+            autocomplete="off"
           />
           <div class="loginButton">
             <van-button round block type="info" native-type="submit"
@@ -40,9 +41,11 @@
       </div>
     </div>
     <!-- 底部logo 文字 -->
-    <div class="bottom">
-      <div class="logo"></div>
-      <div class="version">版本号：V1.0.0</div>
+    <div class="bottomContainer">
+      <div class="bottom">
+        <div class="logo"></div>
+        <div class="version">版本号：V1.0.0</div>
+      </div>
     </div>
 
     <More
@@ -173,17 +176,16 @@ export default {
   z-index: 99;
 }
 .login {
-  position: relative;
-  width: 100%;
   height: 100%;
-  min-height: 700px;
+  min-height: 650px;
+  position: relative;
   background-color: #fefefe;
   font-family: @fontFamily;
   font-size: @font-Size;
   .welcome {
     box-sizing: border-box;
     width: 100%;
-    height: 230px;
+    height: 32%;
     position: relative;
     background-image: url("./images/login-bg.jpg");
     background-size: cover;
@@ -201,6 +203,7 @@ export default {
   }
   .content {
     width: 100%;
+    height: 32%;
     background-color: #fefefe;
     .userLogin {
       height: 223px;
@@ -272,7 +275,9 @@ export default {
     }
   }
   /* prettier-ignore */
-  .bottom {
+  .bottomContainer{
+    height: 32%;
+    .bottom {
       position: absolute;
       bottom: 52PX;
       left: 50%;
@@ -301,6 +306,7 @@ export default {
       color: #1b2035;
     }
     }
+  }
   .wrapper {
     display: flex;
     align-items: flex-end;

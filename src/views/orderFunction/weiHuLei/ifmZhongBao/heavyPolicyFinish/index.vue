@@ -133,6 +133,7 @@
           v-model="updateFile"
           multiple
           :max-count="5"
+          :before-read="beforeRead"
           :after-read="afterRead"
         >
           <van-button icon="plus" type="default"></van-button>
@@ -236,6 +237,9 @@ export default {
       } else {
         this.$toast.fail(data.errorMessage);
       }
+    },
+    beforeRead(file){
+      return this.compressFile(file, false)
     },
     // 用户回执-上传的图片
     afterRead(file) {

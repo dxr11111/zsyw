@@ -52,7 +52,7 @@
           <span class="title">修复方式</span>
           <div class="button">
             <van-button
-              :type="repairWay === '联电' ? 'info' : ''"
+              :type="repairWay === '电话联系' ? 'info' : ''"
               @click="clickRepairWay(true)"
               native-type="button"
               >电话联系</van-button
@@ -185,7 +185,7 @@ export default {
       repairResult: "", // 修复结果
       repairResultShow: false,
       repairResultActions: [{ name: "用户满意" }, { name: "无法修复" }],
-      repairWay: "联电", // 修复方式：电话联系；上门
+      repairWay: "电话联系", // 修复方式：电话联系；上门
       dBm: "", // 光功率
       rate: "", // 速率：合格；不合格
       wifiSpeed: "", // wifi测速：已测速；未测速
@@ -210,7 +210,7 @@ export default {
     },
     // 选择修复方式
     clickRepairWay(bool) {
-      if (bool) this.repairWay = "联电";
+      if (bool) this.repairWay = "电话联系";
       else this.repairWay = "上门";
     },
     // 选择速率
@@ -295,10 +295,10 @@ export default {
     },
     // 跳转到签名路由
     skipSign() {
-      let id = this.$route.query.id;
+      let id = parseInt(this.$route.query.id);
       let useMaterial = 0; // 是否使用了外包材料（0：未使用，1：使用）
       let materialInfoItems = [getItem("saveMaterialInfo")];
-      let repairType = this.repairWay; // 修复方式:联电;上门
+      let repairType = this.repairWay; // 修复方式:电话联系;上门
       let netSpeed = this.rate; // 速率：合格；不合格
       let lightPower = this.dBm; // 光功率 eg：”12dBm”
       let wifiTest = this.wifiSpeed; // WIFI测速 eg：”已测速,,23 Mbps”
@@ -348,7 +348,7 @@ export default {
         name: "Signature",
         // 将接口参数传到签名页面
         query: {
-          id: this.$route.query.id,
+          id: parseInt(this.$route.query.id),
           orderNum: this.$route.query.orderNum,
           postData,
         },

@@ -1,6 +1,7 @@
 /** 
 * 获取经纬度和地址并返回信息
 */
+// 高德-收费
 export const getLocation = function () {
   return new Promise((resolve, reject) => {
     let location = {
@@ -58,9 +59,10 @@ export const getLocation = function () {
   })
 }
 
+// h5定位
 export const getLocationH5 = function () {
   return new Promise((resolve, reject) => {
-    if (navigator.geolocation) {
+    if (window.navigator.geolocation) {
       console.log('navigator', navigator)
       console.log('navigator.geolocation', navigator.geolocation)
       let location = {}
@@ -87,7 +89,7 @@ export const getLocationH5 = function () {
         }
         reject(errorMessage)
       }, {
-        enableHighAcuracy: false, // 指示浏览器获取高精度的位置，默认为false
+        enableHighAcuracy: true, // 指示浏览器获取高精度的位置，默认为false
         timeout: 5000, // 指定获取地理位置的超时时间，默认不限时，单位为毫秒
         maximumAge: 3000 // 最长有效期，在重复获取地理位置时，此参数指定多久再次获取位置。
       })
@@ -96,3 +98,25 @@ export const getLocationH5 = function () {
     }
   })
 }
+
+// H5原生的位置定位
+export const getLocationH5Test = function () {
+  return new Promise((resolve, reject) => {
+    function geoShowPosition(position) {
+      console.log('position', position)
+      if (position) {
+        const location = { lat: position.coords.latitude, lng: position.coords.longitude };
+        resolve(location);
+      } else {
+        reject();
+      }
+    }
+
+    function geoShowError(error) {
+      console.log(`getPosError:${error.code},${navigator.geolocation},${error.message}`);
+      reject();
+    }
+    navigator.geolocation.getCurrentPosition(geoShowPosition, geoShowError);
+  });
+}
+

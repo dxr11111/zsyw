@@ -22,7 +22,7 @@
     <div
       class="main"
       v-if="bottomStage !== 2"
-      :style="{ paddingTop: mainPadding }"
+      :style="{ paddingTop: mainPaddingTop }"
     >
       <div class="row" v-for="(item, index) in infoList" :key="index">
         <div class="link">
@@ -297,10 +297,10 @@ export default {
     return {
       headName: `零配置(${this.$route.query.orderNum})`,
       headTextMargin: "",
-      mainPadding: "87px",
+      mainPaddingTop: "87px",
       zeroConfigQueryMac: "", // 零配置前查询mac地址
       bottomStage: -1, // 底部环节 0：零配置成功 2：清空列表 3：拆机成功
-      isAutoRefresh: "1", // 自动刷新
+      isAutoRefresh: "0", // 自动刷新
       oldRadio: "0", // 上一次选中的值
       infoList: {}, // 零配置进度信息
       refreshCounDown: 10, // 刷新10秒倒计时
@@ -347,6 +347,7 @@ export default {
     // 回退
     goBackFn() {
       this.$router.go(-1);
+      this.$store.commit("removeThisPage", this.$options.name);
     },
     // 点击自动刷新
     clickIsRefresh(val) {
@@ -852,7 +853,6 @@ export default {
       infoList.forEach((item) => {
         if (item.zeroconfigStage === 0) {
           // 零配置成功
-          this.isAutoRefresh = "0";
           return (this.bottomStage = 0);
         }
         if (item.zeroconfigStage === 4) {
@@ -874,11 +874,17 @@ export default {
     this.getZeroConfigInfoList();
     // 判断底部配置页面
     this.getBottomStage(this.zeroConfigQueryInfo.zeroConfigInfoList);
+    // 判断是否要开机自动刷新
+    if (this.bottomStage == -1 || this.bottomStage == 4) {
+      this.isAutoRefresh = "1";
+      clearInterval(this.timer); // 清除定时器
+      this.countDownTimer();
+    }
   },
   mounted() {
     // 获取固定顶部位置高度
     if (this.$refs.header.clientHeight > 0) {
-      this.mainPadding = this.$refs.header.clientHeight + "px";
+      this.mainPaddingTop = this.$refs.header.clientHeight + "px";
     }
   },
   beforeDestroy() {
@@ -938,7 +944,7 @@ export default {
   }
 
   .main {
-    padding-top: 119px; //87px;
+    // padding-top: 119px; //87px;
     padding-bottom: 92px;
     .row {
       display: flex;

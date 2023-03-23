@@ -85,7 +85,7 @@ import WeekReport from "./components/weekReport";
 import MonthReport from "./components/monthReport";
 import FgsReport from "./components/fgsReport";
 import $ from "jquery";
-import { getItem } from '@/utils/public/sessionStorage';
+import { getItem } from "@/utils/public/sessionStorage";
 export default {
   name: "YdNetworkAssess",
   components: {
@@ -97,13 +97,13 @@ export default {
     MonthReport,
     FgsReport,
   },
-  data () {
+  data() {
     return {
       name: "移网考核看板",
-      marginTop: '160px',
+      marginTop: "160px",
       // 分公司：yuanchen; 小网格：zouky; 代维：cuibaoguo
       // loginNo: "hesq32", //生产 130123199206274518 fuxing1
-      loginNo: '', //生产 130123199206274518 fuxing1
+      loginNo: "", //生产 130123199206274518 fuxing1
       // 是否展示日报 周报 月报
       reportShow: false,
       titleActiveName: "day",
@@ -126,29 +126,29 @@ export default {
   watch: {},
   methods: {
     // 点击制式
-    clickMode (item) {
+    clickMode(item) {
       this.modeId = item.modeId;
     },
     // 得到YmWeekIndex子组件日期
-    getymDate (value) {
+    getymDate(value) {
       this.month = value;
     },
     // 得到YmWeekIndex子组件第几周
-    getWeek (value) {
+    getWeek(value) {
       this.weekIndex = value;
     },
     // 得到日报日期
-    getKhDay (value) {
+    getKhDay(value) {
       this.khDay = value;
     },
     // 得到月报日期(value) {
-    getKhMonth (value) {
-      console.log('月报日期', value);
+    getKhMonth(value) {
+      console.log("月报日期", value);
       this.khMonth = value;
     },
 
     // 获取用户权限
-    async getSettingInfo () {
+    async getSettingInfo() {
       try {
         await this.$store.dispatch(
           "ydNetworkAssess/getSettingInfo",
@@ -168,23 +168,22 @@ export default {
       }
     },
   },
-  created () {
-    let userIds = getItem('loginInfo').userIds
-    userIds.forEach(e => {
+  created() {
+    // let userIds = getItem('loginInfo').userIds
+    let userIds = this.$store.getters.getLoginInfo.userIds;
+    userIds.forEach((e) => {
       if (e.sysId == 3) {
-        this.loginNo = e.accountId
+        this.loginNo = e.accountId;
       }
-    })
+    });
     this.getSettingInfo();
-    if (localStorage.getItem('Addhead') == 'true') {
-      this.marginTop = '190px'
+    if (localStorage.getItem("Addhead") == "true") {
+      this.marginTop = "190px";
     } else {
-      self.headHeight = '160px'
+      self.headHeight = "160px";
     }
   },
-  mounted () {
-
-  },
+  mounted() {},
 };
 </script>
 

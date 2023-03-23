@@ -1,7 +1,6 @@
 import _this from "@/main";
 import { reqQueryUniToken } from "@/http/tools";
 import { appUrl } from '@/http/pullApp'
-import { getItem } from '@/utils/public/sessionStorage'
 
 // 申告类别 -- 申告内容
 export const declarationList = [
@@ -621,7 +620,8 @@ export const matchTools = async (toolInfo) => {
     // 基站运维感知
     case "jzywgz":
       // 获取传参
-      let userIds = getItem('loginInfo').userIds
+      // let userIds = getItem('loginInfo').userIds
+      let userIds = _this.$store.getters.getLoginInfo.userIds
       let accountId = ''
       let appCode = ''
       let appKey = ''
