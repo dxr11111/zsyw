@@ -71,6 +71,12 @@ export default {
       exclude: "",
       refreshHome: false,
       refreshWorkBench: false,
+
+      isScroll_top: true, // 滚动条是否在顶部
+      isScroll_bottom: false, // 滚动条是否在底部
+      $startY: 0,
+      $moveY: 0,
+      touchesY: 0,
     };
   },
   computed: {

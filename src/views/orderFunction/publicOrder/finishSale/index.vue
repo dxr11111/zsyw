@@ -3,7 +3,22 @@
   <div class="big-box">
     <MyHeader :name="headName" left="arrow-left" @goBackEv="$router.go(-1)" />
     <div class="form">
-      <div class="field" :style="isContact == 0 ? 'margin-bottom: 10px' : ''">
+      <div class="field" style="margin-bottom: 10px">
+        <div class="label">用户办理意向</div>
+        <div class="radio-box" :model="userSituation">
+          <span
+            :class="userSituation == '30' ? 'active' : ''"
+            @click="userSituation = '30'"
+            >同意办理</span
+          >
+          <span
+            :class="userSituation == '20' ? 'active' : ''"
+            @click="refuseHandle"
+            >拒绝办理</span
+          >
+        </div>
+      </div>
+      <div class="field" style="margin-bottom: 10px">
         <div class="label">联系用户</div>
         <div class="radio-box" :model="isContact">
           <span
@@ -11,9 +26,7 @@
             @click="isContact = '1'"
             >已联系</span
           >
-          <span
-            :class="isContact == '0' ? 'active' : ''"
-            @click="isContact = '0'"
+          <span :class="isContact == '0' ? 'active' : ''" @click="unContact"
             >未联系</span
           >
         </div>
@@ -41,21 +54,7 @@
           />
         </van-popup>
       </div>
-      <div class="field" style="margin-bottom: 10px">
-        <div class="label">用户办理意向</div>
-        <div class="radio-box" :model="userSituation">
-          <span
-            :class="userSituation == '30' ? 'active' : ''"
-            @click="userSituation = '30'"
-            >同意办理</span
-          >
-          <span
-            :class="userSituation == '20' ? 'active' : ''"
-            @click="userSituation = '20'"
-            >拒绝办理</span
-          >
-        </div>
-      </div>
+
       <!-- 用户办理意向为同意(30)时展示 -->
       <div v-if="userSituation == '30'">
         <!-- 业务信息 -->
@@ -70,14 +69,14 @@
           </div>
         </div>
         <!-- 新增业务信息 -->
-        <div class="panel" v-for="(i, e) in businessList" :key="e">
+        <div class="panel" v-for="(i, e) in businessList" :key="'bus' + e">
           <div class="panel-item">
             <span>业务名称</span>
-            <input type="text" v-model="i.newBusiNessName" />
+            <input type="text" v-model="i.newBusiNessName" maxlength="100" />
           </div>
           <div class="panel-item">
-            <span>业务续费</span>
-            <input type="text" v-model="i.newBusinessPrice" />
+            <span>业务资费</span>
+            <input type="text" v-model="i.newBusinessPrice" maxlength="100" />
           </div>
           <i class="iconfont icon-jianhao1" @click="delItem('bus', e)"></i>
         </div>
@@ -100,6 +99,7 @@
               type="text"
               v-model="item.deviceVendor"
               placeholder="(必填)"
+              maxlength="100"
             />
           </div>
           <div class="panel-item">
@@ -108,11 +108,12 @@
               type="text"
               v-model="item.deviceModel"
               placeholder="(必填)"
+              maxlength="100"
             />
           </div>
           <div class="panel-item">
             <span>设备类型</span>
-            <div class="after" @click="showDeviceType = true">
+            <div class="after" @click="clickDeviceType(index)">
               <input
                 type="text"
                 readonly
@@ -125,12 +126,12 @@
               :actions="deviceTypeList"
               cancel-text="取消"
               close-on-click-action
-              @select="selectDeviceType($event, item)"
+              @select="selectDeviceType"
             />
           </div>
           <div class="panel-item">
             <span>设备wifi制式</span>
-            <div class="after" @click="showDeviceWifi = true">
+            <div class="after" @click="clickDeviceWifi(index)">
               <input
                 readonly
                 type="text"
@@ -143,7 +144,7 @@
               :actions="deviceWifiList"
               cancel-text="取消"
               close-on-click-action
-              @select="selectDeviceWifi($event, item)"
+              @select="selectDeviceWifi"
             />
           </div>
           <div class="panel-item">
@@ -152,6 +153,7 @@
               type="text"
               v-model="item.devicePrice"
               placeholder="(必填)"
+              maxlength="100"
             />
           </div>
           <i
@@ -182,11 +184,10 @@ export default {
       minDate: new Date(1970, 0, 1),
       maxDate: new Date(2100, 12, 1),
       currentDate: new Date(),
-      currDate: null, // 当前选中的时间
-      showBusiness: false, // 业务信息下的item
-      showDevice: false, // 设备信息下的item
+      currDate: "", // 当前选中的时间
       showDeviceType: false, // 控制设备类型选项
       showDeviceWifi: false, // 控制设备wifi选项
+      showDeviceIndex: -1, // 当前修改设备下标
       deviceTypeList: [{ name: "百兆" }, { name: "千兆" }], // 设备类型
       deviceWifiList: [{ name: "wifi4" }, { name: "wifi5" }, { name: "wifi6" }], // 设备类型
       businessList: [], // 业务信息
@@ -194,17 +195,34 @@ export default {
     };
   },
   methods: {
+    // 点击未联系
+    unContact() {
+      this.isContact = "0";
+      // 清空联系用户时间
+      this.currDate = "";
+    },
+    // 拒绝办理
+    refuseHandle() {
+      this.userSituation = "20";
+      // 清空业务信息和设备信息
+      this.businessList.splice(0, this.businessList.length);
+      this.deviceList.splice(0, this.deviceList.length);
+    },
+    // 提交
     async confirm() {
       let params = {
         id: Number(this.$route.query.id),
         contactUser: this.userSituation,
         userSituation: this.isContact,
-        contactTime: this.currDate || "",
+        contactTime: this.currDate,
         businessList: this.businessList,
         deviceList: this.deviceList,
       };
       if (this.userSituation == "") return this.$toast("请选择用户办理意向");
       if (this.isContact == "") return this.$toast("请选择是否联系用户");
+      // 选择联系用户，但是没有选择联系用户时间
+      if (this.isContact == "1" && this.currDate == "")
+        return this.$toast("请选择联系用户时间");
       if (this.userSituation == "30") {
         // 同意办理，但业务信息或设备信息没添加
         if (this.businessList.length == 0 && this.deviceList.length == 0) {
@@ -229,15 +247,6 @@ export default {
             if (e.devicePrice == "") return this.$toast("请填写设备价格");
           }
         }
-        if (this.businessList.length > 0 || this.deviceList.length > 0) {
-          // 业务信息或设备信息有数据，也选择了联系用户，但是没有选择联系用户时间
-          if (this.isContact == "1" && this.currDate == null)
-            return this.$toast("请选择联系用户时间");
-        }
-      } else {
-        // 拒绝办理，选择联系用户，但是没有选择联系用户时间
-        if (this.isContact == "1" && this.currDate == null)
-          return this.$toast("请选择联系用户时间");
       }
       // console.log('参数', params)
       let data = await SaleFinishApi(JSON.stringify(params));
@@ -301,12 +310,31 @@ export default {
       // console.log(this.currDate)
       this.showTime = false;
     },
-    selectDeviceType(e, v) {
-      v.deviceType = e.name;
+    // 点击设备类型
+    clickDeviceType(index) {
+      this.showDeviceType = true;
+      this.showDeviceIndex = index;
+    },
+    // 选择设备类型
+    selectDeviceType(action) {
+      this.$set(
+        this.deviceList[this.showDeviceIndex],
+        "deviceType",
+        action.name
+      );
       this.showDeviceType = false;
     },
-    selectDeviceWifi(e, v) {
-      v.deviceWifi = e.name;
+    // 点击设备wifi制式
+    clickDeviceWifi(index) {
+      this.showDeviceWifi = true;
+      this.showDeviceIndex = index;
+    },
+    selectDeviceWifi(action) {
+      this.$set(
+        this.deviceList[this.showDeviceIndex],
+        "deviceWifi",
+        action.name
+      );
       this.showDeviceWifi = false;
     },
   },

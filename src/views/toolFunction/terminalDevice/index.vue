@@ -6,7 +6,7 @@
         left="arrow-left"
         @goBackEv="$router.go(-1)"
       />
-      <van-tabs type="card">
+      <van-tabs type="card" @click="onClick">
         <van-tab title="领设备">
           <div class="pannel">
             <div class="field">
@@ -129,24 +129,21 @@
         </van-tab>
       </van-tabs>
     </div>
-    <ScanView
-      v-else
-      @goBack="getScanResult"
-    />
+    <ScanView v-else @goBack="getScanResult" />
   </div>
 </template>
 
 <script>
-import { formatDate } from "@/utils/public/common"
+import { formatDate } from "@/utils/public/common";
 import {
   ApplyInstApi,
   ReqRecordApi,
   InstChangeApi,
   InstChangeResultApi,
-} from "@/http/tools"
-import { getItem } from "@/utils/public/sessionStorage"
-import { codeScanView } from '@/utils/public/unicomApp'
-import ScanView from '@/components/scanView/index.vue'
+} from "@/http/tools";
+import { getItem } from "@/utils/public/sessionStorage";
+import { codeScanView } from "@/utils/public/unicomApp";
+import ScanView from "@/components/scanView/index.vue";
 export default {
   name: "TerminalDevice",
   components: { ScanView },
@@ -164,28 +161,33 @@ export default {
       resultList: [], // 查询结果
       instList: [], // 转让数据
       isStart: false,
-      currIndex: -1
-    }
+      currIndex: -1,
+    };
   },
-  created() {
-    this.getInstList()
-  },
+  created() {},
   methods: {
-    getScanResult(result) {
-      console.log('接收扫码结果', result)
-      if (result) {
-        this.currIndex == 1 ? this.mac = result : this.sn = result
+    // 切换tab栏
+    onClick(name, title) {
+      if (title == "转让申请") {
+        // 点击转让申请时获取
+        if (this.instList.length == 0) this.getInstList();
       }
-      this.isStart = false
+    },
+    getScanResult(result) {
+      console.log("接收扫码结果", result);
+      if (result) {
+        this.currIndex == 1 ? (this.mac = result) : (this.sn = result);
+      }
+      this.isStart = false;
     },
     // 扫码--测试未完成
     getScanCode(type) {
-      var result = codeScanView()
-      if (result == 'local') {
-        this.isStart = true
-        this.currIndex = type
+      var result = codeScanView();
+      if (result == "local") {
+        this.isStart = true;
+        this.currIndex = type;
       } else {
-        type == 1 ? this.mac = result : this.sn = result
+        type == 1 ? (this.mac = result) : (this.sn = result);
       }
     },
     applyBtn(type, obj) {
@@ -203,68 +205,68 @@ export default {
             applyUserName: obj.userName, //	申请人姓名
             userName: this.userInfo.userName,
             userCode: this.userInfo.loginNo,
-          }
-          let data = await InstChangeResultApi(JSON.stringify(params))
+          };
+          let data = await InstChangeResultApi(JSON.stringify(params));
           // console.log(data)
           data.operationSuccessFlag
             ? this.$toast.success(data.successMessage)
-            : this.$toast.fail(data.errorMessage)
+            : this.$toast.fail(data.errorMessage);
         })
-        .catch()
+        .catch();
     },
     async getInstList() {
-      let data = await InstChangeApi(JSON.stringify(""))
-      this.instList = data.result
+      let data = await InstChangeApi(JSON.stringify(""));
+      this.instList = data.result;
     },
     async searchReq() {
-      if (this.timeKey == null) return this.$toast("请选择查询时间")
+      if (this.timeKey == null) return this.$toast("请选择查询时间");
       let data = await ReqRecordApi(
         JSON.stringify({ applyDate: this.timeKey })
-      )
-      console.log(data)
-      this.resultList = data.result
+      );
+      console.log(data);
+      this.resultList = data.result;
     },
     formalType(key, value) {
       if (key == "6") {
-        value = "沃家产品"
+        value = "沃家产品";
       } else if (key == "4") {
-        value = "IPTV"
+        value = "IPTV";
       } else {
-        value = "ONU"
+        value = "ONU";
       }
-      return value
+      return value;
     },
     chooseTime(value) {
-      this.timeKey = formatDate(value)
-      this.showTime = false
+      this.timeKey = formatDate(value);
+      this.showTime = false;
     },
     formatter(type, val) {
       if (type === "year") {
-        return val + "年"
+        return val + "年";
       }
       if (type === "month") {
-        return val + "月"
+        return val + "月";
       }
       if (type === "day") {
-        return val + "日"
+        return val + "日";
       }
-      return val
+      return val;
     },
     async submit() {
       if (this.sn == "" && this.mac == "")
-        return this.$toast("MAC地址和终端串号不能同时为空")
+        return this.$toast("MAC地址和终端串号不能同时为空");
       let params = {
         sn: this.sn, //	终端串号
         mac: this.mac, //	MAC地址
         resourceTypeId: this.deviceType, //	设备类型
-      }
-      let data = await ApplyInstApi(JSON.stringify(params))
-      console.log(data)
+      };
+      let data = await ApplyInstApi(JSON.stringify(params));
+      console.log(data);
       data.operationSuccessFlag
         ? this.$toast.success(data.successMessage)
-        : this.$toast.fail(data.errorMessage)
-      this.sn = ""
-      this.mac = ""
+        : this.$toast.fail(data.errorMessage);
+      this.sn = "";
+      this.mac = "";
     },
   },
 };

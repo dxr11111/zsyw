@@ -68,7 +68,7 @@ export default {
       // 退单原因
       reasonShow: false,
       reason: "Centrex组内",
-      errorReasonCode: "", // 退单编码
+      errorReasonCode: "10011030", // 退单编码
       // 根据列表详情返回的actionType切换下拉菜单内容
       reasonActions: [
         { name: "Centrex组内", value: "10011030" },
@@ -97,6 +97,7 @@ export default {
         { name: "用户不需要千兆套餐", value: "90010003 " },
         { name: "同址转化退单", value: "90010005" },
         { name: "修改标准地址", value: "90010006" },
+        { name: "等待割接退单", value: "90010007" },
       ],
       explain: "", // 退单说明
       soNbr: "", // 同址转化退单-营业流水号
@@ -200,61 +201,41 @@ export default {
       // 只要上一个路由是ConfigStatus，判断是return还是returnIp
       if (this.fromName === "ConfigStatus") {
         if (this.$route.query.buttonKey === "returnIP") {
-          (this.reason = "此宽带地址暂不支持办理宽带固定IP产品"),
-            (this.reasonActions = [
-              {
-                name: "此宽带地址暂不支持办理宽带固定IP产品",
-                value: "90010004",
-              },
-            ]);
+          this.reason = "此宽带地址暂不支持办理宽带固定IP产品";
+          this.errorReasonCode = "90010004";
+          this.reasonActions = [
+            {
+              name: "此宽带地址暂不支持办理宽带固定IP产品",
+              value: "90010004",
+            },
+          ];
+          return;
         }
       }
-      // 不同工单间根据actionType判断
-      /* if (this.$route.query.actionType === '3') {
-        this.reason = 'Centrex组内'
+      // 根据actionType判断
+      if (
+        this.$route.query.actionType === "11" ||
+        this.$route.query.actionType === "12" ||
+        this.$route.query.actionType === "13"
+      ) {
+        this.reason = "用户取消";
+        this.errorReasonCode = "100001";
         this.reasonActions = [
-          { name: 'Centrex组内', value: '10011030' },
-          { name: '拆迁地区', value: '10011027' },
-          { name: '局方资源不可达（请生成资源建设单）', value: '10011022' },
-          { name: '客户（业主）不同意打孔/明线', value: '10011041' },
-          { name: '客户联系不上', value: '10011017' },
-          { name: '客户需要办理其他业务暂时将在途工单退单', value: '10011033' },
-          { name: '客户要求退单', value: '10012004' },
-          { name: '客户资料有误', value: '10011016' },
-          { name: '宽带产品帐号异常', value: '10011904' },
-          { name: '派错局向', value: '30010003' },
-          { name: '企业报装公众产品', value: '10012001' },
-          { name: '未通过实名认证', value: '10032077' },
-          { name: '物业不同意进线', value: '10014017' },
-          { name: '物业不同意施工（已具备资源）', value: '10014016' },
-          { name: '修改接入方式', value: '10014005' },
-          { name: '需重新二次预约', value: '10032004' },
-          { name: '一户一线', value: '10014008' },
-          { name: '异网地区（请生成资源建设单）', value: '10011002' },
-          { name: '重复报装', value: '10011039' },
-          { name: '装机地址错误', value: '10032005' },
-          { name: '资源不具备（简单补点工程）', value: '10014006' },
-          { name: '无法更换千兆套餐匹配的千兆光猫', value: '90010002' },
-          { name: '第三方设备退单转局内', value: '90010001' },
-          { name: '用户不需要千兆套餐', value: '90010003 ' },
-          { name: '同址转化退单', value: '90010005' },
-          { name: '修改标准地址', value: '90010006' },
-        ]
-      } else if (this.$route.query.actionType === '11') {
-        this.reason = '用户取消'
-        this.reasonActions = [
-          { name: '用户取消' },
-          { name: '接入干预后，PON\RMS或BRAS数据仍然无法配置。' },
-          { name: '无资源' },
-          { name: '标准地址错误' },
-          { name: '公众资源已满' },
-          { name: '需重新指派外线' },
-          { name: '其他（此选项可预留不开放，应急时再打开）' },
-          { name: '接入干预后，SW地址仍然无法分配' },
-          { name: '确认无资源，并且最终决定不予建设' },
-          { name: '人工分配IP地址和互联网地址失败' },
-        ]
-      } */
+          { name: "用户取消", value: "100001" },
+          {
+            name: "接入干预后，PONRMS或BRAS数据仍然无法配置。",
+            value: "100002",
+          },
+          { name: "无资源", value: "100004" },
+          { name: "标准地址错误", value: "100005" },
+          { name: "公众资源已满", value: "100006" },
+          { name: "需重新指派外线", value: "100007" },
+          { name: "其他（此选项可预留不开放，应急时再打开）", value: "100008" },
+          { name: "接入干预后，SW地址仍然无法分配", value: "100003" },
+          { name: "确认无资源，并且最终决定不予建设", value: "100009" },
+          { name: "人工分配IP地址和互联网地址失败", value: "100010" },
+        ];
+      }
     },
     // 判断是否从点击回复-弹框-点击修改标准地址进入
     judgeBzdzFit() {

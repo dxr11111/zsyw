@@ -3,6 +3,8 @@ import vue from '@/main'
 
 // 云入户呼叫
 export const cloudCall = async (num, type, dialFlagChecked) => {
+    console.log('111111111111111dialFlagChecked', dialFlagChecked)
+
     if (num.length == 8 || num.length == 11) {
         // 隐藏选择呼出号码弹出层
         vue.$store.commit("workBench/CHANGECALLNUMBERSTATE", {

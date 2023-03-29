@@ -686,7 +686,7 @@ export default {
       photoIdList: [], // 光纤尾码照片在数据库的ID集合
       // 是否显示超时原因
       overTimeShow: false,
-      overTimeReason: "用户地址不详", //超时原因
+      overTimeReason: "", //超时原因
       overTimeReasonShow: false,
       overTimeReasonActions: [
         { name: "用户地址不详" },
@@ -781,6 +781,8 @@ export default {
     },
     // 点击录入新设备
     enterNewDev() {
+      // 去掉删除按钮
+      if (this.devChanged) this.devChanged = false;
       // 先清空输入框内容
       this.ysSN = "";
       this.ysMAC = "";
@@ -1386,7 +1388,7 @@ export default {
         if (this.inputRightAddress.length > 0) {
           if (
             this.inputRightAddress.length > 1000 ||
-            this.inputRightAddress.length < 5
+            this.inputRightAddress.length <= 5
           ) {
             return this.$dialog
               .alert({
@@ -1526,7 +1528,10 @@ export default {
     // 获取外包材料
     this.getMaterialInfo();
     // 获取是否填写超时原因
-    if (this.$route.query.overTimeShow) this.overTimeShow = true;
+    if (this.$route.query.overTimeShow) {
+      this.overTimeShow = true;
+      this.overTimeReason = "用户地址不详";
+    }
     console.log("reply激活");
   },
   deactivated() {

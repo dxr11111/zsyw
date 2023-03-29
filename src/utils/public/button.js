@@ -716,13 +716,23 @@ export const matchButton = async (buttonInfo, buttonId) => {
                             }
                         })
                     } else if (showFlag === 2) {
-
                         // 进入零配置页面
                         vue.$router.push({
                             name: 'NotConfig',
                             query: {
                                 orderNum: buttonInfo.orderId,
                                 id: buttonInfo.id,
+                            }
+                        })
+                    }
+                    else if (showFlag === 4) {
+                        // 进入零配置页面
+                        vue.$router.push({
+                            name: 'NotConfig',
+                            query: {
+                                orderNum: buttonInfo.orderId,
+                                id: buttonInfo.id,
+                                justShowFtth: "1",
                             }
                         })
                     }

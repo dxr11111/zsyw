@@ -87,6 +87,8 @@ export default {
     // 数字键盘
     // 点击手工拨号，弹出数字键盘
     manualDialing() {
+      // 清除被叫手机显示XXX的本机号码勾选
+      if (this.dialFlagChecked) this.dialFlagChecked = false;
       this.callNumberShow = false;
       this.keyShow = false;
       setTimeout(() => {
@@ -108,6 +110,8 @@ export default {
       if (this.pickPhone == "") {
         return this.$toast("请选择呼出号码");
       }
+      // 清除被叫手机显示XXX的本机号码勾选
+      if (this.dialFlagChecked) this.dialFlagChecked = false;
       this.callNumberShow = false;
       this.$store.commit("workBench/CHANGECALLNUMBERSTATE", {
         callNumberShow: false,
@@ -118,6 +122,8 @@ export default {
     },
     // 关闭呼出号码弹出层
     closeCallNumShow() {
+      // 清除被叫手机显示XXX的本机号码勾选
+      if (this.dialFlagChecked) this.dialFlagChecked = false;
       this.callNumberShow = false;
       this.$store.commit("workBench/CHANGECALLNUMBERSTATE", {
         callNumberShow: false,

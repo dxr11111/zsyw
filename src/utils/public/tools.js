@@ -640,7 +640,7 @@ export const matchTools = async (toolInfo) => {
       );
       console.log("基站运维感知结果", result);
       // 将账号传给后台 → 后台返回token → 将token传给url
-      this.apiResponse(result, "#app", () => {
+      _this.apiResponse(result, "#app", () => {
         let token = result.token;
         url += token;
         console.log("基站运维感知结果url", url);

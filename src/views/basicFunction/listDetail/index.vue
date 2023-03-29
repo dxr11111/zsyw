@@ -1,6 +1,6 @@
 <template>
   <!-- 工单详情页面 看板 列表 -->
-  <div class="listDetail">
+  <div class="listDetail" :style="{ height: listDetailHeight }">
     <div class="static" ref="static">
       <MyHeader
         :name="titleName"
@@ -472,6 +472,8 @@ export default {
   data() {
     return {
       refreshFlag: false, // 刷新标识
+
+      listDetailHeight: "100%", // 元素高度，使滚动条在局部滚动
 
       nameActive: 0,
       tabKey: "", // 当前激活的tab栏的key名称
@@ -1003,7 +1005,7 @@ export default {
     },
     // 点击确认键
     async confirmEvent(res, dialFlagChecked) {
-      console.log("确认键：", res);
+      console.log("确认键：", res, dialFlagChecked);
       // 判断号码格式是否正确 请求云入户
       cloudCall(res, "手工拨号", dialFlagChecked);
     },
@@ -1061,8 +1063,10 @@ export default {
 
 .listDetail {
   // position: relative;
+  overflow-y: auto;
   min-height: 100%;
   background-color: #fff;
+
   .static {
     z-index: 200;
     position: fixed;
@@ -1188,7 +1192,7 @@ export default {
     }
     /deep/.van-tabs__content {
       // height: 800px;
-      overflow: auto;
+      // overflow: auto;
     }
   }
 

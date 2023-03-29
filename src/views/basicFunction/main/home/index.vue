@@ -1,17 +1,20 @@
 <template>
-  <div class="bgc" style="padding-bottom: 50px">
+  <div class="bgc">
     <div>
-      <div class="top">
-        <div class="search" @click="$router.push('/search')">
-          <van-icon
-            style="margin-right: 8px"
-            name="search"
-            size="18"
-            color="#000"
-          />
-          <span>多功能搜索栏（搜工具、搜工单）</span>
+      <div class="topWrap">
+        <div class="top">
+          <div class="search" @click="$router.push('/search')">
+            <van-icon
+              style="margin-right: 8px"
+              name="search"
+              size="18"
+              color="#000"
+            />
+            <span>多功能搜索栏（搜工具、搜工单）</span>
+          </div>
         </div>
       </div>
+
       <!-- 公告 -->
       <div class="notice" @click="$router.push('/messageCenter/messageList')">
         <div class="left">
@@ -139,9 +142,10 @@ export default {
     this.getMessageList();
     this.rollFunc();
   },
+
   //每次激活时
   activated() {
-    // console.log('首页激活了', this.prevPath)
+    // console.log("首页激活了", this.prevPath);
     // if (this.prevPath == '/login') {
     // let list = JSON.parse(localStorage.getItem('sortList'))
     // console.log('存储的功能区排序', list);
@@ -389,6 +393,7 @@ export default {
       vm.prevPath = form.path;
     });
   },
+
   destroyed() {
     this.timer = null;
   },
@@ -396,24 +401,32 @@ export default {
 </script>
 
 <style scoped lang="less">
-.top {
+.topWrap {
   height: 200px;
-  background-image: url("./images/bg.jpg");
-  background-size: cover;
-  padding-top: 35px;
-  box-sizing: border-box;
-  .search {
-    width: 327px;
-    height: 32px;
-    background: #ffffff;
-    border-radius: 4px;
-    margin: auto;
-    padding: 6px;
-    font-size: 14px;
+  .top {
+    z-index: 100;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 200px;
+    background-image: url("./images/bg.jpg");
+    background-size: cover;
+    padding-top: 35px;
     box-sizing: border-box;
-    text-align: start;
+    .search {
+      width: 327px;
+      height: 32px;
+      background: #ffffff;
+      border-radius: 4px;
+      margin: auto;
+      padding: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+      text-align: start;
+    }
   }
 }
+
 .anim {
   transition: all 0.5s;
   margin-top: -22px;

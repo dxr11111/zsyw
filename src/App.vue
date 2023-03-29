@@ -113,9 +113,7 @@ export default {
   height: 100%;
   height: 100%;
   background-color: @bg-color;
-  ::-webkit-scrollbar {
-    width: 0 !important;
-  }
+  // 防止任务看板滚动条错乱
   ::-webkit-scrollbar {
     width: 0 !important;
     height: 0;

@@ -11,7 +11,7 @@
           @click="accessWayShow = true"
           readonly
           class="textRight borderBottom"
-          v-if="$route.query.iscanceliptv == '1'"
+          v-if="$route.query.justShowFtth == '1'"
         />
         <template v-else>
           <van-field
@@ -52,7 +52,7 @@
           />
         </template>
         <template
-          v-if="accessWay === 'FTTH' && $route.query.iscanceliptv !== '1'"
+          v-if="accessWay === 'FTTH' && $route.query.justShowFtth !== '1'"
         >
           <!-- 拨号方式 -->
           <van-field
@@ -139,7 +139,7 @@
         <template v-if="accessWay === 'PON+D' && businessTypeCode !== 1">
           <!-- 交换系统号 -->
           <van-field
-            label="接入方式"
+            label="交换系统号"
             :value="switchSysNum"
             @click="switchSysNumShow = true"
             is-link
@@ -248,7 +248,7 @@ export default {
         if (this.deviceNum == "") return this.$toast("请扫描或录入设备编号");
         if (this.deviceMAC == "") return this.$toast("请扫描或录入设备MAC");
       }
-      if (this.$route.query.iscanceliptv !== "1") {
+      if (this.$route.query.justShowFtth !== "1") {
         if (this.accessWay === "FTTH" && this.dialWay == "")
           return this.$toast("请选择拨号方式");
       }
@@ -293,7 +293,7 @@ export default {
       switch (this.accessWay) {
         case "FTTH":
           // 判断必选项是否已选
-          if (this.useDevice === -1 && this.$route.query.iscanceliptv !== "1") {
+          if (this.useDevice === -1 && this.$route.query.justShowFtth !== "1") {
             return this.$toast("请选择是否使用用户家现有设备");
           }
           // 提交之前弹出提示框确认录入设备
@@ -626,8 +626,8 @@ export default {
     },
   },
   created() {
-    // 判断是否是iscanceliptv为“1”时从拆机页面进入零配置
-    if (this.$route.query.iscanceliptv == "1") {
+    // 判断是否是iscanceliptv为“1”时从拆机页面进入零配置,或者零配置前查询showFlag=4
+    if (this.$route.query.justShowFtth == "1") {
       this.accessWay = "FTTH";
     } else {
       // 获取零配置前查询信息

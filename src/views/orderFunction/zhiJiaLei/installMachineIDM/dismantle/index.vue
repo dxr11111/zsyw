@@ -396,7 +396,7 @@ export default {
                 query: {
                   orderNum: this.listDetail.orderId,
                   id: this.listDetail.id,
-                  iscanceliptv: "1",
+                  justShowFtth: "1",
                 },
               });
             })

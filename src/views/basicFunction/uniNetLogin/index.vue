@@ -48,7 +48,7 @@ export default {
       // 鉴权
       try {
         let result = await reqUniNetLogin(
-          JSON.stringify({ accessToken: this.accessToken })
+          JSON.stringify({ tokenId: this.accessToken })
         );
         console.log("鉴权结果", result);
         this.apiResponse(result, ".uniNetLogin", () => {
