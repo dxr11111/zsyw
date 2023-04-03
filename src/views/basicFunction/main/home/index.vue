@@ -402,15 +402,15 @@ export default {
 
 <style scoped lang="less">
 .topWrap {
-  height: 200px;
+  height: 188px;
   .top {
     z-index: 100;
     position: fixed;
     top: 0;
     width: 100%;
-    height: 200px;
-    background-image: url("./images/bg.jpg");
-    background-size: cover;
+    height: 188px;
+    background-image: url("./images/home-topBg.png");
+    background-size: 100% 100%;
     padding-top: 35px;
     box-sizing: border-box;
     .search {

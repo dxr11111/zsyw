@@ -60,6 +60,7 @@ export default {
   computed: {
     phoneList() {
       if (this.custPhone) {
+        this.pickPhoneIndex = -1; // 清空选中状态的电话号索引
         let phoneList = this.custPhone.split(",");
         if (phoneList.length == 1) {
           this.pickPhone = phoneList[0];
@@ -87,13 +88,13 @@ export default {
     // 数字键盘
     // 点击手工拨号，弹出数字键盘
     manualDialing() {
-      // 清除被叫手机显示XXX的本机号码勾选
-      if (this.dialFlagChecked) this.dialFlagChecked = false;
-      this.callNumberShow = false;
-      this.keyShow = false;
+      // 关闭号码弹出层时重置参数
+      this.resetCallNumParams();
+
+      /* this.keyShow = false;
       setTimeout(() => {
         this.keyShow = true;
-      }, 100);
+      }, 100); */
       this.$store.commit("workBench/CHANGECALLNUMBERSTATE", {
         callNumberShow: false,
         keyShow: true,
@@ -110,30 +111,41 @@ export default {
       if (this.pickPhone == "") {
         return this.$toast("请选择呼出号码");
       }
-      // 清除被叫手机显示XXX的本机号码勾选
-      if (this.dialFlagChecked) this.dialFlagChecked = false;
-      this.callNumberShow = false;
-      this.$store.commit("workBench/CHANGECALLNUMBERSTATE", {
-        callNumberShow: false,
-        keyShow: false,
-      });
       // 向父组件传递选中的号码，以及dialFlag
       this.$emit("judgeSelectPhone", this.pickPhone, this.dialFlagChecked);
+      // 号码格式错误时，不要关闭呼出号码弹出层
+      if (this.pickPhone.length == 8 || this.pickPhone.length == 11) {
+        // 关闭号码弹出层时重置参数
+        this.resetCallNumParams();
+        this.$store.commit("workBench/CHANGECALLNUMBERSTATE", {
+          callNumberShow: false,
+          keyShow: false,
+        });
+      }
     },
     // 关闭呼出号码弹出层
     closeCallNumShow() {
-      // 清除被叫手机显示XXX的本机号码勾选
-      if (this.dialFlagChecked) this.dialFlagChecked = false;
-      this.callNumberShow = false;
+      // 关闭号码弹出层时重置参数
+      this.resetCallNumParams();
+
       this.$store.commit("workBench/CHANGECALLNUMBERSTATE", {
         callNumberShow: false,
         keyShow: false,
       });
+    },
+    // 关闭号码弹出层时重置参数
+    resetCallNumParams() {
+      // 清除被叫手机显示XXX的本机号码勾选
+      if (this.dialFlagChecked) this.dialFlagChecked = false;
+      // 清空多个号码时选中状态的电话号索引
+      let phoneList = this.custPhone.split(",");
+      if (phoneList.length > 1) {
+        this.pickPhoneIndex = -1;
+      }
     },
 
     // 关闭手工拨号
     closeKeyBoard() {
-      this.keyShow = false;
       this.$store.commit("workBench/CHANGECALLNUMBERSTATE", {
         callNumberShow: false,
         keyShow: false,

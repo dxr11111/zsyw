@@ -999,9 +999,9 @@ export default {
       document.querySelector("body").style.overflowY = status;
     },
 
-    // 点击选中的单个号码
-    async judgeSelectPhone(phone) {
-      cloudCall(phone, "手工拨号", false);
+    // 呼叫选中的单个号码
+    async judgeSelectPhone(phone, dialFlagChecked) {
+      cloudCall(phone, "手工拨号", dialFlagChecked);
     },
     // 点击确认键
     async confirmEvent(res, dialFlagChecked) {

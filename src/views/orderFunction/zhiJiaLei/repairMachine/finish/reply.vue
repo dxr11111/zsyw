@@ -1459,7 +1459,7 @@ export default {
       this.dealOnuIptvList.forEach((item) => {
         let obj = {};
         obj.resType = item.resType;
-        obj.seq = item.devSeq.toString() || "";
+        obj.seq = item?.devSeq?.toString() || "";
         obj.oldSeq = "";
         obj.ysSN = item.sn;
         obj.ysMAC = item.mac;

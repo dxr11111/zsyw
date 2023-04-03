@@ -3,8 +3,6 @@ import vue from '@/main'
 
 // 云入户呼叫
 export const cloudCall = async (num, type, dialFlagChecked) => {
-    console.log('111111111111111dialFlagChecked', dialFlagChecked)
-
     if (num.length == 8 || num.length == 11) {
         // 隐藏选择呼出号码弹出层
         vue.$store.commit("workBench/CHANGECALLNUMBERSTATE", {
@@ -24,7 +22,10 @@ export const cloudCall = async (num, type, dialFlagChecked) => {
             JSON.stringify({ id, called, callNumberType, hujiaoFlag, dialFlag })
         );
         console.log("云入户呼叫结果", result);
-        vue.apiResponse(result, "#app", () => { });
+        vue.apiResponse(result, "#app", () => {
+            // 云入户呼叫成功后需刷新页面
+            vue.operationSuccessRefresh(true);
+        });
     } else {
         vue.$toast("格式不正确，需要8位或者11位");
     }

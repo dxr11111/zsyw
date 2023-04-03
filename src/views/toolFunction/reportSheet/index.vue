@@ -1,4 +1,5 @@
 <template>
+  <!-- 建设工单报表 -->
   <div class="work-report">
     <div class="static">
       <MyHeader :name="name" left="arrow-left" @goBackEv="$router.go(-1)" />
@@ -335,6 +336,7 @@ export default {
   }
 }
 .work-report {
+  margin-top: 30px; // 顶部加一个间隔，放hbuilderx沉浸式状态栏
   display: flex;
   flex-direction: column;
   align-items: center;

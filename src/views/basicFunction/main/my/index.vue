@@ -1,17 +1,19 @@
 <template>
   <div>
-    <div class="top">
-      <div class="title">
-        <van-icon name="arrow-left" />
-        <div>个人中心</div>
-        <van-icon name="search" />
-      </div>
-      <div class="avatar">{{ userName[0] }}</div>
-      <div class="info">
-        <div class="username">{{ userName }}</div>
-        <div class="count">登录账号：{{ loginNo }}</div>
-        <div class="count" v-if="mobileNumber?.length > 0">
-          手机号：{{ mobileNumber }}
+    <div class="topWrap">
+      <div class="top">
+        <div class="title">
+          <van-icon name="arrow-left" />
+          <div>个人中心</div>
+          <van-icon name="search" />
+        </div>
+        <div class="avatar">{{ userName[0] }}</div>
+        <div class="info">
+          <div class="username">{{ userName }}</div>
+          <div class="count">登录账号：{{ loginNo }}</div>
+          <div class="count" v-if="mobileNumber?.length > 0">
+            手机号：{{ mobileNumber }}
+          </div>
         </div>
       </div>
     </div>
@@ -148,18 +150,18 @@ export default {
       await LogoutApi(JSON.stringify({}));
       // console.log(data);
       // 退出账号时，清空当前账号的密码及快捷标识
-      this.loginTypeCode.forEach(e => {
+      this.loginTypeCode.forEach((e) => {
         if (e.loginNo == this.loginNo) {
-          e.typeCode = 0
+          e.typeCode = 0;
         }
-      })
+      });
       this.getPassData.forEach((e) => {
         if (e.loginNo == this.loginNo) {
-          e.gestPassword = []
+          e.gestPassword = [];
         }
-      })
-      localStorage.setItem("loginTypeCode", JSON.stringify(this.loginTypeCode))
-      localStorage.setItem("gestPassword", JSON.stringify(this.getPassData))
+      });
+      localStorage.setItem("loginTypeCode", JSON.stringify(this.loginTypeCode));
+      localStorage.setItem("gestPassword", JSON.stringify(this.getPassData));
       // 从这里退出需要移除账号，避免进入手势登录页
       localStorage.removeItem("loginNo", this.loginNo);
       removeItem("loginInfo");
@@ -235,47 +237,54 @@ export default {
 </script>
 
 <style scoped lang="less">
-.top {
+.topWrap {
   height: 283px;
-  background-image: url("@/assets/images/common/my-top.png");
-  background-size: cover;
-  background-position: center;
-  .title {
-    display: flex;
-    justify-content: space-between;
-    color: #fff;
-    padding: 13px;
-    padding-top: 40px;
-    box-sizing: border-box;
-    margin-bottom: 20px;
-    div {
-      font-size: 17px;
-      font-weight: 500;
+  .top {
+    z-index: 100;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 283px;
+    background-image: url("@/assets/images/common/my-top.png");
+    background-size: cover;
+    background-position: center;
+    .title {
+      display: flex;
+      justify-content: space-between;
+      color: #fff;
+      padding: 13px;
+      padding-top: 40px;
+      box-sizing: border-box;
+      margin-bottom: 20px;
+      div {
+        font-size: 17px;
+        font-weight: 500;
+      }
     }
-  }
-  .avatar {
-    width: 64px;
-    line-height: 64px;
-    border-radius: 32px;
-    // border: 3px solid rgba(255, 255, 255, 0.2);
-    background: #ffffff;
-    font-size: 32px;
-    font-weight: bold;
-    color: #03449a;
-    margin: auto;
-    margin-bottom: 8px;
-  }
-  .info {
-    color: #fff;
-    font-size: 14px;
-    margin: auto;
-    .username {
-      font-size: 16px;
-      font-weight: 500;
-      margin-top: 5px;
+    .avatar {
+      width: 64px;
+      line-height: 64px;
+      border-radius: 32px;
+      // border: 3px solid rgba(255, 255, 255, 0.2);
+      background: #ffffff;
+      font-size: 32px;
+      font-weight: bold;
+      color: #03449a;
+      margin: auto;
+      margin-bottom: 8px;
     }
-    .count {
-      margin-top: 3px;
+    .info {
+      color: #fff;
+      font-size: 14px;
+      margin: auto;
+      .username {
+        font-size: 16px;
+        font-weight: 500;
+        margin-top: 5px;
+      }
+      .count {
+        margin-top: 3px;
+      }
     }
   }
 }

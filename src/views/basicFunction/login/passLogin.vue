@@ -1,20 +1,39 @@
 <template>
   <div class="login">
     <div class="welcome">
-      <!-- <h3>您好,</h3>
-      <h3>欢迎来到OSS统一门户</h3> -->
       <div class="radius"></div>
     </div>
     <div class="content">
-      <div class="userLogin">
+      <!-- 用户头像登录 -->
+      <div class="userLogin" v-if="isLoginInfo">
         <!-- 用户头像登录名 -->
-        <div class="loginPortrait" v-if="isLoginInfo">
+        <div class="loginPortrait">
           <div class="circle">{{ userName[0] }}</div>
           <span>{{ userName }}</span>
         </div>
         <van-form @submit="onSubmit">
           <van-field
-            v-if="!isLoginInfo"
+            v-model="password"
+            name="密码"
+            placeholder="请输入密码"
+            :right-icon="passwordStatus ? 'eye' : 'closed-eye'"
+            :type="!passwordStatus ? 'password' : 'text'"
+            @click-right-icon="passwordStatus = !passwordStatus"
+            clearable
+            autocomplete="off"
+          />
+          <div class="loginButton">
+            <van-button round block type="info" native-type="submit"
+              >登录</van-button
+            >
+          </div>
+        </van-form>
+        <div class="more" @click="moreFn">更多</div>
+      </div>
+      <!-- 账号密码登录 -->
+      <div class="generalLogin" v-else>
+        <van-form @submit="onSubmit" autoComplete="off">
+          <van-field
             v-model="loginNo"
             name="用户名"
             placeholder="请输入用户名"
@@ -41,11 +60,8 @@
       </div>
     </div>
     <!-- 底部logo 文字 -->
-    <div class="bottomContainer">
-      <div class="bottom">
-        <div class="logo"></div>
-        <div class="version">版本号：V1.0.0</div>
-      </div>
+    <div class="bottom">
+      <div class="version">版本V1.0.2</div>
     </div>
 
     <More
@@ -60,7 +76,7 @@
 </template>
 
 <script>
-import { getItem, removeItem, setItem } from "@/utils/public/sessionStorage";
+import { getItem, setItem } from "@/utils/public/sessionStorage";
 import { mapGetters } from "vuex";
 export default {
   name: "PassLogin",
@@ -179,7 +195,9 @@ export default {
   height: 100%;
   min-height: 650px;
   position: relative;
-  background-color: #fefefe;
+  // background-color: #fefefe;
+  background-image: url("./images/bg.png");
+  background-size: 100% 100%;
   font-family: @fontFamily;
   font-size: @font-Size;
   .welcome {
@@ -187,8 +205,8 @@ export default {
     width: 100%;
     height: 32%;
     position: relative;
-    background-image: url("./images/login-bg.jpg");
-    background-size: cover;
+    background-image: url("./images/login-bg.png");
+    background-size: 100% 100%;
     .radius {
       position: absolute;
       bottom: -1px;
@@ -203,15 +221,14 @@ export default {
   }
   .content {
     width: 100%;
-    height: 32%;
+    height: 30%;
     background-color: #fefefe;
     .userLogin {
-      height: 223px;
+      z-index: 9;
+      position: relative;
+      transform: translateY(-64px);
       margin: 0 auto;
       .loginPortrait {
-        transform: translateY(-64%);
-        z-index: 9;
-        position: relative;
         .circle {
           width: 60px;
           height: 60px;
@@ -231,82 +248,59 @@ export default {
           font-size: 18px;
         }
       }
-      .van-form {
-        margin-left: 38px;
-      }
-      .van-cell {
-        width: 300px;
-        height: 48px;
-        padding: 14px 0;
-        margin-top: 2px;
-        box-shadow: 0px 1px 0px 0px rgba(27, 32, 53, 0.15);
-        /deep/.van-field__control {
-          color: #1b2035;
-          font-size: 15px;
-        }
-        &::after {
-          content: "";
-          width: 24px;
-        }
-      }
-      /* .pwdHide {
-        position: absolute;
-        right: 38px;
-        top: 66px;
-      } */
-      .loginButton {
-        width: 299px;
-        height: 44px;
-        margin-top: 30px;
-        .van-button--info {
-          background: linear-gradient(97deg, #144088 0%, #2b57ee 100%);
-          border-radius: 22px;
-          font-size: 15px;
-        }
-      }
-      .more {
-        width: 40px;
-        height: 40px;
-        margin: 0 auto;
-        line-height: 40px;
-        font-size: 15px;
+    }
+    .generalLogin {
+      margin: 0 auto;
+    }
+    .van-form {
+      margin-left: 38px;
+    }
+    .van-cell {
+      width: 300px;
+      height: 48px;
+      padding: 14px 0;
+      margin-top: 2px;
+      box-shadow: 0px 1px 0px 0px rgba(27, 32, 53, 0.15);
+      /deep/.van-field__control {
         color: #1b2035;
+        font-size: 15px;
       }
+      &::after {
+        content: "";
+        width: 24px;
+      }
+    }
+    .loginButton {
+      width: 299px;
+      height: 44px;
+      margin-top: 30px;
+      .van-button--info {
+        background: linear-gradient(97deg, #144088 0%, #2b57ee 100%);
+        border-radius: 22px;
+        font-size: 15px;
+      }
+    }
+    .more {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto;
+      line-height: 40px;
+      font-size: 15px;
+      color: #1b2035;
     }
   }
   /* prettier-ignore */
-  .bottomContainer{
-    height: 32%;
-    .bottom {
+  .bottom {
       position: absolute;
       bottom: 52PX;
       left: 50%;
       transform: translateX(-50%);
       /* prettier-ignore */
-      .logo {
-      // position: absolute;
-      // left: 101px;
-      // bottom: 89PX;
-      width: 174PX;
-      height: 105PX;
-      background-image: url("@/assets/images/common/loginLogo.png");
-      background-size: cover;
-    }
-      /* prettier-ignore */
       .version {
-      // position: absolute;
-      // left: 137px;
-      // bottom: 52PX;
-      // width: 102px;
-      // height: 21px;
-      // line-height: 21px;
-      margin-top: 16px;
       font-size: 14PX;
-      // text-align: center;
       color: #1b2035;
     }
     }
-  }
   .wrapper {
     display: flex;
     align-items: flex-end;

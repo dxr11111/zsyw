@@ -358,9 +358,31 @@
           </div>
         </template>
 
+        <!-- FTTR主设备选择是否施工 -->
+        <div class="selectButton" v-if="isMainFTTR == '1'">
+          <span class="title"> FTTR主设备 </span>
+          <div class="button">
+            <van-button
+              :type="isMainFTTRBuild === '0' ? 'info' : ''"
+              @click="clickIsMainFttrBuild(false)"
+              native-type="button"
+              >不施工</van-button
+            >
+            <van-button
+              :type="isMainFTTRBuild === '1' ? 'info' : ''"
+              @click="clickIsMainFttrBuild(true)"
+              native-type="button"
+              >施工</van-button
+            >
+          </div>
+        </div>
+
         <!-- FTTR从设备 -->
-        <!-- fttr设备为空时，整个fttr部分都不显示 -->
-        <template v-if="postData.fttrInfo.length > 0">
+        <!-- fttr设备为空时，整个fttr从设备部分都不显示 -->
+        <!-- “FTTR主设备”不施工时,整个fttr从设备部分都不显示 -->
+        <template
+          v-if="postData.fttrInfo.length > 0 && isMainFTTRBuild !== '0'"
+        >
           <!-- 选择是否施工 -->
           <div class="selectButton">
             <span class="title">
@@ -1459,7 +1481,9 @@ export default {
       wifiList: [], // wifi产品设备
       // equipmentList: [], // 看家服务-室内摄像头设备,室外枪机，智能门铃
       allEqu: [], // 看家服务-室内摄像头设备
-      isFttrBuild: "", // FTTR是否施工 1：施工 ，0：未施工
+      isMainFTTR: "-1", // 1:显示FTTR主设备选项
+      isMainFTTRBuild: "-1", // FTTR主设备是否施工 1：FTTR主设备施工，0：FTTR主设备不施工
+      isFttrBuild: "", // FTTR从设备是否施工 1：施工 ，0：未施工
       fttrBuildWiring: "", // 施工布线
       fttrBuildWiringShow: false,
       fttrBuildWiringActions: [
@@ -1956,6 +1980,11 @@ export default {
     clickIsFttrBuild(bool) {
       if (bool) this.isFttrBuild = "1";
       else this.isFttrBuild = "0";
+    },
+    // 选中FTTR主设备是否施工
+    clickIsMainFttrBuild(bool) {
+      if (bool) this.isMainFTTRBuild = "1";
+      else this.isMainFTTRBuild = "0";
     },
 
     // 选中fttr从设备中item是否装换
@@ -2693,6 +2722,9 @@ export default {
           // 调整main的margin-top
           this.mainMarginTop = "margin-top:40px";
         }
+
+        // 是否显示Fttr主设备选项
+        this.isMainFTTR = result.isMainFTTR;
 
         // 设备列表
         this.ottList = result.ottList;

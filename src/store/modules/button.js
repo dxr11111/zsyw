@@ -8,8 +8,7 @@ const state = {
     bzdzFit: -1,
     bzdzMark: '',
     iomNewFinishParams: {}, // IOM回单页面的参数
-    // positionFlag: false, // 是否定位
-    // currIdPosition: null, // 定位需要用的id参数
+
 
     // 装机单-修改客户电话弹出层
     editCustPhone: {
@@ -42,7 +41,7 @@ const state = {
 }
 const mutations = {
     // 修改获取经纬度参数
-    changeLocalPopup (state, res) {
+    changeLocalPopup(state, res) {
         state.getLocalPopup = res
     },
 
@@ -65,12 +64,6 @@ const mutations = {
         state.changeEditCustPhoneShow = result
     },
 
-    // updatePositionFlag (state, flag) {
-    //     state.positionFlag = flag
-    // },
-    // updateCurrIdPosition (state, id) {
-    //     state.currIdPosition = id
-    // },
     // 更改装机单-回复-posCodeSign弹出层标识
     CHANGEPOSPOPSHOW(state, result) {
         state.posCodePopShow = result

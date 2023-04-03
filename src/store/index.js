@@ -33,8 +33,16 @@ export default new Vuex.Store({
         // 路由缓存
         keepPages: '',
 
+        // 移动端机型
+        clientId: -1, // 9：安卓 10：ios
+
     },
     mutations: {
+        // 判断移动端机型
+        changeClientId(state, result) {
+            state.clientId = result
+        },
+
         // 清空用户信息
         clearUserInfo(state) {
             sessionStorage.clear()

@@ -5,20 +5,20 @@
       <div class="wrapper">
         <div class="moreList" v-if="moreListShow">
           <ul @click.stop>
-            <li @click="scanEv">
-              <img src="@/assets/images/common/scan.png" alt="" />
+            <!-- <li @click="scanEv">
+              <img src="./images/scan.png" alt="" />
               <span>扫码下载</span>
             </li>
             <li @click="installEv">
-              <img src="@/assets/images/common/install.png" alt="" />
+              <img src="./images/install.png" alt="" />
               <span>下载安装</span>
-            </li>
+            </li> -->
             <li v-if="isChangeNo" @click="switchEv">
-              <img src="@/assets/images/common/switch.png" alt="" />
+              <img src="./images/switch.png" alt="" />
               <span>切换账号</span>
             </li>
             <li @click="resetEv">
-              <img src="@/assets/images/common/reset.png" alt="" />
+              <img src="./images/reset.png" alt="" />
               <span>密码重置</span>
             </li>
           </ul>

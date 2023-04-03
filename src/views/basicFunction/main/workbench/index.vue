@@ -385,6 +385,11 @@ export default {
     },
     // 选择我的任务 or 部门工单
     clickMenu(bool) {
+      // 不是从建设中台外部页面返回 → 我的任务重复点击不调用接口
+      if (!(getItem("jsMiddlePlatformFlag")?.isLocation == true)) {
+        if (bool === this.isTask) return;
+      }
+
       if (bool == 0) {
         // 工单 sysId不包含3,7,9 无法点击
         let sysIds = [];
@@ -1083,11 +1088,13 @@ export default {
     // 监听main滚动事件
     scrolling: throttle((self) => {
       let scrollTop = document.querySelector(".main").scrollTop;
+
       // let scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
       if (scrollTop > 50) {
         // 缩小头部背景高度 → 传值给子组件隐藏dataSummaryBg → 将dataSummaryBg传给父组件
         // 放在原生内的 初始高度：110px 缩小高度：80px
         // 放在浏览器内的 初始高度：140px 缩小高度：110px
+
         if (localStorage.getItem("Addhead") == "true") {
           self.headHeight = "110px";
         } else {
@@ -1115,11 +1122,11 @@ export default {
     monitorMainScroll() {
       // 监听div滚动事件
       let self = this;
-      this.$parent.$refs.main.addEventListener(
-        "scroll",
-        this.scrolling.bind(this, self)
-      );
+      this.scrolling2 = this.scrolling.bind(this, self);
+      this.$parent.$refs.main.addEventListener("scroll", this.scrolling2);
     },
+
+    scrolling2() {},
 
     // 电话图标移动
     iconMove(status) {
@@ -1341,11 +1348,15 @@ export default {
       document.querySelector(".main").scrollTop = mainScrollTop;
     }
   },
-  deactivated() {
-    // this.$parent.$refs.main.removeEventListener('scroll', this.scrolling.bind(this, self))
-  },
+  deactivated() {},
   beforeDestroy() {
-    // this.$parent.$refs.main.removeEventListener('scroll', this.scrolling.bind(this, self))
+    // 关闭监听main元素滚动轴滑动
+    /*  this.$parent.$refs.main.removeEventListener(
+      "scroll",
+      this.scrolling.bind(this, self)
+    ); */
+    this.$parent.$refs.main.removeEventListener("scroll", this.scrolling2);
+
     removeItem("mainSrollTop");
   },
 

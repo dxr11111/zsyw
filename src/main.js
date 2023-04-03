@@ -67,6 +67,13 @@ const vue = new Vue({
 Vue.prototype.$EventBus = new Vue()
 
 
+// 判断移动端机型
+var u = navigator.userAgent;
+var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
+var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端 
+if (isAndroid) store.commit('changeClientId', 9)
+else store.commit('changeClientId', 10)
+
 //判断数组中是否包含某字符串
 // Array.prototype.contains = function (needle) {
 //   for (i in this) {

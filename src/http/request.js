@@ -53,7 +53,7 @@ requests.interceptors.request.use(config => {
             let sysUserInfo = loginInfo.userIds;
             let publicData = {
                 mobileType: 3, // 1：安卓 2：ios 3：webApp
-                clientId: 9, // 7：安卓 8：ios 9：2023版WebH5App
+                clientId: store.state.clientId, // 2023版WebH5App 9：安卓 10：ios
                 version: "1.1.13",
                 imei: "477E9099-6B08-49A3-8512-CB650B7851A9",
                 masterLoginNo,
