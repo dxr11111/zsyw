@@ -867,7 +867,7 @@ export default {
   },
   created() {
     // 获取头部尺寸
-    if (localStorage.getItem("Addhead") == "true") {
+    if (this.$store.state.addHead) {
       this.headTextMargin = "30px";
     }
     // 获取零配置进度信息

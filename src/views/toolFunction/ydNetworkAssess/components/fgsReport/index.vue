@@ -26,15 +26,7 @@ export default {
   computed: {
     ...mapState("ydNetworkAssess", ["fgsInfo"]),
   },
-  watch: {
-    month() {
-      // 判断month和weekIndex都有数据才发送请求
-      if (this.month && this.weekIndex) this.getFgsInfo();
-    },
-    weekIndex() {
-      if (this.month && this.weekIndex) this.getFgsInfo();
-    },
-  },
+
   methods: {
     async getFgsInfo() {
       try {

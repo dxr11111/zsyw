@@ -263,7 +263,7 @@ export default {
       loginNo: "", // guzi1 wanglq96
       // 下拉菜单选项
       groupId: 0, // 网格
-      groupName: "全部网格",
+      groupName: "",
       showGroup: false,
       groupIdOption: [],
       zhiBiaoIndex: 0,
@@ -484,7 +484,9 @@ export default {
         }
         // this.groupIdOption = [...this.groupIdOption, ...groupIdOption]
         this.groupIdOption = groupIdOption;
-        // this.groupId = groupList[0].groupId;
+        this.groupName = this.groupIdOption[0].name;
+        this.groupId = this.groupIdOption[0].value;
+
         // 获取userAuth 1:一级权限“全市、区域、网格”、2:二级权限“网格”
         this.userAuth = userAuth;
         // this.userAuth = 2; // 测试
@@ -1423,7 +1425,6 @@ export default {
     let m = new Date().getMonth() + 1;
     this.month = y.toString() + "-" + this.addZero(m.toString());
     this.weekIndex = 1;
-    this.getTableInfo();
   },
 };
 </script>

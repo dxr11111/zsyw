@@ -141,7 +141,7 @@ export default {
   },
   // mounted() {
   //   // 部分手机顶部会被设备遮挡，所以加高一点
-  //   if (localStorage.getItem("Addhead")) {
+  //   if (this.$store.state.addHead) {
   //     document.querySelector(".main").style.marginTop = "88px";
   //   }
   // },

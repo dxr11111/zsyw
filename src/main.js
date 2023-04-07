@@ -67,40 +67,4 @@ const vue = new Vue({
 Vue.prototype.$EventBus = new Vue()
 
 
-// 判断移动端机型
-var u = navigator.userAgent;
-var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
-var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端 
-if (isAndroid) store.commit('changeClientId', 9)
-else store.commit('changeClientId', 10)
-
-//判断数组中是否包含某字符串
-// Array.prototype.contains = function (needle) {
-//   for (i in this) {
-//     if (this[i].indexOf(needle) > 0)
-//       return i;
-//   }
-//   return -1;
-// }
-
-// var device_type = navigator.userAgent; //获取userAgent信息
-// document.write(device_type); //打印到页面
-// var md = new MobileDetect(device_type); //初始化mobile-detect
-// var os = md.os(); //获取系统
-// console.log(os)
-// var model = "";
-// if (os == "iOS") { //ios系统的处理
-//   os = +md.version("iPhone");
-//   console.log(os)
-//   model = md.mobile();
-// } else if (os == "AndroidOS") { //Android系统的处理
-//   os = md.os() + md.version("Android");
-//   var sss = device_type.split(";");
-//   var i = sss.contains("Build/");
-//   if (i > -1) {
-//     model = sss[i].substring(0, sss[i].indexOf("Build/"));
-//   }
-// }
-// alert(os + "---" + model);//打印系统版本和手机型号
-
 export default vue

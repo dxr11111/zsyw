@@ -2836,16 +2836,19 @@ export default {
   // width: 100%;
   height: 100%;
   background-color: #f8f7fc;
-  .posCodeSign {
-    z-index: 1;
-    position: fixed;
-    top: 46px;
-    width: 100%;
-    padding: 10px;
-    color: red;
-    background-color: rgb(248, 248, 140);
-    font-size: 14px;
+  .posCodeSignWrap {
+    .posCodeSign {
+      z-index: 1;
+      position: fixed;
+      top: 46px;
+      width: 100%;
+      padding: 10px;
+      color: red;
+      background-color: rgb(248, 248, 140);
+      font-size: 14px;
+    }
   }
+
   .van-popup {
     width: 90%;
     padding: 10px;

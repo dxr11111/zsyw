@@ -56,7 +56,11 @@
           </div>
           <!-- 选项式 -->
           <template v-else>
-            <div class="position" style="flex: 1" @click="showWorkTypeChoice = true">
+            <div
+              class="position"
+              style="flex: 1"
+              @click="showWorkTypeChoice = true"
+            >
               <input
                 readonly
                 style="width: 100%; flex: none"
@@ -121,7 +125,11 @@
           </div>
           <!-- 下拉框选择式 -->
           <template v-else>
-            <div class="position" style="flex: 1" @click="showActionChoice = true">
+            <div
+              class="position"
+              style="flex: 1"
+              @click="showActionChoice = true"
+            >
               <input
                 type="text"
                 readonly
@@ -245,7 +253,11 @@
           </template>
           <!-- 选项式 -->
           <template v-else>
-            <div class="position" style="flex: 1" @click="showFlowNodeChoice = true">
+            <div
+              class="position"
+              style="flex: 1"
+              @click="showFlowNodeChoice = true"
+            >
               <input
                 readonly
                 style="width: 100%; flex: none"
@@ -370,7 +382,7 @@
         </div>
         <!-- 类别 -->
         <div class="field" v-if="showSpecProdType">
-          <div class="label">{{ifmCode == 4 ? '专业' : '类别'}}</div>
+          <div class="label">{{ ifmCode == 4 ? "专业" : "类别" }}</div>
           <!-- 支撑单 -->
           <template v-if="ifmCode == 4">
             <div style="flex: 1" class="position" @click="showSpecProd = true">
@@ -393,8 +405,8 @@
               @select="onSelectSpecProd"
             />
           </template>
-          <!-- 故障单 支持多选 -->
-          <template v-if="ifmCode == 1">
+          <!-- 故障单或者筛选任务下的ifm 支持多选 -->
+          <template v-if="ifmCode == 1 || isTask == 1">
             <div class="opts">
               <div
                 class="opt"
@@ -420,9 +432,12 @@
             </div>
           </div>
         </div>
-        <!-- 故障单选择的类别 -->
-        <template v-if="code == 3 && ifmCode == 1">
-          <div style="font-size: 14px; text-align: left" v-if="selectedList.length > 0">
+        <!-- 故障单选择的类别或者任务下的ifm -->
+        <template v-if="(code == 3 && ifmCode == 1) || isTask == 1">
+          <div
+            style="font-size: 14px; text-align: left"
+            v-if="selectedList.length > 0"
+          >
             {{ currItem == "全部" ? "" : `已选择${currItem}：` }}
             <span v-for="(item, index) in selectedList" :key="index"
               >{{ item.name }}&nbsp;
@@ -448,19 +463,19 @@
 </template>
 
 <script>
-import { formatDate, formatTime } from "@/utils/public/common"
+import { formatDate, formatTime } from "@/utils/public/common";
 import {
-  sysIdType,
-  specProdTypeList,
-  publicSpecialList,
-  jzdProStateList,
-  jndProList,
-  jndTypeList,
-  jzdProCodeList,
-  typeList,
-  MonitIndList,
-} from "@/utils/gdMethods/index"
-import { getItem } from "@/utils/public/sessionStorage"
+  sysIdType,
+  specProdTypeList,
+  publicSpecialList,
+  jzdProStateList,
+  jndProList,
+  jndTypeList,
+  jzdProCodeList,
+  typeList,
+  MonitIndList,
+} from "@/utils/gdMethods/index";
+import { getItem } from "@/utils/public/sessionStorage";
 export default {
   props: {
     sysId: Number,
@@ -474,7 +489,7 @@ export default {
   },
   mounted() {
     // 部分手机顶部会被设备遮挡，所以加高一点
-    if (localStorage.getItem("Addhead")) {
+    if (this.$store.state.addHead) {
       document.getElementsByClassName("filtrate")[0].style.marginTop = "40px";
     }
   },
@@ -485,7 +500,7 @@ export default {
       let sysIds = [];
       getItem("loginInfo").userIds.forEach((e) => {
         if (e.hasTaskList == 1 && e.sysId < 11) {
-          sysIds.push(e.sysId)
+          sysIds.push(e.sysId);
         }
       });
       let arr = [{ id: "", name: "全部" }];
@@ -495,17 +510,23 @@ export default {
           if (e.id == item) return arr.push(e);
         });
       }
-      console.log("task", arr);
+      console.log("任务筛选种类", arr);
       this.taskTypeList = arr;
       // 这三种情况不需要加载下面的筛选项
-      if (this.code !== 9 && this.code !== 3 && this.code !== 7) {
+      /*  if (this.code !== 9 && this.code !== 3 && this.code !== 7) {
         this.updateSysId();
         this.echoData();
-      }
-    } else {
+      } */
+    } /* else {
       this.updateSysId();
+    } */
+
+    // 将选择的对应任务种类的筛选项显示出来
+    this.updateSysId();
+    // 显示上次关闭前的筛选数据
+    if (Object.keys(this.siftPara).length !== 0) {
+      this.echoData();
     }
-    this.echoData();
   },
   data() {
     return {
@@ -767,6 +788,19 @@ export default {
                 { id: "2", name: "移动" },
               ];
             }
+            // 在任务下面点筛选内的ifm工单
+            if (this.isTask == 1) {
+              // 包含故障单和预警单内容
+              this.acceptTitlePlace =
+                "标题/申告电话/类别/号码/联系人/电话/正反向...";
+              this.showSpecProdType = true;
+              // 类别 -- 支持多选
+              this.specProdTypeList = [
+                { name: "全部" },
+                { name: "专业" },
+                { name: "产品" },
+              ];
+            }
           }
           break;
         // 局内
@@ -805,137 +839,130 @@ export default {
     },
     // 回显数据
     echoData() {
-      if (Object.keys(this.siftPara).length !== 0) {
-        var obj = this.siftPara;
-        if (obj.workType) {
-          // 局内
-          if (this.sysId == 7) {
-            jndProList.forEach((e) => {
-              if (obj.workType == e.id) {
-                this.workType = obj.workType;
-                this.workTypeName = e.name;
-              }
-            });
-          } else {
-            // 目前只有局内是下拉选择式，如果后面有，需要再加条件判断，这块需重新调整
-            this.workType = obj.workType;
-          }
-          // 优化单
-          if (this.ifmCode == 6) {
-            this.busiNameList = MonitIndList.find((e) => e.id == obj.workType).children;
-            // console.log('优化单制式', this.busiNameList)
-          }
-        }
-        this.actionType = obj.actionType || "";
-        this.svip = obj.svip || "";
-        this.acceptTime = obj.acceptTime || "";
-        // this.speedError = obj.speedError ? obj.speedError : -1
-        // this.nightService = obj.nightService ? obj.nightService : -1
-        this.acceptTitle = obj.accepctTitle || "";
-        if (this.sysId == 3 && this.ifmSysId == 6) {
-          this.acceptTitle = obj.vendor || ''
-        }
-        this.balkNo = obj.balkNo || "";
-        this.sheetNo = obj.sheetNo || "";
-        this.busiName = obj.busiName || "";
-        // 基站 -- 流程标识
-        if (obj.productNum) {
-          jzdProCodeList.forEach((e) => {
-            if (e.value == obj.productNum) {
-              this.productNum = obj.productNum;
-              this.productNumName = e.name;
+      console.log("显示上次关闭前的筛选数据", this.siftPara);
+
+      var obj = this.siftPara;
+      if (obj.workType) {
+        // 局内
+        if (this.sysId == 7) {
+          jndProList.forEach((e) => {
+            if (obj.workType == e.id) {
+              this.workType = obj.workType;
+              this.workTypeName = e.name;
             }
           });
+        } else {
+          // 目前只有局内是下拉选择式，如果后面有，需要再加条件判断，这块需重新调整
+          this.workType = obj.workType;
         }
-        if (obj.flowNode) {
-          // 装机单 -- 环节标识
-          if (this.sysId == 2) {
-            for (let i = 0; i < publicSpecialList.length; i++) {
-              const ele = publicSpecialList[i];
-              ele.children.forEach((e) => {
-                if (e.id == obj.flowNode) {
-                  this.currItem = ele.name;
-                  this.selectedList.push(e);
-                  this.flowNode = obj.flowNode;
-                }
-              });
-            }
+        // 优化单
+        if (this.ifmCode == 6) {
+          this.busiNameList = MonitIndList.find(
+            (e) => e.id == obj.workType
+          ).children;
+          // console.log('优化单制式', this.busiNameList)
+        }
+      }
+      this.actionType = obj.actionType || "";
+      this.svip = obj.svip || "";
+      this.acceptTime = obj.acceptTime || "";
+      // this.speedError = obj.speedError ? obj.speedError : -1
+      // this.nightService = obj.nightService ? obj.nightService : -1
+      this.acceptTitle = obj.acceptTitle || "";
+      if (this.sysId == 3 && this.ifmSysId == 6) {
+        this.acceptTitle = obj.vendor || "";
+      }
+      this.balkNo = obj.balkNo || "";
+      this.sheetNo = obj.sheetNo || "";
+      this.busiName = obj.busiName || "";
+      // 基站 -- 流程标识
+      if (obj.productNum) {
+        jzdProCodeList.forEach((e) => {
+          if (e.value == obj.productNum) {
+            this.productNum = obj.productNum;
+            this.productNumName = e.name;
           }
-          // 局内 -- 工单类型（选择式）
-          if (this.sysId == 7) {
-            jndTypeList.forEach((e) => {
+        });
+      }
+      if (obj.flowNode) {
+        // 装机单 -- 环节标识
+        if (this.sysId == 2) {
+          for (let i = 0; i < publicSpecialList.length; i++) {
+            const ele = publicSpecialList[i];
+            ele.children.forEach((e) => {
               if (e.id == obj.flowNode) {
-                this.flowNodeName = e.name;
+                this.currItem = ele.name;
+                this.selectedList.push(e);
                 this.flowNode = obj.flowNode;
               }
             });
           }
         }
-        // 类别
-        if (obj.specProdType) {
-          // 故障单
-          if (this.ifmCode == 1) {
-            this.specProdType = obj.specProdType
-            let arr = obj.specProdType.split(",");
-            for (let i = 0; i < specProdTypeList.length; i++) {
-              const ele = specProdTypeList[i];
-              ele.children.forEach((e) => {
-                arr.forEach((item) => {
-                  if (item == e.id) {
-                    this.selectedList.push(e);
-                    this.currItem = ele.name;
-                  }
-                });
-              });
+        // 局内 -- 工单类型（选择式）
+        if (this.sysId == 7) {
+          jndTypeList.forEach((e) => {
+            if (e.id == obj.flowNode) {
+              this.flowNodeName = e.name;
+              this.flowNode = obj.flowNode;
             }
+          });
+        }
+      }
+      // 类别
+      if (obj.specProdType) {
+        // 故障单
+        if (this.ifmCode == 1 || this.isTask == 1) {
+          this.specProdType = obj.specProdType;
+          let arr = obj.specProdType.split(",");
+          for (let i = 0; i < specProdTypeList.length; i++) {
+            const ele = specProdTypeList[i];
+            ele.children.forEach((e) => {
+              arr.forEach((item) => {
+                if (item == e.id) {
+                  this.selectedList.push(e);
+                  this.currItem = ele.name;
+                }
+              });
+            });
           }
-          // 重保单
-          if (this.ifmCode == 5) {
-            this.specProdType = obj.specProdType;
-          }
-          // 支撑单
-          if (this.ifmCode == 4) {
-            for (let i = 0; i < typeList.length; i++) {
-              const ele = typeList[i];
-              if (ele.value == obj.specProdType) {
-                this.specProdType = obj.specProdType;
-                this.specProdTypeName = ele.name;
-              }
+        }
+        // 重保单
+        if (this.ifmCode == 5) {
+          this.specProdType = obj.specProdType;
+        }
+        // 支撑单
+        if (this.ifmCode == 4) {
+          for (let i = 0; i < typeList.length; i++) {
+            const ele = typeList[i];
+            if (ele.value == obj.specProdType) {
+              this.specProdType = obj.specProdType;
+              this.specProdTypeName = ele.name;
             }
           }
         }
-
-        // 局内的接单时间
-        this.jnddStartAcceptTime = obj.jnddStartAcceptTime
-          ? obj.jnddStartAcceptTime
-          : "";
-        this.jnddEndAcceptTime = obj.jnddEndAcceptTime
-          ? obj.jnddEndAcceptTime
-          : "";
       }
+
+      // 局内的接单时间
+      this.jnddStartAcceptTime = obj.jnddStartAcceptTime
+        ? obj.jnddStartAcceptTime
+        : "";
+      this.jnddEndAcceptTime = obj.jnddEndAcceptTime
+        ? obj.jnddEndAcceptTime
+        : "";
     },
     // 任务的筛选
     chooseTask(item) {
-      console.log(item.id, this.code);
+      // 切换选项要清空之前所选内容
       if (this.code !== item.id) {
-        this.showWorkType = false;
-        this.showActionType = false;
-        this.showSvip = false;
-        this.showAcceptTime = false;
-        this.showService = false;
-        this.showFlowNode = false;
-        this.showAcceptTitle = false;
-        this.showBalkNo = false;
-        this.showSheetNo = false;
-        this.showProNum = false;
-        this.showSpecProdType = false;
-        this.showBusiDom = false;
+        this.resetShowParams();
+        this.resetParams();
       }
       this.code = item.id;
-      // console.log(item.id !== 9 && item.id !== 3 && item.id !== 7);
-      if (item.id !== 9 && item.id !== 3 && item.id !== 7) {
+      // 将选择的对应任务种类的筛选项显示出来
+      this.updateSysId();
+      /* if (item.id !== 9 && item.id !== 3 && item.id !== 7) {
         return this.updateSysId();
-      }
+      } */
     },
     // 排序
     // clickSortBtn (item) {
@@ -1001,7 +1028,7 @@ export default {
         }
       } else {
         // 故障单类别的多选
-        if (this.ifmCode == 1) {
+        if (this.ifmCode == 1 || this.isTask == 1) {
           // this.specProdType = ''
           // this.selectedList = []
           this.selectedList = data;
@@ -1015,8 +1042,7 @@ export default {
     // 选择类别
     chooseSpecProd(item) {
       // 故障单
-      if (this.ifmCode == 1) {
-        console.log(this.currItem, item.name);
+      if (this.ifmCode == 1 || this.isTask == 1) {
         if (this.currItem !== item.name) {
           this.selectedList = [];
         }
@@ -1030,7 +1056,7 @@ export default {
           console.log("故障单对应的类别数据", this.optsList);
         } else {
           this.selectedList = [];
-          this.specProdType = ''
+          this.specProdType = "";
         }
       }
 
@@ -1051,7 +1077,7 @@ export default {
       this.actionType = item.id;
     },
     chooseWorkType(item) {
-      console.log('workType',item);
+      console.log("workType", item);
       this.workType = item.id;
 
       // 装机单 工单类型
@@ -1059,7 +1085,7 @@ export default {
         if (item.id == "99") {
           this.showActionType = false;
           this.actionTypeList = [];
-          console.log('action', );
+          console.log("action");
         } else {
           this.showActionType = true;
           // 施工动作
@@ -1076,15 +1102,17 @@ export default {
       // 优化单监控指标逻辑
       if (this.ifmCode == 6) {
         // 切换制式的时候要清空下面选择的监控指标
-        this.busiName = ''
-        if (!item.id)  {
-          this.busiNameList = []
+        this.busiName = "";
+        if (!item.id) {
+          this.busiNameList = [];
           MonitIndList.forEach((e) => {
             this.busiNameList.push(...e.children);
           });
-          console.log('全部', this.busiNameList);
+          console.log("全部", this.busiNameList);
         } else {
-          this.busiNameList = MonitIndList.find((e) => e.id == item.id).children;
+          this.busiNameList = MonitIndList.find(
+            (e) => e.id == item.id
+          ).children;
         }
       }
     },
@@ -1136,7 +1164,7 @@ export default {
           flowNode: Number(this.flowNode),
           workType: Number(this.workType),
         };
-        console.log("局内", siftPara);
+        console.log("局内工单筛选参数", siftPara);
       }
 
       // 新装机单
@@ -1190,12 +1218,12 @@ export default {
           siftPara = {
             ifmSysId: this.ifmCode, // 故障单: 1; 支撑单: 4; 重保单: 5; 预警单: 3
             acceptTime: this.acceptTime,
-            accepctTitle: this.acceptTitle,
+            acceptTitle: this.acceptTitle,
             balkNo: this.balkNo,
             sheetNo: this.sheetNo,
             specProdType: this.specProdType,
           };
-          console.log(siftPara);
+          console.log("ifm工单筛选项", siftPara);
         }
       }
 
@@ -1221,44 +1249,47 @@ export default {
       let siftNum = flag
         ? Object.keys(siftPara).length - 1
         : Object.keys(siftPara).length;
-      // console.log(siftNum);
 
       // this.$emit('getSiftPara', { siftPara: siftPara, order: this.order, sort: this.sort })
 
       // 任务筛选工单种类
       if (this.isTask == 1) {
         let sysIds = this.code ? this.code : -1;
-        if (this.code == '') {
-          siftNum = 0
+        if (this.code == "") {
+          siftNum = 0;
         } else {
-          siftNum = siftNum + 1;
+          // siftNum = siftNum + 1;
         }
-        delete siftPara.ifmSysId // 任务筛选不需要传这个参数
-        // console.log('任务筛选工单种类', sysIds);
+        delete siftPara.ifmSysId; // 任务筛选不需要传这个参数
         this.$emit("getSiftPara", siftPara, siftNum, sysIds);
       } else {
+        // 如果有接单时间，两个时间算一个筛选项
+        if (
+          this.jnddStartAcceptTime?.length > 0 &&
+          this.jnddEndAcceptTime?.length > 0
+        )
+          siftNum -= 1;
         this.$emit("getSiftPara", siftPara, siftNum);
       }
-      console.log(siftPara);
     },
-    // 重置
-    resetFiltrate() {
-      if (this.isTask == 1) {
-        this.code = "";
-        this.showWorkType = false;
-        this.showActionType = false;
-        this.showSvip = false;
-        this.showAcceptTime = false;
-        this.showService = false;
-        this.showFlowNode = false;
-        this.showAcceptTitle = false;
-        this.showBalkNo = false;
-        this.showSheetNo = false;
-        this.showStartTime = false;
-        this.showProNum = false;
-        this.showSpecProdType = false;
-        this.showBusiDom = false;
-      }
+    // 重置筛选项显示参数
+    resetShowParams() {
+      this.showWorkType = false;
+      this.showActionType = false;
+      this.showSvip = false;
+      this.showAcceptTime = false;
+      this.showService = false;
+      this.showFlowNode = false;
+      this.showAcceptTitle = false;
+      this.showBalkNo = false;
+      this.showSheetNo = false;
+      this.showStartTime = false;
+      this.showProNum = false;
+      this.showSpecProdType = false;
+      this.showBusiDom = false;
+    },
+    // 重置筛选参数
+    resetParams() {
       this.workTypeName = "";
       this.workType = "";
 
@@ -1285,8 +1316,18 @@ export default {
 
       this.busiName = "";
 
-      this.currItem = "全部";
       this.selectedList = [];
+    },
+    // 重置
+    resetFiltrate() {
+      if (this.isTask == 1) {
+        this.code = "";
+        this.resetShowParams(); // 隐藏筛选条件的显示
+      }
+
+      this.resetParams(); // 重置筛选参数
+
+      this.currItem = "全部";
     },
     formatterAll(type, val) {
       if (type === "year") {

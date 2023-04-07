@@ -105,6 +105,7 @@
           @getBgHeight="getBgHeight"
           @getTaskType="getTaskType"
           @changeGroup="changeGroup"
+          @clickKanBan="clickKanBan"
           :workOrderDetail="workOrderDetail"
           :showDataSummary="showDataSummary"
           ref="departmentOrder"
@@ -378,6 +379,12 @@ export default {
     },
   },
   methods: {
+    // 后台现在无法根据筛选项筛选看板数量 故在点击看板时将筛选数清空重新调用接口
+    clickKanBan(taskType) {
+      this.siftPara = {};
+      this.badgeNum = 0;
+      this.getTaskType(taskType, JSON.stringify(this.siftPara));
+    },
     // 返回联通网络主页
     goBack() {
       this.$router.go(-1);
@@ -385,8 +392,11 @@ export default {
     },
     // 选择我的任务 or 部门工单
     clickMenu(bool) {
-      // 不是从建设中台外部页面返回 → 我的任务重复点击不调用接口
-      if (!(getItem("jsMiddlePlatformFlag")?.isLocation == true)) {
+      // 不是从建设中台外部页面返回并且不是从联通网络进入 → 我的任务重复点击不调用接口
+      if (
+        !(getItem("jsMiddlePlatformFlag")?.isLocation == true) &&
+        this.$store.state.projectFlag == 1
+      ) {
         if (bool === this.isTask) return;
       }
 
@@ -432,6 +442,8 @@ export default {
         // 任务 给一个初始的看板背景高度，防止数据未获取到看板没有高度
         this.tabOffsetTop = 40 + this.$refs.head.clientHeight;
         this.getTabList();
+        // 重置sysId
+        this.listPostData.sysId = -1;
       } else {
         // 工单
         this.tabOffsetTop = 30 + this.$refs.head.clientHeight;
@@ -913,6 +925,7 @@ export default {
       }
 
       let postData = { sysIds, ifmSysId, groupSysId };
+
       let result = await reqBillListTab(JSON.stringify(postData));
       console.log("获取tab栏标题列表", result);
       this.apiResponse(result, ".workbench", () => {
@@ -1075,10 +1088,18 @@ export default {
       this.siftPara = siftPara;
       this.badgeNum = siftNum;
       if (sysIds) {
+        // 筛选选中的任务种类
+        // 改变selectSysId → 自动调用任务看板
         this.selectSysId = sysIds;
-        console.log("sysId", this.selectSysId);
+      } else {
+        // 选中工单 → 重新获取工单看板
+        this.$refs.departmentOrder.getOrderNum();
       }
-      console.log("筛选参数", this.siftPara, siftNum, sysIds);
+      console.log(
+        `筛选参数：${JSON.stringify(
+          this.siftPara
+        )},筛选个数：${siftNum},sysId：${sysIds}`
+      );
 
       // 清空工单看板跳转的筛选条件
       this.bigBoardSiftPara = {};
@@ -1092,10 +1113,10 @@ export default {
       // let scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
       if (scrollTop > 50) {
         // 缩小头部背景高度 → 传值给子组件隐藏dataSummaryBg → 将dataSummaryBg传给父组件
-        // 放在原生内的 初始高度：110px 缩小高度：80px
-        // 放在浏览器内的 初始高度：140px 缩小高度：110px
+        // 放在浏览器内的 初始高度：110px 缩小高度：80px
+        // 放在hbuilderx内的 初始高度：140px 缩小高度：110px
 
-        if (localStorage.getItem("Addhead") == "true") {
+        if (self.$store.state.addHead || self.$store.state.projectFlag == 2) {
           self.headHeight = "110px";
         } else {
           self.headHeight = "80px";
@@ -1107,7 +1128,7 @@ export default {
         });
       }
       if (scrollTop < 50) {
-        if (localStorage.getItem("Addhead") == "true") {
+        if (self.$store.state.addHead || self.$store.state.projectFlag == 2) {
           self.headHeight = "140px";
         } else {
           self.headHeight = "110px";
@@ -1216,6 +1237,7 @@ export default {
         if (getItem("jsMiddlePlatformFlag").projectFlag == 2) {
           // 联通网络
           this.headTextMargin = "0px 12px 20px"; // 改变头部样式
+          this.headHeight = "140px";
           this.$store.commit("changeProjectFlag", 2);
         }
         this.isTask = 0; // 防止获取任务看板数
@@ -1230,6 +1252,7 @@ export default {
         // 判断当前工作台是联通网络还是建维优
         if (this.$store.state.projectFlag == 2) {
           // 联通网络
+          this.headHeight = "140px";
           this.headTextMargin = "0px 12px 20px"; // 改变头部样式
           this.isTask = 0;
           this.$nextTick(() => {
@@ -1301,7 +1324,7 @@ export default {
 
   created() {
     // 获取头部尺寸
-    if (localStorage.getItem("Addhead") == "true") {
+    if (this.$store.state.addHead) {
       this.headHeight = "140px";
       this.headTextMargin = "40px 12px 20px";
     }

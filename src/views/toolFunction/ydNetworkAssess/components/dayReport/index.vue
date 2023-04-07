@@ -31,7 +31,10 @@
         </tr>
         <tr>
           <th>断站率</th>
-          <td id="dzl" colspan="3"></td>
+          <!-- <td id="dzl" colspan="3"></td> -->
+          <td id="dzl"></td>
+          <th>月平均</th>
+          <td id="dzlypj"></td>
         </tr>
       </table>
     </div>
@@ -98,25 +101,9 @@ import $ from "jquery";
 import * as echarts from "echarts";
 export default {
   name: "DayReport",
-  props: ["modeId", "loginNo", "khDay", "titleActiveName", "reportShow"],
+  props: ["modeId", "loginNo", "khDay"],
   computed: {
     ...mapState("ydNetworkAssess", ["dayInfo"]),
-  },
-  watch: {
-    reportShow() {
-      if (this.reportShow) this.getDayInfo();
-    },
-    khDay() {
-      this.getDayInfo();
-    },
-    modeId() {
-      if (this.titleActiveName == "day") {
-        this.getDayInfo();
-      }
-    },
-    titleActiveName(value) {
-      if (value == "day") this.getDayInfo();
-    },
   },
   methods: {
     // 获取当前日期
@@ -136,8 +123,6 @@ export default {
       return num < 10 ? "0" + num : num;
     },
     async getDayInfo() {
-      console.log("开始请求数据");
-
       try {
         let zhishi = this.modeId;
         let loginNo = this.loginNo;
@@ -175,7 +160,9 @@ export default {
         $("#dzsc").text(khBean.shichang);
         $("#dzscylj").text(khBean.monthShichang);
         $("#dzl").text(khBean.rate);
-        $("#dzlylj").text(khBean.monthRate);
+        // $("#dzlylj").text(khBean.monthRate);
+        $("#dzlypj").text(khBean.monthRate);
+
         //折线图数据
         let rateLists = result.ifmAssessRateBeanList;
         let labArr = new Array();

@@ -5,7 +5,9 @@
     </keep-alive>
 
     <!-- 装机单回复-强制回单posCodeSign弹出层 -->
-    <IomNewFinishPosCode v-if="$store.state.button.posCodePopShow" />
+    <IomNewFinishPosCode
+      v-if="$store.state.button.iomNewFinishPosCode.posCodePopShow"
+    />
     <!-- 装机单修改客户电话弹出层 -->
     <EditCustPhone v-if="$store.state.button.editCustPhone.editCustPhoneShow" />
     <!-- 任务回复finishTask弹出层 -->
@@ -14,6 +16,8 @@
     <Location v-if="$store.state.button.getLocalPopup.isShow" />
     <!-- 我已到达-随销单生成提示 -->
     <ArriveTips v-if="$store.state.button.arriveTipsShow" />
+    <!-- 检查更新弹出层 -->
+    <CheckUpdatesVersion v-if="$store.state.checkUpdatesPop.popShow" />
 
     <!-- 路由过渡 -->
     <!--  <transition :name="transitionName" v-if="isTransition">
@@ -32,6 +36,7 @@ import EditCustPhone from "@/views/orderFunction/zhiJiaLei/installMachineIDM/edi
 import FinishTask from "@/views/orderFunction/publicOrder/finishTask.vue";
 import Location from "@/views/orderFunction/publicOrder/getLocation.vue";
 import ArriveTips from "@/views/orderFunction/publicOrder/arriveTips.vue";
+import CheckUpdatesVersion from "@/views/orderFunction/publicRoute/checkUpdatesVersion.vue";
 import { mapState } from "vuex";
 import judgeProject from "./utils/public/judgeProject";
 
@@ -44,6 +49,7 @@ export default {
     FinishTask,
     Location,
     ArriveTips,
+    CheckUpdatesVersion,
   },
   data() {
     return {
@@ -65,6 +71,8 @@ export default {
       handler(val) {
         // 判断当前项目
         judgeProject();
+        // 判断是否要增加头部高度
+        this.judgeAddHead();
       },
     },
     // 路由过渡
@@ -94,14 +102,113 @@ export default {
     //#endregion
   },
 
-  methods: {},
-  created() {
+  methods: {
+    // 判断移动端还是pc端
+    isMobile() {
+      let flag = navigator.userAgent.match(
+        /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
+      );
+      if (flag) {
+        // 判断移动端机型
+        var u = navigator.userAgent;
+        var isAndroid = u.indexOf("Android") > -1 || u.indexOf("Adr") > -1; //android终端
+        var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+        let system = null;
+        if (isAndroid) {
+          this.$store.commit("changeClientId", 9);
+          this.$store.commit("changeMobileType", 1);
+
+          // 获取系统版本
+          let m1 = navigator.userAgent.match(/Android.*?(?=;)/);
+          if (m1 && m1.length > 0) {
+            system = m1[0];
+          }
+        } else {
+          this.$store.commit("changeClientId", 10);
+          this.$store.commit("changeMobileType", 2);
+
+          // ios 获取系统版本
+          let m1 = navigator.userAgent.match(/iPhone OS .*?(?= )/);
+          if (m1 && m1.length > 0) {
+            system = m1[0];
+          }
+        }
+        console.log("手机系统版本", system);
+      } else {
+        // pc端
+        this.$store.commit("changeClientId", 11);
+        this.$store.commit("changeMobileType", 3);
+      }
+    },
+    // H5 plus事件处理
+    dedecmsok() {
+      console.log("开始读取设备信息");
+
+      //imei 设备的国际移动设备身份码
+      // console.log("设备身份码:" + plus.device.imei);
+
+      //model 获取设备的型号信息，如果设备不支持则返回空字符串。
+      console.log("设备型号信息:" + plus.device.model);
+
+      //vendor 获取设备的生产厂商信息，如果设备不支持则返回空字符串。
+      console.log("设备厂商信息:" + plus.device.vendor);
+
+      if (plus.device.vendor === "Apple") {
+        // ios
+        this.$store.commit("changeClientId", 10);
+        this.$store.commit("changeMobileType", 2);
+      } else {
+        // android
+        this.$store.commit("changeClientId", 9);
+        this.$store.commit("changeMobileType", 1);
+      }
+
+      //getInfo: 获取设备信息
+      plus.device.getInfo({
+        success: function (e) {
+          console.log("getDeviceInfo success: " + JSON.stringify(e));
+        },
+        fail: function (e) {
+          console.log("getDeviceInfo failed: " + JSON.stringify(e));
+        },
+      });
+    },
+
     // 判断是否要增加头部高度
-    let Addhead = localStorage.getItem("Addhead");
-    if (Addhead !== null) {
-      localStorage.setItem("Addhead", Addhead);
+    judgeAddHead() {
+      // 判断当前所在的项目是建维优还是联通网络
+      if (this.$store.state.projectFlag == 1) {
+        // 建维优
+        // 判断当前是ios/android/web
+        if (this.$store.state.clientId == 11) {
+          // web端
+          this.$store.commit("changeAddHead", false);
+        } else {
+          // 移动端
+          this.$store.commit("changeAddHead", true);
+        }
+      } else {
+        // 联通网络
+        this.$store.commit("changeAddHead", false);
+      }
+      /* let Addhead = localStorage.getItem("Addhead");
+      if (Addhead !== null) {
+        localStorage.setItem("Addhead", Addhead);
+      } else {
+        localStorage.setItem("Addhead", true);
+      } */
+    },
+  },
+  created() {
+    // 浏览器判断移动端还是pc端
+    // this.isMobile();
+
+    // hbuilderx判断设备机型
+    if (window.plus) {
+      this.dedecmsok();
     } else {
-      localStorage.setItem("Addhead", true);
+      console.log("没有获取到window.plus");
+      document.addEventListener("plusready", this.dedecmsok, false);
     }
   },
 };

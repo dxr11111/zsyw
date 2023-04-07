@@ -28,19 +28,44 @@ export default new Vuex.Store({
 
         // 记录按钮操作页面路由跳转的步数 → 方便跳回到列表详情页或工作台
         routeJumpStep: 0,
+
         projectFlag: 1, // 项目标识 1：建维优 2：联通网络
+
+        addHead: false, // 是否增加页面header高度
 
         // 路由缓存
         keepPages: '',
 
         // 移动端机型
-        clientId: -1, // 9：安卓 10：ios
+        clientId: 11, // 9：安卓 10：ios 11：pc端
+        mobileType: 3, // 1：安卓 2：ios 3：pc端
+
+        // 检查更新版本弹出层
+        checkUpdatesPop: {
+            popShow: false,
+            isNeedUpdate: false,
+            updateLaterShow: false, // 是否显示稍后更新按钮
+            version: '', // 版本号
+            content: '', // 更新内容
+        }
 
     },
     mutations: {
+        changeAddHead(state, result) {
+            state.addHead = result
+            setItem('addHead', result)
+        },
+
+        changeCheckUpdatesPop(state, result) {
+            state.checkUpdatesPop = { ...state.checkUpdatesPop, ...result }
+        },
+
         // 判断移动端机型
         changeClientId(state, result) {
             state.clientId = result
+        },
+        changeMobileType(state, result) {
+            state.mobileType = result
         },
 
         // 清空用户信息

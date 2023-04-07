@@ -19,7 +19,12 @@
     <div class="week" :style="{ width: weekWidth }">
       <span>第</span>
       <van-cell @click="weekShowPopup">{{ weekIndex || pickWeek }}</van-cell>
-      <van-popup v-model="weekPopShow" round position="bottom" class="selectWeek">
+      <van-popup
+        v-model="weekPopShow"
+        round
+        position="bottom"
+        class="selectWeek"
+      >
         <ul>
           <li
             v-for="(item, index) in weekList"
@@ -40,7 +45,7 @@
 export default {
   name: "YmWeekIndex",
   props: ["dateWidth"],
-  data () {
+  data() {
     return {
       // 弹出框
       datePopShow: false,
@@ -52,7 +57,7 @@ export default {
       pickDate: "请选择",
       pickWeek: "请选择",
       weekList: ["1", "2", "3", "4", "5", "取消"],
-      currentWeek: null,
+      currentWeek: 0,
       // 日期
       weekIndex: "", // 第几周
       month: "", // 年月
@@ -60,20 +65,20 @@ export default {
       weekWidth: this.dateWidth + "%",
     };
   },
-  created () {
+  created() {
     this.confirmDate(new Date());
-    this.weekIndex = '1'
+    this.weekIndex = "1";
     this.$emit("getWeek", this.weekIndex);
   },
   methods: {
-    dateShowPopup () {
+    dateShowPopup() {
       this.datePopShow = true;
     },
-    weekShowPopup () {
+    weekShowPopup() {
       this.weekPopShow = true;
     },
     // 时间选择器
-    formatter (type, val) {
+    formatter(type, val) {
       if (type === "year") {
         return `${val}年`;
       } else if (type === "month") {
@@ -81,7 +86,7 @@ export default {
       }
       return val;
     },
-    confirmDate (value) {
+    confirmDate(value) {
       let y = new Date(value).getFullYear();
       let m = new Date(value).getMonth() + 1;
       this.month = y.toString() + "-" + this.addZero(m.toString());
@@ -90,10 +95,10 @@ export default {
       this.$emit("getDate", this.month);
     },
     // 补零
-    addZero (num) {
+    addZero(num) {
       return num < 10 ? "0" + num : num;
     },
-    clickWeek (item, index) {
+    clickWeek(item, index) {
       if (item !== "取消") {
         this.weekIndex = item;
         this.currentWeek = index;
@@ -167,7 +172,7 @@ export default {
       border-color: transparent transparent #dcdee0 #dcdee0;
       transform: rotate(-45deg);
       opacity: 0.8;
-      content: '';
+      content: "";
     }
   }
 }

@@ -1,12 +1,14 @@
 const state = {
-    // 装机单-回复-posCodeSign弹出层
-    posCodePopShow: false,
-    posAddress: '', // POS位置描述
-    posCodeSign: -1, // 符合POS二维码绑码规则 -1，默认，无需绑码；0：需要绑码但未绑，1：需要绑码已绑
-    posCode: '', // POS二维码编码
-    // 装机单-回复-标准地址
-    bzdzFit: -1,
-    bzdzMark: '',
+    // 装机单-回复-posCodeSign
+    iomNewFinishPosCode: {
+        posCodePopShow: false, // posCodeSign弹出层
+        posAddress: '', // POS位置描述
+        posCodeSign: -1, // 符合POS二维码绑码规则 -1，默认，无需绑码；0：需要绑码但未绑，1：需要绑码已绑
+        posCode: '', // POS二维码编码
+        // 装机单-回复-标准地址
+        bzdzFit: -1,
+        bzdzMark: '',
+    },
     iomNewFinishParams: {}, // IOM回单页面的参数
 
 
@@ -66,19 +68,19 @@ const mutations = {
 
     // 更改装机单-回复-posCodeSign弹出层标识
     CHANGEPOSPOPSHOW(state, result) {
-        state.posCodePopShow = result
+        state.iomNewFinishPosCode.posCodePopShow = result
     },
     // 更改pos位置描述
     CHANGEPOSADDRESS(state, result) {
-        state.posAddress = result
+        state.iomNewFinishPosCode.posAddress = result
     },
     // 更改posCodeSign
     CHANGEPOSCODESIGN(state, result) {
-        state.posCodeSign = result
+        state.iomNewFinishPosCode.posCodeSign = result
     },
     // pos二维码编码
     CHANGEPOSCODE(state, result) {
-        state.posCode = result
+        state.iomNewFinishPosCode.posCode = result
     },
     // 更改IOM回单页面的参数
     CHANGEIOMFINISHPARAM(state, result) {
@@ -86,11 +88,11 @@ const mutations = {
     },
     // 更改标准地址
     CHANGEBZDZFIT(state, result) {
-        state.bzdzFit = result
+        state.iomNewFinishPosCode.bzdzFit = result
     },
     // 标准地址备注
     CHANGEBZDZMARK(state, result) {
-        state.bzdzMark = result
+        state.iomNewFinishPosCode.bzdzMark = result
     }
 }
 

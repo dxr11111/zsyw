@@ -23,7 +23,7 @@
 <script>
 export default {
   name: "Ymd",
-  data () {
+  data() {
     return {
       datePopShow: false,
       minDate: new Date(2020, 0, 1),
@@ -34,10 +34,10 @@ export default {
     };
   },
   methods: {
-    dateShowPopup () {
+    dateShowPopup() {
       this.datePopShow = true;
     },
-    confirmDate (value) {
+    confirmDate(value) {
       let y = new Date(value).getFullYear();
       let m = new Date(value).getMonth() + 1;
       let d = new Date(value).getDate();
@@ -53,11 +53,11 @@ export default {
       this.$emit("getKhDay", this.pickDay);
     },
     // 补零
-    addZero (num) {
+    addZero(num) {
       return num < 10 ? "0" + num : num;
     },
     // 得到当前日期
-    getCurrentDay () {
+    getCurrentDay() {
       let y = new Date().getFullYear();
       let m = new Date().getMonth() + 1;
       let d = new Date().getDate();
@@ -71,10 +71,10 @@ export default {
       );
     },
   },
-  created () {
+  created() {
     // 给父组件传递当前日期
-    // this.$emit("getKhDay", this.pickDay);
     this.pickDay = this.getCurrentDay();
+    this.$emit("getKhDay", this.pickDay);
   },
 };
 </script>
@@ -104,7 +104,7 @@ export default {
         border-color: transparent transparent #dcdee0 #dcdee0;
         transform: rotate(-45deg);
         opacity: 0.8;
-        content: '';
+        content: "";
       }
     }
   }

@@ -155,7 +155,10 @@ export default {
       // 如果一个看板只有一条数据，则直接跳转到对应列表id，无需展示放大看板
       if (list.sheetSumInfoList.length == 1) {
         let taskType = list.listId;
-        this.$emit("getTaskType", taskType);
+        // this.$emit("getTaskType", taskType);
+
+        // 后台现在无法根据筛选项筛选看板数量 故在点击看板时将筛选数清空
+        this.$emit("clickKanBan", taskType);
       } else {
         // 展示放大版看板
         this.showBigBoard(listRow, index);
@@ -175,7 +178,10 @@ export default {
         siftPara[key] = value;
       });
       let taskType = this.bigBoard.listId;
-      this.$emit("getTaskType", taskType, JSON.stringify(siftPara));
+      // this.$emit("getTaskType", taskType, JSON.stringify(siftPara));
+
+      // 后台现在无法根据筛选项筛选看板数量 故在点击看板时将筛选数清空
+      this.$emit("clickKanBan", taskType);
     },
 
     // 点击查看放大版看板数
@@ -221,28 +227,42 @@ export default {
     },
     // 确认工作组
     async confirmGroup(value, index) {
-      this.groupName = value;
-      // 不同工单工作组列表有差别
-      // this.groupId = this.getLoginInfo.listSheetGroup[index].groupId
-      this.groupId = this.currentGroupList[index].groupId;
-      this.groupNameLastIndex = index;
-      // 将选择的工作组存入vuex
-      this.$store.commit("workOrder/updateCurrWorkGroupInfo", {
-        groupId: this.groupId,
-        groupName: this.groupName,
-      });
       this.selectGroupShow = false;
+
       // 调用改变工作组接口
       let sysId = this.workOrderDetail.sysId;
       let result = await reqChangeDefaultGroup(
         JSON.stringify({ sysId, groupId: this.groupId })
       );
       console.log("改变工作组", result);
+      this.apiResponse(result, "departmentOrder", () => {
+        this.groupName = value;
+        // 不同工单工作组列表有差别
+        // this.groupId = this.getLoginInfo.listSheetGroup[index].groupId
+        this.groupId = this.currentGroupList[index].groupId;
+        this.groupNameLastIndex = index;
+        // 将选择的工作组存入vuex
+        this.$store.commit("workOrder/updateCurrWorkGroupInfo", {
+          groupId: this.groupId,
+          groupName: this.groupName,
+        });
 
-      // 获取工单看板数
-      this.getOrderNum();
-      // 获取工单列表信息
-      this.$emit("changeGroup");
+        // 改变登录时存储的默认工作组defaultSheetGroupList
+        let originalGetLoginInfo = this.getLoginInfo;
+        for (let item of originalGetLoginInfo.defaultSheetGroupList) {
+          if (item.groupSysId === this.workOrderDetail.sysId) {
+            // 改变当前sysId对应的默认工作组
+            item.groupId = this.groupId;
+            break;
+          }
+        }
+        this.$store.commit("GETLOGININFO", originalGetLoginInfo);
+
+        // 获取工单看板数
+        this.getOrderNum();
+        // 获取工单列表信息
+        this.$emit("changeGroup");
+      });
     },
     // 取消工作组
     cancelGroup() {

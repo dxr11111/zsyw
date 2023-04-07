@@ -61,6 +61,7 @@ export default {
           // 获取鉴权账号 guzi1
           // 获取登录信息 loginInfo
           this.$store.commit("GETLOGININFO", result);
+          localStorage.setItem("userName", result.userName);
         });
         if (!result.operationSuccessFlag) {
           // 鉴权失败

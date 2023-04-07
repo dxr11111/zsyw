@@ -65,20 +65,11 @@ import { mapState } from "vuex";
 import $ from "jquery";
 export default {
   name: "MonthReport",
-  props: ["modeId", "khMonth", "loginNo", "titleActiveName"],
+  props: ["modeId", "khMonth", "loginNo"],
   computed: {
     ...mapState("ydNetworkAssess", ["monthInfo"]),
   },
-  watch: {
-    khMonth() {
-      this.getMonthInfo();
-    },
-    modeId() {
-      if (this.titleActiveName == "month") {
-        this.getMonthInfo();
-      }
-    },
-  },
+
   methods: {
     async getMonthInfo() {
       try {

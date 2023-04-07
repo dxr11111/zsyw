@@ -3,24 +3,29 @@
     <div class="static" ref="static">
       <MyHeader :name="name" left="arrow-left" @goBackEv="$router.go(-1)" />
       <div class="setting">
-        <van-tabs v-model="titleActiveName" type="card" v-if="reportShow">
+        <van-tabs
+          v-model="titleActiveName"
+          type="card"
+          v-if="reportShow === true"
+          @change="changeTab"
+        >
           <van-tab title="日报" name="day"></van-tab>
           <van-tab title="周报" name="week"></van-tab>
           <van-tab title="月报" name="month"></van-tab>
         </van-tabs>
         <!-- 日报 周报 月报下的时间 -->
-        <div class="dateMode" v-if="reportShow">
+        <div class="dateMode" v-if="reportShow === true">
           <div class="date">
             <span>时间</span>
-            <Ymd v-show="titleActiveName == 'day'" @getKhDay="getKhDay" />
+            <Ymd v-if="titleActiveName == 'day'" @getKhDay="getKhDay" />
             <YmWeekIndex
-              v-show="titleActiveName == 'week'"
+              v-if="titleActiveName == 'week'"
               @getDate="getymDate"
               @getWeek="getWeek"
             />
-            <Ym v-show="titleActiveName == 'month'" @getKhMonth="getKhMonth" />
+            <Ym v-if="titleActiveName == 'month'" @getKhMonth="getKhMonth" />
           </div>
-          <div class="mode" v-if="reportShow">
+          <div class="mode">
             <van-button
               type="default"
               v-for="item in modeList"
@@ -31,7 +36,7 @@
             >
           </div>
         </div>
-        <div class="fgsDate" v-if="!reportShow">
+        <div class="fgsDate" v-if="reportShow === false">
           <span>时间</span>
           <YmWeekIndex
             @getDate="getymDate"
@@ -43,30 +48,30 @@
     </div>
     <div :style="{ marginTop: marginTop }">
       <DayReport
-        v-show="titleActiveName == 'day' && reportShow"
+        ref="dayReport"
+        v-if="titleActiveName == 'day' && reportShow === true"
         :modeId="modeId"
         :loginNo="loginNo"
         :khDay="khDay"
-        :titleActiveName="titleActiveName"
-        :reportShow="reportShow"
       />
       <WeekReport
-        v-show="titleActiveName == 'week' && reportShow"
+        ref="weekReport"
+        v-if="titleActiveName == 'week' && reportShow === true"
         :modeId="modeId"
         :loginNo="loginNo"
         :month="month"
         :weekIndex="weekIndex"
-        :titleActiveName="titleActiveName"
       />
       <MonthReport
-        v-show="titleActiveName == 'month' && reportShow"
+        ref="monthReport"
+        v-if="titleActiveName == 'month' && reportShow === true"
         :modeId="modeId"
         :loginNo="loginNo"
         :khMonth="khMonth"
-        :titleActiveName="titleActiveName"
       />
       <FgsReport
-        v-if="!reportShow"
+        ref="fgsReport"
+        v-if="reportShow === false"
         :loginNo="loginNo"
         :month="month"
         :weekIndex="weekIndex"
@@ -84,8 +89,6 @@ import DayReport from "./components/dayReport";
 import WeekReport from "./components/weekReport";
 import MonthReport from "./components/monthReport";
 import FgsReport from "./components/fgsReport";
-import $ from "jquery";
-import { getItem } from "@/utils/public/sessionStorage";
 export default {
   name: "YdNetworkAssess",
   components: {
@@ -105,7 +108,7 @@ export default {
       // loginNo: "hesq32", //生产 130123199206274518 fuxing1
       loginNo: "", //生产 130123199206274518 fuxing1
       // 是否展示日报 周报 月报
-      reportShow: false,
+      reportShow: null,
       titleActiveName: "day",
       // 制式
       modeId: 3,
@@ -118,6 +121,8 @@ export default {
       weekIndex: "", // 每月第几周
       khDay: "", // yyyy-mm-dd 2021-10-17
       khMonth: "", // yyyy-mm
+
+      firstLoad: true, // 首次加载标识
     };
   },
   computed: {
@@ -125,26 +130,73 @@ export default {
   },
   watch: {},
   methods: {
+    // 根据当前所在的报表判断该发送的请求
+    judgeRequest() {
+      if (this.reportShow) {
+        switch (this.titleActiveName) {
+          case "day":
+            this.$refs.dayReport?.getDayInfo();
+            break;
+          case "week":
+            this.$refs.weekReport?.getWeekInfo();
+            break;
+          case "month":
+            this.$refs.monthReport?.getMonthInfo();
+            break;
+        }
+      } else {
+        // 分公司
+        this.$refs.fgsReport?.getFgsInfo();
+      }
+    },
+    // 切换日报/周报/月报
+    changeTab(name, title) {
+      this.firstLoad = true;
+    },
     // 点击制式
     clickMode(item) {
       this.modeId = item.modeId;
+      // 根据当前所在的报表判断该发送的请求
+      this.$nextTick(() => {
+        this.judgeRequest();
+      });
     },
     // 得到YmWeekIndex子组件日期
     getymDate(value) {
       this.month = value;
+      // 周报/分公司报表第一次加载时，在getymDate和getWeek内会同时获取请求，此时屏蔽掉getymDate内的请求
+      if (!this.firstLoad) {
+        // 根据当前所在的报表判断该发送的请求
+        this.$nextTick(() => {
+          this.judgeRequest();
+        });
+      } else {
+        this.firstLoad = false;
+      }
     },
     // 得到YmWeekIndex子组件第几周
     getWeek(value) {
       this.weekIndex = value;
+      // 根据当前所在的报表判断该发送的请求
+      this.$nextTick(() => {
+        this.judgeRequest();
+      });
     },
     // 得到日报日期
     getKhDay(value) {
       this.khDay = value;
+      // 根据当前所在的报表判断该发送的请求
+      this.$nextTick(() => {
+        this.judgeRequest();
+      });
     },
     // 得到月报日期(value) {
     getKhMonth(value) {
-      console.log("月报日期", value);
       this.khMonth = value;
+      // 根据当前所在的报表判断该发送的请求
+      this.$nextTick(() => {
+        this.judgeRequest();
+      });
     },
 
     // 获取用户权限
@@ -154,15 +206,20 @@ export default {
           "ydNetworkAssess/getSettingInfo",
           this.loginNo
         );
-        let userAuth = this.settingInfo.userAuth;
+        // let userAuth = this.settingInfo.userAuth;
         // 测试 userAuth为1
-        // let userAuth = 1;
+        let userAuth = 1;
         if (userAuth == 1 || userAuth == 2) {
           // 展示分公司/小网格
+          this.reportShow = false;
         } else if (userAuth == 3) {
           //展示日报 周报 月报
           this.reportShow = true;
         }
+        // 获取顶部static元素高度
+        this.$nextTick(() => {
+          this.marginTop = this.$refs.static.clientHeight + 10 + "px";
+        });
       } catch (error) {
         console.log("err", error);
       }
@@ -177,11 +234,6 @@ export default {
       }
     });
     this.getSettingInfo();
-    if (localStorage.getItem("Addhead") == "true") {
-      this.marginTop = "190px";
-    } else {
-      self.headHeight = "160px";
-    }
   },
   mounted() {},
 };
@@ -195,7 +247,9 @@ export default {
 }
 .ywkh {
   width: 100%;
-  height: 2000px;
+  // height: 2000px;
+  min-height: 650px;
+  background-color: #fff;
   .static {
     z-index: 1000;
     position: fixed;

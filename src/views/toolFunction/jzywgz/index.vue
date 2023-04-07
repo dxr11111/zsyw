@@ -45,7 +45,7 @@ export default {
         }
       }
       if (accountId == "") return _this.$toast("无权限操作");
-      let url = process.env.VUE_APP_JZYW + "/#/index?token="; // http://202.106.86.115:7064/aiops
+      let url = process.env.VUE_APP_JZYW + "/#/index?title=1&token="; // http://202.106.86.115:7064/aiops
       let result = await reqQueryUniToken(
         JSON.stringify({ appCode, appKey, accountId })
       );

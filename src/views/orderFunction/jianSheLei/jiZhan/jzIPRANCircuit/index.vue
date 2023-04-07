@@ -34,6 +34,7 @@
               size="small"
               v-if="$route.query.code == 'rruCircuit'"
               @click="updateTerminal(item)"
+              :class="flag == 2 ? 'disable' : ''"
               >改端子</van-button
             >
           </div>
@@ -45,54 +46,62 @@
 </template>
 
 <script>
-import Detail from './components/detail.vue'
-import Terminal from './components/terminal.vue'
-import { GetIdmCircuitApi } from '@/http/button'
-import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive"
+import Detail from "./components/detail.vue";
+import Terminal from "./components/terminal.vue";
+import { GetIdmCircuitApi } from "@/http/button";
+import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
 export default {
-  name: 'JzIPRANCircuit',
+  name: "JzIPRANCircuit",
   mixins: [keepAliveMixin],
   components: { Detail, Terminal },
   data() {
     return {
-      headName: '电路信息',
+      headName: "电路信息",
       circuitList: [],
-      isShow: 'index',
+      isShow: "index",
       currData: {},
-    }
+      flag: this.$store.state.home.listDetail.flag,
+    };
   },
   created() {
-    this.getCircuitList()
+    this.getCircuitList();
   },
   methods: {
     goBack() {
-      this.$router.go(-1)
+      this.$router.go(-1);
       this.$store.commit("removeThisPage", this.$options.name);
     },
     updateTerminal(item) {
-      this.$router.push({
-        path: '/jzIPRANCircuitTerminal',
-        query: {
-          circuitNo: item.circuitNo,
-          id: this.$route.query.id
-        }
-      })
+      if (this.flag == 1) {
+        this.$router.push({
+          path: "/jzIPRANCircuitTerminal",
+          query: {
+            circuitNo: item.circuitNo,
+            id: this.$route.query.id,
+          },
+        });
+      }
     },
     goDetail(item) {
       this.$router.push({
-        path: '/jzIPRANCircuitDeatil',
+        path: "/jzIPRANCircuitDeatil",
         query: {
-          currData: item
-        }
-      })
+          currData: item,
+        },
+      });
     },
     async getCircuitList() {
-      let data = await GetIdmCircuitApi(JSON.stringify({ id: Number(this.$route.query.id), type: this.$route.query.code == 'rruCircuit' ? '0' : '1' }))
-      console.log(data.circuitList)
-      this.circuitList = data.circuitList
-    }
+      let data = await GetIdmCircuitApi(
+        JSON.stringify({
+          id: Number(this.$route.query.id),
+          type: this.$route.query.code == "rruCircuit" ? "0" : "1",
+        })
+      );
+      console.log(data.circuitList);
+      this.circuitList = data.circuitList;
+    },
   },
-}
+};
 </script>
 
 <style scoped lang="less">
@@ -116,5 +125,10 @@ export default {
   height: 7.53vw;
   border-radius: 3px;
   margin: 15px 15px 10px 0;
+}
+
+.disable {
+  background-color: @disable-color;
+  border-color: @disable-color;
 }
 </style>

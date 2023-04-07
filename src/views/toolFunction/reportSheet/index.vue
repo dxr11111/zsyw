@@ -1,37 +1,38 @@
 <template>
   <!-- 建设工单报表 -->
-  <div class="work-report">
-    <div class="static">
-      <MyHeader :name="name" left="arrow-left" @goBackEv="$router.go(-1)" />
-      <!-- <div v-if="!(company && userType)">数据加载中~</div> -->
-      <div class="setting">
-        <!-- 点击一级按钮 -->
-        <van-button
-          plain
-          hairline
-          type="info"
-          @click="clickButton(item, index)"
-          :class="currentButton === index ? 'activeButton' : ''"
-          v-for="(item, index) in buttonList"
-          :key="index"
-          >{{ item.name }}</van-button
-        >
-        <div class="SFButton">
-          <div v-if="company === '0' && isShowSF">
-            <!-- 点击室分日报出现的按钮 -->
-            <van-button
-              plain
-              hairline
-              type="info"
-              @click="clickSFButton(item, index)"
-              :class="currentSFList === index ? 'activeButton' : ''"
-              v-for="(item, index) in shiFenReport"
-              :key="index"
-              >{{ item.name }}</van-button
-            >
-          </div>
-          <!-- 联通三级经理权限 -->
-          <!-- <div class="ltRegion" v-if="company === '0' && userType === '1'">
+  <div class="container">
+    <div class="work-report">
+      <div class="static">
+        <MyHeader :name="name" left="arrow-left" @goBackEv="$router.go(-1)" />
+        <!-- <div v-if="!(company && userType)">数据加载中~</div> -->
+        <div class="setting">
+          <!-- 点击一级按钮 -->
+          <van-button
+            plain
+            hairline
+            type="info"
+            @click="clickButton(item, index)"
+            :class="currentButton === index ? 'activeButton' : ''"
+            v-for="(item, index) in buttonList"
+            :key="index"
+            >{{ item.name }}</van-button
+          >
+          <div class="SFButton">
+            <div v-if="company === '0' && isShowSF">
+              <!-- 点击室分日报出现的按钮 -->
+              <van-button
+                plain
+                hairline
+                type="info"
+                @click="clickSFButton(item, index)"
+                :class="currentSFList === index ? 'activeButton' : ''"
+                v-for="(item, index) in shiFenReport"
+                :key="index"
+                >{{ item.name }}</van-button
+              >
+            </div>
+            <!-- 联通三级经理权限 -->
+            <!-- <div class="ltRegion" v-if="company === '0' && userType === '1'">
           <van-button
             plain
             hairline
@@ -43,26 +44,27 @@
             >{{ item.name }}</van-button
           >
         </div> -->
-        </div>
-        <div class="HZButton">
-          <div v-if="company === '0' && isShowHZ">
-            <!-- 点击宏站报表出现的按钮 -->
-            <van-button
-              plain
-              hairline
-              type="info"
-              @click="clickHZButton(item, index)"
-              :class="currentHZList === index ? 'activeButton' : ''"
-              v-for="(item, index) in HZReport"
-              :key="index"
-              >{{ item.name }}</van-button
-            >
+          </div>
+          <div class="HZButton">
+            <div v-if="company === '0' && isShowHZ">
+              <!-- 点击宏站报表出现的按钮 -->
+              <van-button
+                plain
+                hairline
+                type="info"
+                @click="clickHZButton(item, index)"
+                :class="currentHZList === index ? 'activeButton' : ''"
+                v-for="(item, index) in HZReport"
+                :key="index"
+                >{{ item.name }}</van-button
+              >
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="tableBox" :style="mT">
-      <div class="tableInfo" v-html="getTableInfo"></div>
+      <div class="tableBox" :style="mT">
+        <div class="tableInfo" v-html="getTableInfo"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -335,56 +337,61 @@ export default {
     overflow: auto;
   }
 }
-.work-report {
-  margin-top: 30px; // 顶部加一个间隔，放hbuilderx沉浸式状态栏
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.container {
+  height: 100%;
+  background-color: @bgColor;
+  .work-report {
+    margin-top: 30px; // 顶部加一个间隔，放hbuilderx沉浸式状态栏
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: @bg-color;
 
-  .static {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    // max-width: 640px;
-    background-color: #fff;
-    .setting {
+    .static {
+      position: fixed;
+      top: 0;
       width: 100%;
-      .SFButton {
-        display: flex;
-        justify-content: space-around;
-      }
-      .van-button {
-        margin-top: 5px;
-        margin-bottom: 5px;
-        font-size: 12px;
-        height: 30px;
-        // border-radius: 5px;
-      }
-      .van-button--plain.van-button--info {
-        color: @bgColor;
-      }
-      .van-button--hairline::after {
-        border-radius: 5px;
-      }
-      .van-button--plain.van-button--info.activeButton {
-        background-color: @bgColor;
-        color: #fff;
+      // max-width: 640px;
+      background-color: #fff;
+      .setting {
+        width: 100%;
+        .SFButton {
+          display: flex;
+          justify-content: space-around;
+        }
+        .van-button {
+          margin-top: 5px;
+          margin-bottom: 5px;
+          font-size: 12px;
+          height: 30px;
+          // border-radius: 5px;
+        }
+        .van-button--plain.van-button--info {
+          color: @bgColor;
+        }
+        .van-button--hairline::after {
+          border-radius: 5px;
+        }
+        .van-button--plain.van-button--info.activeButton {
+          background-color: @bgColor;
+          color: #fff;
+        }
       }
     }
-  }
-  .tableBox {
-    // display: flex;
-    // justify-content: center;
-    width: 100%;
-    overflow: auto;
-    .tableInfo {
+    .tableBox {
       // display: flex;
       // justify-content: center;
-      // margin-left: 100px;
-      margin: 0 auto;
+      width: 100%;
+      overflow: auto;
+      .tableInfo {
+        // display: flex;
+        // justify-content: center;
+        // margin-left: 100px;
+        margin: 0 auto;
 
-      width: 1600px;
-      // overflow: auto;
+        width: 1600px;
+        // overflow: auto;
+      }
     }
   }
 }

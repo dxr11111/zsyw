@@ -40,46 +40,46 @@
 </template>
 
 <script>
-import { JndCircuitInfoApi } from "@/http/button"
-import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive"
+import { JndCircuitInfoApi } from "@/http/button";
+import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
 export default {
-  name: 'JzIPRANCircuitTerminal',
+  name: "JzIPRANCircuitTerminal",
   mixins: [keepAliveMixin],
-  components: { Update: () => import('./update.vue') },
+  components: { Update: () => import("./update.vue") },
   data() {
     return {
       headName: `修改端子(${this.$route.query.circuitNo})`,
       routeList: [],
       isGoUpdate: true,
       updateInfo: {},
-      id: this.$route.query.id
-    }
+      id: this.$route.query.id,
+    };
   },
   created() {
-    this.getTerminalList()
+    this.getTerminalList();
   },
   methods: {
     async getTerminalList() {
       let data = await JndCircuitInfoApi(
         JSON.stringify({ circuitNo: this.$route.query.circuitNo })
-      )
-      console.log(data)
-      var arr = data.listZhuanXianLuYou
-      arr.forEach(e => {
-        e.isShow = false
-      })
-      this.routeList = arr
+      );
+      console.log(data);
+      var arr = data.listZhuanXianLuYou;
+      arr.forEach((e) => {
+        e.isShow = false;
+      });
+      this.routeList = arr;
     },
     goUpdate(item) {
-      this.updateInfo = item
-      this.isGoUpdate = false
+      this.updateInfo = item;
+      this.isGoUpdate = false;
     },
     goBack() {
-      this.$router.go(-1)
+      this.$router.go(-1);
       this.$store.commit("removeThisPage", this.$options.name);
-    }
+    },
   },
-}
+};
 </script>
 
 <style lang="less" scoped>
@@ -95,7 +95,7 @@ export default {
     }
     .disabled {
       pointer-events: none;
-      background-color: rgb(127, 132, 136);
+      background-color: @disable-color;
       border: none;
     }
   }

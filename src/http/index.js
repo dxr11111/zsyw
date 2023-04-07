@@ -1,5 +1,14 @@
 import requests from "./request";
 
+// 我的 检查更新
+export const reqCheckVersion = (postData) => {
+  return requests({
+    method: "post",
+    url: "/checkVersion",
+    data: `data=${postData}`,
+  });
+};
+
 // 我的 修改手机号
 export const GetPhoneNumberApi = (postData) => {
   return requests({
@@ -34,14 +43,6 @@ export const SendFeedBackApi = (postData) => {
   });
 };
 
-// 我的 检查版本
-export const CheckVersionApi = (postData) => {
-  return requests({
-    method: "post",
-    url: "/checkVersion",
-    data: `data=${postData}`,
-  });
-};
 
 // 我的 我的权限
 export const GetMyPermissionApi = (postData) => {

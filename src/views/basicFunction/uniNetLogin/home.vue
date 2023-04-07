@@ -60,7 +60,7 @@
               </li> -->
             </ul>
           </van-collapse-item>
-
+          <!-- 其他工单 -->
           <van-collapse-item
             v-for="category in titleOrder"
             :key="category.id"
@@ -310,12 +310,6 @@ export default {
       }
       // console.log("allOrder", allOrder);
 
-      // 工单种类顺序：建设类，维护类，优化类，开通类
-      // 建设类内容固定
-      if (this.sysIds.includes(11)) {
-        // 含有建设类权限
-        this.jsShow = true;
-      }
       let titleOrder = [
         { id: 2, title: "维护类", content: [] },
         { id: 3, title: "优化类", content: [] },
@@ -330,7 +324,21 @@ export default {
         });
       });
       this.titleOrder = titleOrder;
-      // console.log("titleOrder", titleOrder);
+
+      // 工单种类顺序：建设类，维护类，优化类，开通类
+      // 建设类内容固定
+      if (this.sysIds.includes(11)) {
+        // 含有建设类权限
+        this.jsShow = true;
+      } else {
+        // 建设类不显示 → 没有默认展开项，在其他工单下选出第一个将name放进orderActive
+        for (let order of this.titleOrder) {
+          if (order.content.length > 0) {
+            this.orderActive.push(order.id);
+            break;
+          }
+        }
+      }
     },
   },
   created() {
@@ -349,14 +357,14 @@ export default {
   text-align: left;
   // background-color: #f7f4fc;
   background-color: #fff;
-  height: 100%;
+  min-height: 100%;
   .banner {
     box-sizing: border-box;
     width: 100%;
     height: 125px;
     padding: 0 8px;
-    margin: 64px 0 10px 0;
-    // margin: 10px 0 10px 0;
+    // margin: 64px 0 10px 0;
+    margin: 10px 0 10px 0;
     img {
       width: 100%;
     }

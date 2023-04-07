@@ -41,6 +41,7 @@ const actions = {
     // 获取日报数据
     async getDay(context, postData) {
         let result = await reqgetYwkhDay(postData)
+        console.log('日报数据', result)
         context.commit("GETDAY", result)
         return result
     },

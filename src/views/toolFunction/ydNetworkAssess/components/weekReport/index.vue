@@ -65,27 +65,9 @@ import { mapState } from "vuex";
 import $ from "jquery";
 export default {
   name: "WeekReport",
-  props: ["modeId", "loginNo", "month", "weekIndex", "titleActiveName"],
+  props: ["modeId", "loginNo", "month", "weekIndex"],
   computed: {
     ...mapState("ydNetworkAssess", ["weekInfo"]),
-  },
-  watch: {
-    month() {
-      // 判断month和weekIndex都有数据才发送请求
-      if (this.titleActiveName == "week") {
-        if (this.month && this.weekIndex) this.getWeekInfo();
-      }
-    },
-    weekIndex() {
-      if (this.titleActiveName == "week") {
-        if (this.month && this.weekIndex) this.getWeekInfo();
-      }
-    },
-    modeId() {
-      if (this.titleActiveName == "week") {
-        this.getWeekInfo();
-      }
-    },
   },
   methods: {
     async getWeekInfo() {
@@ -149,8 +131,6 @@ export default {
       }
     },
   },
-  mounted() {},
-  created() {},
 };
 </script>
 

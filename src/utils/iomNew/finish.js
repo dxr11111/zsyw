@@ -39,6 +39,8 @@ export const IsPosCodePop = (result) => {
     if (posCodeSign === 0) {
         vue.$store.commit('button/CHANGEPOSADDRESS', result.posAddress)
         vue.$store.commit('button/CHANGEPOSPOPSHOW', true)
+        vue.$store.commit('button/CHANGEIOMFINISHPARAM', result)
+
     } else if (posCodeSign === 1) {
         // 如果=1，则弹窗，确认二维码posCode。
         vue.$store.commit('button/CHANGEPOSADDRESS', result.posAddress)

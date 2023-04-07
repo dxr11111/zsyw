@@ -158,6 +158,7 @@ export default {
             .name {
               font-size: 14px;
               color: #777a87;
+              word-break: break-all;
             }
           }
         }

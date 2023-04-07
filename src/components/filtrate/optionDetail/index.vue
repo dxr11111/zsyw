@@ -4,7 +4,7 @@
       <div>
         {{ topObj.title }}
       </div>
-      <span> 该项支持{{ topObj.type == '多选' ? '单选和多选' : '单选' }} </span>
+      <span> 该项支持{{ topObj.type == "多选" ? "单选和多选" : "单选" }} </span>
     </div>
     <div class="content">
       <div
@@ -29,41 +29,41 @@ export default {
   props: {
     topObj: {
       type: Object,
-      default: () => { }
+      default: () => {},
     },
     list: {
       type: Array,
-      default: []
+      default: [],
     },
     // 多选
     selectedList: {
       type: Array,
-      default: []
-    }
+      default: [],
+    },
   },
-  data () {
+  data() {
     return {
       selectList: this.selectedList || [], // 多选时的数组
-    }
+    };
   },
-  mounted () {
+  mounted() {
     // 部分手机顶部会被设备遮挡，所以加高一点
-    if (localStorage.getItem('Addhead')) {
-      document.getElementsByClassName('options')[0].style.marginTop = '40px'
+    if (this.$store.state.addHead) {
+      document.getElementsByClassName("options")[0].style.marginTop = "40px";
     }
   },
-  created () {
+  created() {
     if (this.selectedList.length > 0) {
       this.$nextTick(() => {
-        let doms = document.getElementsByClassName('opt')
+        let doms = document.getElementsByClassName("opt");
         for (let i = 0; i < doms.length; i++) {
-          var curr = doms[i].innerText
-          var flag = this.selectedList.find(e => e.name == curr)
+          var curr = doms[i].innerText;
+          var flag = this.selectedList.find((e) => e.name == curr);
           if (flag) {
-            doms[i].className = 'opt active'
+            doms[i].className = "opt active";
           }
         }
-      })
+      });
     }
   },
   methods: {
@@ -74,48 +74,48 @@ export default {
     //   }
     //   return newArr
     // },
-    chooseItem (item, index) {
+    chooseItem(item, index) {
       // 多选
-      if (this.topObj.type == '多选') {
+      if (this.topObj.type == "多选") {
         this.$nextTick(() => {
-          let dom = document.getElementsByClassName('opt')[index]
-          if (dom.className.includes('active')) {
-            let curr = null
+          let dom = document.getElementsByClassName("opt")[index];
+          if (dom.className.includes("active")) {
+            let curr = null;
             for (let i = 0; i < this.selectList.length; i++) {
               if (this.selectList[i].name === item.name) {
-                curr = i
+                curr = i;
               }
             }
-            this.selectList.splice(curr, 1)
-            console.log('del', this.selectList);
-            dom.className = 'opt child'
+            this.selectList.splice(curr, 1);
+            console.log("del", this.selectList);
+            dom.className = "opt child";
           } else {
-            dom.className = 'opt child active'
-            this.selectList.push(item)
-            console.log('add', this.selectList);
+            dom.className = "opt child active";
+            this.selectList.push(item);
+            console.log("add", this.selectList);
           }
-        })
+        });
       } else {
         // 单选 --- js排他思想
-        let dom = document.getElementsByClassName('opt')
+        let dom = document.getElementsByClassName("opt");
         for (let i = 0; i < dom.length; i++) {
-          dom[i].className = 'opt child'
+          dom[i].className = "opt child";
         }
-        dom[index].className = 'opt child active'
-        this.selectList.splice(0, 1, item)
+        dom[index].className = "opt child active";
+        this.selectList.splice(0, 1, item);
         console.log(this.selectList);
       }
       // this.removal(this.selectList)
       // console.log(this.selectList);
     },
-    confirm () {
-      this.$emit('rejectSeleted', this.selectList)
+    confirm() {
+      this.$emit("rejectSeleted", this.selectList);
     },
-    cancel () {
-      this.$emit('clickCancel')
-    }
+    cancel() {
+      this.$emit("clickCancel");
+    },
   },
-}
+};
 </script>
 
 <style scoped lang="less">

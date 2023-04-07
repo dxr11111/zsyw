@@ -25,26 +25,22 @@ export const reqgetYhgdTable = (postData) => {
 }
 // 获取移网考核看板用户权限（分公司，小网格，代维）
 export const reqgetYwkhSetting = (loginNo) => {
-    return requests({ method: 'post', url: '/charts/ifm/ifmYdUserAuth', data: `data={"loginNo":"${loginNo}"}` })
+  return requests({ method: 'post', url: '/charts/ifm/ifmYdUserAuth', data: `data={"loginNo":"${loginNo}"}` })
 }
 // 请求移网考核看板-分公司数据
 export const reqgetYwkhFGS = (postData) => {
-    console.log('分公司数据', postData)
-    return requests({ method: 'post', url: '/charts/ifm/ifmYdFGSOrXWGNetworkAssess', data: `data=${postData}` })
+  return requests({ method: 'post', url: '/charts/ifm/ifmYdFGSOrXWGNetworkAssess', data: `data=${postData}` })
 }
 // 请求移网考核看板-日报数据
 export const reqgetYwkhDay = (postData) => {
-  console.log('日报数据', postData)
   return requests({ method: 'post', url: '/charts/ifm/ifmYdNetworkAssess', data: `data=${postData}` })
 }
 // 请求移网考核看板-周报数据
 export const reqgetYwkhWeek = (postData) => {
-  console.log('周报数据', postData)
   return requests({ method: 'post', url: '/charts/ifm/ifmYdNetworkAssessWeek', data: `data=${postData}` })
 }
 // 请求移网考核看板-月报数据
 export const reqgetYwkhMonth = (postData) => {
-  console.log('月报数据', postData)
   return requests({ method: 'post', url: '/charts/ifm/ifmYdNetworkAssessMonth', data: `data=${postData}` })
 }
 // 请求建设工单看板基站，建设数据

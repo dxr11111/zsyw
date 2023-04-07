@@ -61,7 +61,7 @@
     </div>
     <!-- 底部logo 文字 -->
     <div class="bottom">
-      <div class="version">版本V1.0.2</div>
+      <div class="version">版本V{{ curtVersion }}</div>
     </div>
 
     <More
@@ -78,6 +78,8 @@
 <script>
 import { getItem, setItem } from "@/utils/public/sessionStorage";
 import { mapGetters } from "vuex";
+import { version } from "@/utils/public/uniformConfig";
+
 export default {
   name: "PassLogin",
   components: {
@@ -96,6 +98,8 @@ export default {
       // 密码重置
       resetLoginNo: "",
       resetMobile: "",
+      // 当前版本号
+      curtVersion: version,
     };
   },
   computed: {

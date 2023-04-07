@@ -42,21 +42,21 @@ export default {
   computed: {
     show: {
       get() {
-        return this.$store.state.button.posCodePopShow;
+        return this.$store.state.button.iomNewFinishPosCode.posCodePopShow;
       },
       set() {},
     },
     posAddress() {
-      return this.$store.state.button.posAddress;
+      return this.$store.state.button.iomNewFinishPosCode.posAddress;
     },
     posCodeSign() {
-      return this.$store.state.button.posCodeSign;
+      return this.$store.state.button.iomNewFinishPosCode.posCodeSign;
     },
     posCode() {
-      return this.$store.state.button.posCode;
+      return this.$store.state.button.iomNewFinishPosCode.posCode;
     },
     bzdzFit() {
-      return this.$store.state.button.bzdzFit;
+      return this.$store.state.button.iomNewFinishPosCode.bzdzFit;
     },
   },
   watch: {
@@ -70,7 +70,7 @@ export default {
         this.$dialog
           .confirm({
             title: "验证修改标准地址",
-            message: this.$store.state.bzdzMark,
+            message: this.$store.state.button.iomNewFinishPosCode.bzdzMark,
             confirmButtonText: "继续回单",
             cancelButtonText: "修改标准地址",
             getContainer: ".iomNewFinishPosCode",

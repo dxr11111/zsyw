@@ -48,7 +48,7 @@ export default {
       this.$route.name !== "Signature"
     ) {
       // 获取头部尺寸
-      if (localStorage.getItem("Addhead") == "true") {
+      if (this.$store.state.addHead) {
         this.headerHeight = "78px";
         this.headTextMargin = "30px";
       }

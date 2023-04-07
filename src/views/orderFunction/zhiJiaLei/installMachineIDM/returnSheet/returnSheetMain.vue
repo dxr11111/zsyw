@@ -239,7 +239,7 @@ export default {
     },
     // 判断是否从点击回复-弹框-点击修改标准地址进入
     judgeBzdzFit() {
-      if (this.$store.state.button.bzdzFit === 0) {
+      if (this.$store.state.button.iomNewFinishPosCode.bzdzFit === 0) {
         // 将退单原因自动定位到修改标准地址
         this.reason = "修改标准地址";
         this.errorReasonCode = "90010006";
