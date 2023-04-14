@@ -2,7 +2,7 @@
   <div class="bgc">
     <div>
       <div class="topWrap">
-        <div class="top">
+        <div class="top" :style="{ paddingTop: topPaddingTop }">
           <div class="search" @click="$router.push('/search')">
             <van-icon
               style="margin-right: 8px"
@@ -22,7 +22,7 @@
           <span>公告</span>
         </div>
         <div class="center">
-          <ul :class="{ anim: animate == true }" v-if="messageList.length > 0">
+          <ul :class="{ anim: animate == true }" v-if="messageList?.length > 0">
             <!-- <ul class="anim" v-if="messageList.length > 0"> -->
             <li v-for="(item, index) in messageList" :key="index">
               <span>●</span>
@@ -106,13 +106,16 @@ import {
 } from "@/http/index";
 import { billList } from "@/utils/public/workIcons.js";
 import { matchTools } from "@/utils/public/tools";
+import { checkUpdates } from "@/utils/public/checkUpdatesVersion";
+
 export default {
   name: "Home",
   mixins: [keepAliveMixin],
   data() {
     return {
+      topPaddingTop: "35px", // 多功能搜索栏距离顶部
       sysIds: [],
-      ifmSysIds: getItem("loginInfo").ifmSysIds,
+      ifmSysIds: getItem("loginInfo")?.ifmSysIds || [],
       workBenchList: [], // 工作台看板列表
       toolsList: [], // 根据权限获取的工具列表
       goSearch: false,
@@ -128,15 +131,23 @@ export default {
       studyContents: "",
     };
   },
+
   created() {
+    // 获取头部尺寸
+    if (this.$store.state.addHead) {
+      this.topPaddingTop = "50px";
+    }
+
+    // 检查更新
+    this.checkUpdates();
+
     // 判断是否展示每日学习
     this.judgEveryDayStudy();
 
     getItem("loginInfo").userIds.forEach((e) => {
       this.sysIds.push(e.sysId);
     });
-    // this.$forceUpdate()
-    // console.log(this.prevPath);
+
     this.getTools();
     this.getTaskList();
     this.getMessageList();
@@ -180,6 +191,10 @@ export default {
     // }.bind(this));
   },
   methods: {
+    // 点击检查更新
+    checkUpdates() {
+      checkUpdates();
+    },
     // 判断是否展示每日学习
     async judgEveryDayStudy() {
       // 判断今日是否已经学习 → 查看是否有当日本地日期存储
@@ -253,7 +268,12 @@ export default {
     },
     // 点击工作台详情跳转到工作台的任务页面
     goWorkBenchTask() {
-      this.$router.push({ name: "WorkBench" });
+      // 判断用户没有任务权限时，禁止进入个人工作台
+      if (this.$store.state.workBench.taskSheetPermissions.hasTaskList == 0) {
+        this.$toast("您没有任务的操作权限");
+      } else {
+        this.$router.push({ name: "WorkBench" });
+      }
     },
     // 点击功能区更多
     goMore() {
@@ -411,7 +431,8 @@ export default {
     height: 188px;
     background-image: url("./images/home-topBg.png");
     background-size: 100% 100%;
-    padding-top: 35px;
+    // padding-top: 35px;
+    // padding-top: 50px;
     box-sizing: border-box;
     .search {
       width: 327px;
@@ -518,10 +539,10 @@ export default {
   padding: 15px;
   background-color: #fff;
   .func-item {
-    margin-bottom: 30px;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    margin-bottom: 65px;
     .box {
       width: 25%;
       margin-bottom: 15px;

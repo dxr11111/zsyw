@@ -156,7 +156,7 @@
           <div class="position" style="flex: 1" @click="showTime = true">
             <input
               readonly
-              style="flex: none; width: 100%"
+              style="width: 100%"
               type="text"
               v-model="acceptTime"
               placeholder="请选择时间"
@@ -244,7 +244,7 @@
                 {{ item.name }}
               </div>
             </div>
-            <div style="font-size: 14px; font-weight: normal">
+            <div style="font-size: 16px; font-weight: normal">
               {{ currItem == "全部" ? "" : `已选择${currItem}：` }}
               <span v-for="(item, index) in selectedList" :key="index"
                 >{{ item.name }}&nbsp;
@@ -1372,7 +1372,7 @@ export default {
     text-align: start;
     margin-bottom: 12px;
   }
-  .sort {
+  /* .sort {
     border-bottom: 3px solid #eee;
     ul {
       display: flex;
@@ -1412,9 +1412,10 @@ export default {
         }
       }
     }
-  }
+  } */
   .filtrate {
     margin-top: 15px;
+    font-size: 16px;
     .panel {
       text-align: start;
       color: #000;
@@ -1443,7 +1444,7 @@ export default {
         // width: 90px;
         // line-height: 46px;
         padding: 8px;
-        font-size: 14px;
+        font-size: 16px;
         border: 1px solid #ccc;
         border-radius: 5px;
         text-align: center;
@@ -1457,23 +1458,24 @@ export default {
       }
     }
     .field {
-      color: #000;
-      margin-bottom: 12px;
       display: flex;
       width: 100%;
+      margin-bottom: 12px;
+      font-size: 16px;
+      color: #000;
       .label {
         font-weight: 600;
         line-height: 40px;
         width: 80px;
-        text-align: start;
+        text-align: left;
+        white-space: nowrap;
       }
       input {
-        // width: 70%;
         flex: 1;
+        padding: 6px 8px;
         line-height: 30px;
         border: 2px solid #eee;
         border-radius: 10px;
-        padding: 6px 10px;
         box-sizing: border-box;
       }
     }
@@ -1489,6 +1491,7 @@ export default {
     }
     .time-box {
       display: flex;
+      font-size: 16px;
       .label {
         width: 80px;
         font-weight: 600;

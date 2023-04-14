@@ -491,6 +491,8 @@ export default {
       paAdIn: "", // 装机地址
       needPaAdIn: false,
       repairAction: [], // 修复动作
+
+      lowerSheetNo: parseInt(this.$route.query.sheetNo), // 下级工单号 点击按钮ifmFinishKX进入复测页面时传-1；从审核页面进入时传SheetAuditInfo对象里的sheetNo
     };
   },
   methods: {
@@ -639,7 +641,9 @@ export default {
 
     // 获取复测信息
     async getFuCeInfo() {
-      let result = await reqIfmRetestQuery(JSON.stringify({ id: this.id }));
+      let result = await reqIfmRetestQuery(
+        JSON.stringify({ id: this.id, lowerSheetNo: this.lowerSheetNo })
+      );
       console.log("获取ifm复测信息", result);
       this.apiResponse(result, ".ifmFuCe", () => {
         // 响应成功
@@ -880,6 +884,7 @@ export default {
         solveResult: this.solveResult,
         paAdIn: this.paAdIn,
         repairAction: this.repairAction,
+        lowerSheetNo: this.lowerSheetNo,
       };
       let result = await reqIfmRetest(JSON.stringify(postData));
       console.log("提交结果", result);

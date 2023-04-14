@@ -49,10 +49,8 @@ requests.interceptors.request.use(config => {
 
     // 移动端参数 所有接口都携带
     let mobileParam = {
-        /*  mobileType: store.state.mobileType, // 1：安卓 2：ios 3：pc端 
-         clientId: store.state.clientId, // 2023版WebH5App 9：安卓 10：ios 11：pc端 */
-        mobileType: 1,
-        clientId: 9,
+        mobileType: store.state.mobileType, // 1：安卓 2：ios 3：pc端 
+        clientId: store.state.clientId, // 2023版WebH5App 9：安卓 10：ios 11：pc端 
         version: version,
         imei: "477E9099-6B08-49A3-8512-CB650B7851A9",
     }

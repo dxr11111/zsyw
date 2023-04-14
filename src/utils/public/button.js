@@ -895,12 +895,22 @@ export const matchButton = async (buttonInfo, buttonId) => {
                 }
             })
             break
-        case ('ifmFuCe'):
+        /* case ('ifmFuCe'):
+            // 复测-弃用
+            vue.$router.push({
+                path: '/ifmFuCe',
+                query: {
+                    id: buttonInfo.id,
+                }
+            })
+            break */
+        case ('ifmFinishKX'):
             // 复测
             vue.$router.push({
                 path: '/ifmFuCe',
                 query: {
                     id: buttonInfo.id,
+                    sheetNo: -1,
                 }
             })
             break

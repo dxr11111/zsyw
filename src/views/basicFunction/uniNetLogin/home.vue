@@ -196,6 +196,11 @@ export default {
     },
     // 点击工单
     clickOrder(order) {
+      // 要将用户权限下的工单权限加上
+      this.$store.commit("workBench/changeTaskSheetPermissions", {
+        hasSheetList: 1,
+      });
+
       this.$router.push({
         name: "WorkBench",
         query: {

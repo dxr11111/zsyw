@@ -672,14 +672,58 @@ export const matchTools = async (toolInfo) => {
     // 小小智
     case "xxz":
       window.location.href = appUrl.xxz;
-      // 测试上下翻页
-      // _this.$router.push('/test')
       // _this.$dialog.alert({
       //   title: '温馨提示',
       //   message: '手机没有安装小小智应用，请去下载小小智应用',
       // }).then(() => {
       //   // on close
       // })
+      break;
+    // 资源核查
+    case 'zyhc':
+      /* iOS：
+          1.URL Scheme: zzhc://
+          2.bundle id: com.hfvast.zyhcappTest
+         安卓：
+          1.包名：com.hfvast.rsc
+          2.首页路径：com.hfvast.rsc.MainActivity */
+
+      // 携带extra参数给Android
+      /* let decode = "my test.php?name=ståle&car=saab";
+      let NATIVE_MENU_BUNDLE = {
+        TOKEN_ID: decode,
+      };
+      let result = JSON.stringify({
+        NATIVE_MENU_BUNDLE,
+      }); */
+      // 检测app是否安装
+      if (window.plus) {
+        if (plus.runtime.isApplicationExist({ pname: 'com.hfvast.rsc', action: 'zzhc://' })) {
+          console.log("应用已安装");
+          // 判断平台调用app
+          if (plus.os.name == 'Android') {
+            plus.runtime.launchApplication(
+              {
+                pname: 'com.hfvast.rsc'
+              },
+              function (e) {
+                console.log('Open system default browser failed: ' + e.message);
+              }
+            );
+          } else if (plus.os.name == 'iOS') {
+            plus.runtime.launchApplication({ action: 'zzhc://' }, function (e) {
+              console.log('Open system default browser failed: ' + e.message);
+            });
+          }
+        } else {
+          console.log("应用未安装");
+          _this.$toast('应用未安装')
+        }
+      } else {
+        _this.$toast('当前是浏览器环境，无法监测app是否安装')
+      }
+
+
       break;
     // 故障受理
     case "balkAccept":

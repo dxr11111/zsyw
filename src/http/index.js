@@ -1,4 +1,21 @@
 import requests from "./request";
+// getOssWebUrl来获取后台地址
+export const reqGetOssWebUrl = (postData) => {
+  return requests({
+    method: "post",
+    url: "/getOssWebUrl",
+    data: `data=${postData}`,
+  });
+};
+
+// 公告展示
+export const reqQueryClientNotice = (postData) => {
+  return requests({
+    method: "post",
+    url: "/queryClientNotice",
+    data: `data=${postData}`,
+  });
+};
 
 // 我的 检查更新
 export const reqCheckVersion = (postData) => {

@@ -10,8 +10,19 @@
       <router-view v-if="$route.meta.myKeepAlive" />
     </keep-alive>
     <router-view v-if="!$route.meta.myKeepAlive" /> -->
+
     <!-- 底部tab栏 -->
-    <div class="bottomTabbar" v-if="projectFlag == 1">
+    <div
+      class="bottomTabbar"
+      v-if="projectFlag == 1"
+      :style="{ height: bottomHeight }"
+    >
+      <!-- 公告展示 -->
+      <div class="notice" v-if="noticeShow">
+        <van-notice-bar mode="closeable" @close="closeNotice">{{
+          noticeContents
+        }}</van-notice-bar>
+      </div>
       <van-tabbar v-model="bottomTabActive" route @change="changeTabbar">
         <van-tabbar-item to="/main/home" @click="clickHome()">
           <span>首页</span>
@@ -56,7 +67,11 @@
 </template>
 
 <script>
+import { setItem } from "@/utils/public/sessionStorage";
 import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
+import { reqQueryClientNotice } from "@/http/index";
+import { mapGetters } from "vuex";
+import { judgeTaskSheetPermissions } from "@/utils/public/common";
 
 export default {
   name: "Main",
@@ -64,6 +79,12 @@ export default {
 
   data() {
     return {
+      timer: null,
+      noticeShow: false, // 是否展示公告内容
+      noticeContents: "",
+      noticeInfoId: -1,
+
+      bottomHeight: "50px",
       bottomTabActive: 0,
       workBenchActive: false,
       HomeActive: false,
@@ -71,18 +92,13 @@ export default {
       exclude: "",
       refreshHome: false,
       refreshWorkBench: false,
-
-      isScroll_top: true, // 滚动条是否在顶部
-      isScroll_bottom: false, // 滚动条是否在底部
-      $startY: 0,
-      $moveY: 0,
-      touchesY: 0,
     };
   },
   computed: {
     projectFlag() {
       return this.$store.state.projectFlag;
     },
+    ...mapGetters(["getLoginInfo"]),
   },
   watch: {
     "$route.path": {
@@ -114,6 +130,42 @@ export default {
     },
   },
   methods: {
+    // 关闭公告栏
+    closeNotice() {
+      // 如果用户手工点击右上角关闭，则该公告ID内容当次登录不展示，
+      this.noticeShow = false;
+      this.bottomHeight = "50px";
+      this.$store.commit("home/changeLastNoticeId", this.noticeInfoId);
+      // 如果用户退出后再登录，则继续展示公告内容
+    },
+    // 是否展示公告内容
+    async showNotice() {
+      let result = await reqQueryClientNotice(JSON.stringify({}));
+      console.log("公告展示结果", result);
+      this.apiResponse(result, ".main", () => {
+        // 手动关闭公告后半小时定时查询不受影响，
+        let noticeInfoId = result.clientNoticeInfo.id;
+        if (!(noticeInfoId === this.$store.state.home.lastNoticeId)) {
+          // 是新的公告ID时，将展示。
+          this.noticeInfoId = noticeInfoId;
+          let noticeInfoContent = result.clientNoticeInfo.contents;
+          if (noticeInfoContent.length > 0) {
+            // 显示公告内容
+            this.noticeShow = true;
+            this.bottomHeight = "80px";
+            this.noticeContents = noticeInfoContent;
+          } else {
+            this.noticeShow = false;
+            this.bottomHeight = "50px";
+          }
+        } else {
+          // 查询结果是关闭的公告ID时，不展示
+          this.noticeShow = false;
+          this.bottomHeight = "50px";
+        }
+      });
+    },
+
     // 切换底部标题栏
     changeTabbar() {
       if (this.bottomTabActive !== 1) this.workBenchActive = false;
@@ -146,6 +198,42 @@ export default {
         });
       }, 200);
     },
+    // 将hbuilderx跳转过来的登录参数存储
+    hbuilderxParams() {
+      console.log("当前的路由对象", this.$route);
+      if (Object.values(this.$route.query).length > 0) {
+        // 将登录信息和密码进行解码
+        let loginInfo = JSON.parse(
+          decodeURIComponent(window.atob(this.$route.query.loginInfo))
+        );
+        let password = window.atob(this.$route.query.userPwd);
+
+        // 存入用户登录信息
+        this.$store.commit("GETLOGININFO", loginInfo);
+        // 存入用户密码
+        setItem("userPwd", password);
+        // 手势登录需要用
+        localStorage.setItem("userPwd", password);
+
+        // 判断用户是否有任务权限和工单权限
+        judgeTaskSheetPermissions(loginInfo.userIds);
+      } else {
+        // 判断用户是否有任务权限和工单权限
+        judgeTaskSheetPermissions(this.getLoginInfo?.userIds);
+      }
+    },
+  },
+  created() {
+    // 将hbuilderx跳转过来的参数存储
+    this.hbuilderxParams();
+
+    // 是否展示公告内容 30分钟请求一次 1800000
+    this.timer && clearInterval(this.timer); // 判断定时器是否存在，若存在就关掉
+    this.showNotice();
+    this.timer = setInterval(this.showNotice, 1800000);
+  },
+  beforeDestroy() {
+    clearInterval(this.timer);
   },
 };
 </script>
@@ -154,8 +242,20 @@ export default {
 .main {
   height: 100%;
   overflow-y: auto;
-  .bottomTabbar {
-    height: 50px;
+
+  .notice {
+    position: fixed;
+    bottom: 50px;
+    width: 100%;
+    .van-notice-bar {
+      height: 30px;
+      background-color: @error-bg-color;
+      color: red;
+      /deep/.van-icon {
+        bottom: 4px;
+        left: 12px;
+      }
+    }
   }
 }
 </style>

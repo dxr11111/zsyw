@@ -241,6 +241,7 @@
 </template>
 
 <script>
+import store from "@/store";
 import { reqBillListTab, reqgetOrderList, reqFastQuery } from "@/http/index";
 import { getItem, removeItem, setItem } from "@/utils/public/sessionStorage";
 import { getHasTaskListSysId } from "@/utils/public/common";
@@ -345,7 +346,7 @@ export default {
   computed: {
     ...mapGetters(["getLoginInfo"]),
     ...mapState("workOrder", ["currWorkGroupInfo"]),
-    ...mapState("workBench", ["mainSrollTop"]),
+    ...mapState("workBench", ["mainSrollTop", "taskSheetPermissions"]),
   },
   watch: {
     "$store.state.operationSuccessFlag": {
@@ -400,7 +401,20 @@ export default {
         if (bool === this.isTask) return;
       }
 
-      if (bool == 0) {
+      // 判断用户是否有任务权限和工单权限
+      if (bool) {
+        // 点击任务
+        if (this.taskSheetPermissions.hasTaskList == 0) {
+          return this.$toast("您没有任务的操作权限");
+        }
+      } else {
+        // 点击工单
+        if (this.taskSheetPermissions.hasSheetList == 0) {
+          return this.$toast("您没有部门工单的操作权限");
+        }
+      }
+
+      /* if (bool == 0) {
         // 工单 sysId不包含3,7,9 无法点击
         let sysIds = [];
         this.getLoginInfo?.userIds.forEach((item) => {
@@ -421,7 +435,7 @@ export default {
         } else {
           return this.$toast("您没有部门工单的操作权限");
         }
-      }
+      } */
       // 将筛选个数清零
       this.badgeNum = 0;
       // 切换任务/工单
@@ -1259,10 +1273,20 @@ export default {
             this.clickMenu(0);
           });
         } else {
-          // 默认选中我的任务
-          this.isTask = 1;
-          await this.getTabList();
-          await this.homeJump();
+          // 判断用户是否有任务和工单的权限
+          // 1.有任务权限默认选中我的任务
+          if (this.taskSheetPermissions.hasTaskList) {
+            // 默认选中我的任务
+            this.isTask = 1;
+            await this.getTabList();
+          } else {
+            // 2.没有任务权限 → 判断是否有工单权限 → 有工单权限则默认选中工单,没有工单权限就无法进入工作台
+            this.isTask = 0;
+            // 获取工单信息
+            await this.getWorkOrder();
+          }
+
+          await this.homeJump(); // 判断是不是从首页个人工作台跳转过来的
           this.activeFlag = false;
         }
       }

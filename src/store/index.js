@@ -10,7 +10,7 @@ import workBench from './modules/workBench'
 import button from './modules/button'
 import zeroConfig from './modules/buttonJump/zeroConfig'
 import returnSheet from './modules/buttonJump/returnSheet'
-import { reqgetLogin, reqgetLogOut, reqgetpwdReset } from '@/http/index'
+import { reqgetLogOut, reqgetpwdReset } from '@/http/index'
 import reportSheet from './modules/buttonJump/reportSheet'
 import yhdChartNew from './modules/buttonJump/yhdChartNew'
 import ydNetworkAssess from './modules/buttonJump/ydNetworkAssess'
@@ -45,8 +45,10 @@ export default new Vuex.Store({
             popShow: false,
             isNeedUpdate: false,
             updateLaterShow: false, // 是否显示稍后更新按钮
+            closeShow: false, // 是否显示关闭按钮
             version: '', // 版本号
             content: '', // 更新内容
+            downLoadURL: '', // 下载链接
         }
 
     },
@@ -83,9 +85,15 @@ export default new Vuex.Store({
             state.projectFlag = result
         },
         GETLOGININFO(state, result) {
+            // 存入用户登录信息
             state.loginInfo = result
             setItem('loginInfo', result)
             setItem('loginNo', result.loginNo)
+
+            // 手势登录需要用
+            localStorage.setItem("loginNo", result.loginNo);
+            localStorage.setItem("account", result.loginNo);
+            localStorage.setItem("userName", result.userName);
         },
         // 改变loading状态
         CHANGELOADING(state, result) {
@@ -160,21 +168,7 @@ export default new Vuex.Store({
 
     },
     actions: {
-        async getLoginInfo(context, postData) {
-            // console.log(loginNo)
-            try {
-                let result = await reqgetLogin(postData)
-                console.log('登录响应信息', result)
-                // context.commit('GETLOGININFO', result)
-                if (result.operationSuccessFlag) {
-                    context.commit('GETLOGININFO', result)
-                }
-                return result
 
-            } catch (error) {
-                console.log('登录响应失败信息', error)
-            }
-        },
         // 退出登录
         async getLoginOut(context) {
             try {

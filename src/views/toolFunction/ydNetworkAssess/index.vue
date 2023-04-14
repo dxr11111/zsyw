@@ -206,9 +206,9 @@ export default {
           "ydNetworkAssess/getSettingInfo",
           this.loginNo
         );
-        // let userAuth = this.settingInfo.userAuth;
+        let userAuth = this.settingInfo.userAuth;
         // 测试 userAuth为1
-        let userAuth = 1;
+        // let userAuth = 1;
         if (userAuth == 1 || userAuth == 2) {
           // 展示分公司/小网格
           this.reportShow = false;

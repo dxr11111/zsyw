@@ -8,9 +8,20 @@ const state = {
         keyShow: false,
     },
 
+    // 用户是否有任务权限和工单权限
+    taskSheetPermissions: {
+        hasTaskList: 0,
+        hasSheetList: 0,
+    },
+
+
 
 };
 const mutations = {
+    changeTaskSheetPermissions(state, result) {
+        state.taskSheetPermissions = { ...state.taskSheetPermissions, ...result }
+    },
+
     CHANGEMAINSCROLLTOP(state, result) {
         setItem('mainSrollTop', result)
         state.mainSrollTop = result

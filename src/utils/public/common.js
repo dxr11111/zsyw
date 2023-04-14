@@ -1,3 +1,5 @@
+import that from '@/main'
+
 // 图片旋转处理 -> base64
 export const rotateBase64Img = (src, edg, callback) => {
     try {
@@ -203,7 +205,30 @@ export const getHasTaskListSysId = (userIds) => {
     return sysIds
 }
 
-import _this from '@/main'
+// 判断用户是否有任务权限和工单权限
+export const judgeTaskSheetPermissions = (userIds) => {
+    console.log("判断用户是否有任务权限和工单权限");
+    // 只要有一个item hasSheetList=1就表示有工单权限，hasTaskList=1表示有任务权限
+    for (let item of userIds) {
+        if (item.hasTaskList == 1) {
+            that.$store.commit("workBench/changeTaskSheetPermissions", {
+                hasTaskList: 1,
+            });
+        }
+        if (item.hasSheetList == 1) {
+            that.$store.commit("workBench/changeTaskSheetPermissions", {
+                hasSheetList: 1,
+            });
+        }
+        if (
+            that.$store.state.workBench.taskSheetPermissions.hasSheetList &&
+            that.$store.state.workBench.taskSheetPermissions.hasTaskList
+        ) {
+            break;
+        }
+    }
+}
+
 // 根据需求压缩图片
 export const getCompressFile = function (file, isHalf) {
     console.log(file);
@@ -233,7 +258,7 @@ export const getCompressFile = function (file, isHalf) {
                 canvas.toBlob(function (blob) {
                     const f = new File([blob], file.name, { type: 'image/jpeg' })
                     console.log('图片压缩', f)
-                    _this.$toast('压缩后文件大小'+ f.size)
+                    that.$toast('压缩后文件大小' + f.size)
                     resolve(f)
                 }, 'image/jpeg')
             }

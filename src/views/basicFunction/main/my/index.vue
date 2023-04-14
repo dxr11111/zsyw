@@ -62,7 +62,7 @@
           <span class="custom-title">修改手机号</span>
         </template>
       </van-cell> -->
-        <van-cell is-link @click="showMess = true">
+        <van-cell is-link @click="feedBackFn()">
           <template #title>
             <img src="./images/feedback.png" alt="" />
             <span class="custom-title">意见反馈</span>
@@ -87,13 +87,16 @@
         <div class="mess-title">意见反馈</div>
         <van-field
           class="mess-input"
-          rows="1"
+          rows="4"
           autosize
           v-model="contents"
           type="textarea"
           label="意见内容："
-          placeholder="请输入意见内容"
+          placeholder="请输入意见内容（至少10个字）"
         />
+        <p class="describe">
+          如果您对APP的使用有任何意见或建议，可以通过该渠道进行反馈，将由专人对反馈内容进行梳理，并上报至相关部门
+        </p>
         <van-button block type="info" @click="contentBalk">确认</van-button>
       </van-popup>
     </div>
@@ -104,13 +107,12 @@
 import { getItem, removeItem } from "@/utils/public/sessionStorage";
 import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
 import { version } from "@/utils/public/uniformConfig";
-
+import { checkUpdates } from "@/utils/public/checkUpdatesVersion";
 import {
   GetPushStatusApi,
   SendFeedBackApi,
   LogoutApi,
   GetPhoneNumberApi,
-  reqCheckVersion,
 } from "@/http/index";
 export default {
   name: "My",
@@ -148,63 +150,15 @@ export default {
     console.log("登录人信息", this.loginNo, this.userName);
   },
   methods: {
-    // 点击检查更新
-    async checkUpdates() {
-      let curtVersion = "1.1.1";
-      // 比较当前版本和后台返回的版本
-      const flag = this.compareVersion(version, curtVersion);
-      if (flag) {
-        // 当前版本大
-        // curtVersion<=手机当前版本，则表示最新版无需更新，这时弹个提示框，内容为“您当前的版本是最新版”，点击确定，关闭提示框。
-        this.$store.commit("changeCheckUpdatesPop", {
-          popShow: true,
-          isNeedUpdate: false,
-        });
-      } else {
-        // 后台返回版本大
-        // curtVersion>手机当前版本，则表示有新版本可更新，需要展示content内容，并且再次判断minVersion:
-        // 1.如果minVersion<=手机当前版本，则表示符合最低版本要求，content内容下显示2个按钮，分别是“稍后更新” 和 “立即更新”；
-        // 2.如果minVersion>手机当前版本，则表示不符合最低版本要求，content内容下只显示1个按钮，是 “立即更新”。
-        this.$store.commit("changeCheckUpdatesPop", {
-          popShow: true,
-          isNeedUpdate: true,
-          version: "1.0.1",
-          content:
-            "1、修改工单操作后闪退问题\n2、优化手势登录问题\n3、修改使用老云入户问题\n4、登录页“更多”增加综合监控，资源核查入口\n5、更新版本时，可以到每次的更新内容说明\n6、增加非公客工单的故障单工单、任务处理模块，允许IFM系统用户登录并操作\n7、装机外线环节增加沃家产品设备回填功能\n8、设备领用，增加对沃家产品设备的领用\n9、领用记录，增加对沃家产品设备的记录查询\n10、转让记录，新增转让记录功能，审核转记录\n11、新增装机和修机的设备评价功能\n",
-        });
-      }
-
-      return;
-      let result = await reqCheckVersion(JSON.stringify({}));
-      this.apiResponse(result, "#app", () => {
-        // 成功
-        // curtVersion<=手机当前版本，则表示最新版无需更新，这时弹个提示框，内容为“您当前的版本是最新版”，点击确定，关闭提示框。
-      });
+    // 点击意见反馈
+    feedBackFn() {
+      this.showMess = true;
+      this.contents = "";
     },
-    // 比较版本 当前版本，后台返回版本
-    compareVersion(curV, reqV) {
-      var arr1 = curV.toString().split(".");
-      var arr2 = reqV.toString().split("."); //将两个版本号拆成数字
 
-      var minL = Math.min(arr1.length, arr2.length);
-      var pos = 0; //当前比较位
-      var diff = 0; //当前为位比较是否相等
-      var flag = false; //逐个比较如果当前位相等则继续比较下一位
-
-      while (pos < minL) {
-        diff = parseInt(arr1[pos]) - parseInt(arr2[pos]);
-        if (diff == 0) {
-          pos++;
-          continue;
-        } else if (diff > 0) {
-          flag = true;
-          break;
-        } else {
-          flag = false;
-          break;
-        }
-      }
-      return flag;
+    // 点击检查更新
+    checkUpdates() {
+      checkUpdates();
     },
 
     // 退出登录
@@ -233,6 +187,8 @@ export default {
       this.$router.push("/login");
       // 清空路由缓存
       this.$store.commit("changeKeepPages", "index");
+      // 清空公告id
+      this.$store.commit("home/changeLastNoticeId", -1);
     },
     async getPhoneNumber() {
       let data = await GetPhoneNumberApi(JSON.stringify({}));
@@ -250,16 +206,21 @@ export default {
     // 意见反馈
     async contentBalk() {
       if (this.contents == "") return this.$toast("请输入意见反馈内容");
+      if (this.contents.length < 10)
+        return this.$toast("请输入意见反馈内容至少10个字");
+
       let params = {
         contents: this.contents, // 内容
-        mobileName: "", // 手机名称
-        mobileSysName: this.userInfo.appName, // 手机系统版本名称
+        mobileName: plus.device.model || "", // 手机名称
+        // mobileSysName: this.userInfo.appName, // 手机系统版本名称
+        mobileSysName: plus.os.version || "", // 手机系统版本名称
       };
-      let data = await SendFeedBackApi(JSON.stringify(params));
-      data.operationSuccessFlag
-        ? this.$toast.success(data.successMessage)
-        : this.$toast.fail(data.errorMessage);
-      this.showMess = false;
+      console.log("意见反馈参数", params);
+
+      let result = await SendFeedBackApi(JSON.stringify(params));
+      this.apiResponse(result, "#app", () => {
+        this.showMess = false;
+      });
     },
   },
   activated() {
@@ -355,11 +316,27 @@ export default {
   margin: 10px auto;
 }
 .mess-input {
-  margin-bottom: 8px;
-  ::v-deep.van-field__label {
-    width: 5.2em;
+  padding: 0px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  /deep/.van-cell__title {
+    flex: 1;
+    margin-right: 0;
+  }
+  /deep/.van-cell__value {
+    flex: 3;
+    padding: 0 4px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
   }
 }
+.describe {
+  margin-bottom: 10px;
+  font-size: 12px;
+  text-align: left;
+  color: red;
+}
+
 ::v-deep .van-button--block {
   width: 80%;
   margin: auto;

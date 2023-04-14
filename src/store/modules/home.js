@@ -5,11 +5,17 @@ const state = {
     // taskBoardInfo: {},
     homeListInfo: {},
     listDetail: getItem("listDetail") || {},
+
+    lastNoticeId: -1, // 上次关闭的公告id
 };
 const mutations = {
     /*  GETTASKBOARD(state, result) {
          state.taskBoardInfo = result
      }, */
+
+    changeLastNoticeId(state, result) {
+        state.lastNoticeId = result
+    },
 
     GETHOMELIST(state, result) {
         state.homeListInfo = result

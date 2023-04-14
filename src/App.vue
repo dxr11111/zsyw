@@ -40,6 +40,8 @@ import CheckUpdatesVersion from "@/views/orderFunction/publicRoute/checkUpdatesV
 import { mapState } from "vuex";
 import judgeProject from "./utils/public/judgeProject";
 
+import { reqGetOssWebUrl } from "@/http/index";
+
 export default {
   name: "App",
   components: {
@@ -143,6 +145,8 @@ export default {
     // H5 plus事件处理
     dedecmsok() {
       console.log("开始读取设备信息");
+      console.log("系统的名称", plus.os.name); // Android iOS
+      console.log("系统的版本信息", plus.os.version);
 
       //imei 设备的国际移动设备身份码
       // console.log("设备身份码:" + plus.device.imei);
@@ -153,11 +157,11 @@ export default {
       //vendor 获取设备的生产厂商信息，如果设备不支持则返回空字符串。
       console.log("设备厂商信息:" + plus.device.vendor);
 
-      if (plus.device.vendor === "Apple") {
+      if (plus.os.name === "iOS") {
         // ios
         this.$store.commit("changeClientId", 10);
         this.$store.commit("changeMobileType", 2);
-      } else {
+      } else if (plus.os.name === "Android") {
         // android
         this.$store.commit("changeClientId", 9);
         this.$store.commit("changeMobileType", 1);
@@ -198,8 +202,20 @@ export default {
         localStorage.setItem("Addhead", true);
       } */
     },
+
+    async testSkip() {
+      let ossWebUrl = await reqGetOssWebUrl(JSON.stringify({}));
+      console.log("获取服务器地址", ossWebUrl);
+      this.apiResponse(ossWebUrl, ".login", () => {
+        let url = ossWebUrl.ossWebUrl;
+        window.location.href = `${url}/#/login`;
+      });
+    },
   },
   created() {
+    // 跳转到服务端
+    // this.testSkip();
+
     // 浏览器判断移动端还是pc端
     // this.isMobile();
 
