@@ -38,8 +38,6 @@
     <div v-else>
       <GesturesPass :passWord="gestPass" :setOrCheck="true" @goBack="goBack" />
     </div>
-
-    <!-- <van-button @click="$router.push('/gestPassLogin')">测试</van-button> -->
   </div>
 </template>
 
@@ -49,11 +47,10 @@ import { getItem } from "@/utils/public/sessionStorage";
 import { Base64 } from "js-base64";
 /**
  * 存储数据说明：
- * 1. loginTypeCode: [{ loginNo, typeCode }] --- 所有账号的快捷登录设置
+ * 1. loginType: [{ loginNo, gestPassword, typeCode}] --- 所有账号的手势密码,快捷登录类型
  *    ${loginNo}: 当前登录人账号
- *    ${typeCode}: 当前用户启用了哪种快捷登录
- * 2. gestPassword: [{ loginNo,  gestPassword}] --- 所有账号的手势密码
  *    ${gestPassword}: Array当前用户设置的手势密码
+ *    ${typeCode}: 当前用户启用了哪种快捷登录 1:手势 2:指纹
  */
 export default {
   components: {
@@ -62,8 +59,7 @@ export default {
   data() {
     return {
       loginNo: getItem("loginInfo").loginNo, // 当前登录的账号
-      loginTypeCode: JSON.parse(localStorage.getItem("loginTypeCode") || "[]"), // 所有账号的快捷登录设置
-      getPassData: JSON.parse(localStorage.getItem("gestPassword") || "[]"), // 获取存储所有用户的手势密码
+      loginType: JSON.parse(localStorage.getItem("loginType")) || [], // 获取存储所有用户的手势密码
       gestChecked: false, // 手势密码开关
       gestPass: [], // 当前用户的手势密码（之前设置过的）
       fingChecked: false, // 指纹开关
@@ -73,23 +69,19 @@ export default {
   },
   created() {
     // 手势密码
-    if (this.getPassData.length > 0) {
-      this.getPassData.forEach((e) => {
-        if (e.loginNo == this.loginNo) {
-          this.gestPass = e.gestPassword;
-        }
-      });
-    }
+    this.loginType.forEach((e) => {
+      if (e.loginNo == this.loginNo) {
+        this.gestPass = e.gestPassword;
+      }
+    });
     // 手势密码状态
     this.gestChecked = this.gestPass.length > 0 ? true : false;
     // 当前快捷登录设置
-    if (this.loginTypeCode?.length > 0) {
-      this.loginTypeCode.forEach((e) => {
-        if (e.loginNo == this.loginNo) {
-          this.quickLoginCode = e.typeCode;
-        }
-      });
-    }
+    this.loginType.forEach((e) => {
+      if (e.loginNo == this.loginNo) {
+        this.quickLoginCode = e.typeCode;
+      }
+    });
     if (this.quickLoginCode == 1) {
       this.gestChecked = true;
     } else if (this.quickLoginCode == 2) {
@@ -103,26 +95,20 @@ export default {
       }
       if (!newValue && this.gestPass.length > 0) {
         // 如果已经设置过的密码，但是用户又关掉，要清空本地存储的手势密码
-        if (this.getPassData.length > 0) {
-          this.getPassData.forEach((e) => {
-            if (e.loginNo == this.loginNo) {
-              e.gestPassword = [];
-            }
-          });
-          localStorage.setItem(
-            "gestPassword",
-            JSON.stringify(this.getPassData)
-          );
-          this.quickLoginCode = 0;
-        }
-        this.updateData();
+        this.loginType.forEach((e) => {
+          if (e.loginNo == this.loginNo) {
+            e.gestPassword = [];
+            e.typeCode = 0;
+          }
+        });
+        localStorage.setItem("loginType", JSON.stringify(this.loginType));
+        this.quickLoginCode = 0;
       }
     },
     fingChecked(newValue, oldValue) {
       if (newValue) {
         this.gestChecked = false;
       }
-      this.updateData();
     },
   },
   mounted() {
@@ -140,31 +126,23 @@ export default {
         if (this.gestChecked && this.gestPass.length > 0) {
           this.quickLoginCode = 1;
           // 存储手势密码，如果是同一个账号就覆盖之前的密码
-          if (this.getPassData.length > 0) {
-            this.getPassData.forEach((e) => {
-              if (e.loginNo == this.loginNo) {
-                e.gestPassword = this.gestPass;
-              } else {
-                this.getPassData.push({
-                  loginNo: this.loginNo,
-                  gestPassword: this.gestPass,
-                });
-              }
-            });
-          } else {
-            this.getPassData.push({
-              loginNo: this.loginNo,
-              gestPassword: this.gestPass,
-            });
-          }
-          localStorage.setItem(
-            "gestPassword",
-            JSON.stringify(this.getPassData)
-          );
+          this.loginType.forEach((item) => {
+            if (item.loginNo == this.loginNo) {
+              item.gestPassword = this.gestPass;
+              localStorage.setItem("loginType", JSON.stringify(this.loginType));
+              return;
+            }
+          });
+          // 新增一条
+          this.loginType.push({
+            loginNo: this.loginNo,
+            gestPassword: this.gestPass,
+            typeCode: 1,
+          });
+          localStorage.setItem("loginType", JSON.stringify(this.loginType));
         } else {
           this.quickLoginCode = 0;
         }
-        this.updateData();
       } else {
         this.gestChecked = false;
       }
@@ -177,35 +155,6 @@ export default {
     },
     setFingChecked() {
       this.fingChecked = !this.fingChecked;
-    },
-    updateData() {
-      if (this.fingChecked) {
-        this.quickLoginCode = 2;
-      }
-      if (!this.gestChecked && !this.fingChecked) {
-        this.quickLoginCode = 0;
-      }
-      // 快捷登录设置
-      if (this.loginTypeCode?.length > 0) {
-        this.loginTypeCode.forEach((e) => {
-          if (e.loginNo == this.loginNo) {
-            e.typeCode = this.quickLoginCode;
-          } else {
-            this.loginTypeCode.push({
-              loginNo: this.loginNo,
-              typeCode: this.quickLoginCode,
-            });
-          }
-        });
-      } else {
-        console.log("==========", this.loginTypeCode);
-        this.loginTypeCode.push({
-          loginNo: this.loginNo,
-          typeCode: this.quickLoginCode,
-        });
-      }
-      console.log(this.loginTypeCode, this.quickLoginCode);
-      localStorage.setItem("loginTypeCode", JSON.stringify(this.loginTypeCode));
     },
     goBackEv() {
       console.log(this.gestChecked, this.fingChecked, this.quickLoginCode);

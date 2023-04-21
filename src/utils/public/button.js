@@ -1,5 +1,6 @@
 // 匹配按钮发送请求
 import {
+    reqArrive,
     SaveOverTimeApi,
     IfmCrisTestApi,
     reqUnFocusToday,
@@ -21,7 +22,8 @@ import {
     reqIfmReDiagnoseQuery,
     reqIfmDiagnoseQuery,
 } from '@/http/button'
-import { getLocation, getLocationH5 } from './positionLoaction'
+
+import { getLocation, getLocationH5, getLocationHbuilder } from './positionLoaction'
 import { unicomFunc } from './unicomApp'
 import vue from '@/main'
 // 装机单回复前查询
@@ -318,26 +320,61 @@ export const matchButton = async (buttonInfo, buttonId) => {
                             className: 'confirmDialog',
                         })
                             .then(() => {
-                                var location = getLocation()
-                                setTimeout(async () => {
+                                // 提交经纬度给后台
+                                async function submitLocation() {
                                     let params = {
                                         id: buttonInfo.id,
-                                        posX: location.lng, // 经度
-                                        posY: location.lat, // 纬度
-                                        address: location.address
+                                        posX: res.lng, // 经度
+                                        posY: res.lat, // 纬度
+                                        address: ""
                                     }
-                                    console.log('参数', params)
-                                    let data = await GoSiteApi(JSON.stringify(params))
-                                    if (data.operationSuccessFlag) {
-                                        vue.$toast.success(data.successMessage)
-                                        // if (vue.$route.path !== '/main/workBench') {
-                                        //     vue.$router.push('/main/workBench')
-                                        // }
+                                    console.log('发送的定位参数', params)
+                                    let result = await GoSiteApi(JSON.stringify(params))
+                                    vue.apiResponse(result, "#app", () => {
                                         vue.operationSuccessRefresh(true)
-                                    } else {
-                                        vue.$toast.fail(data.errorMessage)
+                                    })
+                                }
+                                var code = unicomFunc();
+                                if (code == 0) {
+                                    // 调用hbuilderx定位
+                                    getLocationHbuilder()
+                                        .then(async (res) => {
+                                            vue.$toast(`hbuilderx-经度：${res.lng}; 纬度：${res.lat}`);
+                                            console.log("hbuilderx-定位数据", res);
+                                            // 提交经纬度给后台
+                                            submitLocation(res)
+                                        })
+                                        .catch((error) => {
+                                            console.log("hbuilderx-定位error+", error);
+                                            vue.$toast("hbuilderx" + error);
+                                        });
+                                } else {
+                                    // 调用联通网络内部定位
+                                    // 调用联通网络内部定位
+                                    function getlnglatCallBack(location) {
+                                        // 获取经纬度
+                                        let arr = location.split(",");
+                                        let info = {
+                                            lat: arr[0], // 纬度
+                                            lng: arr[1], // 经度
+                                        };
+                                        return info;
                                     }
-                                }, 1000)
+                                    // 联通网络
+                                    if (code == 1) {
+                                        // ios
+                                        const location = getLngAndLat();
+                                        let res = getlnglatCallBack(location);
+                                        // 提交经纬度给后台
+                                        submitLocation(res)
+                                    } else if (code == 2) {
+                                        // android
+                                        const location = region.getLngAndLat();
+                                        let res = getlnglatCallBack(location);
+                                        // 提交经纬度给后台
+                                        submitLocation(res)
+                                    }
+                                }
                             })
                             .catch()
                     })
@@ -460,7 +497,84 @@ export const matchButton = async (buttonInfo, buttonId) => {
             })
             break
 
+        case ("arrive"):
+            // 我已到达
+            // 我已到达操作
+            // 弹出提示
+            vue.$dialog
+                .confirm({
+                    title: "您是否操作我已到达？",
+                    className: "confirmDialog",
+                    getContainer: "#app",
+                })
+                .then(async () => {
+                    // 提交经纬度给后台
+                    async function submitLocation() {
+                        let id = buttonInfo.id; // 工单唯一标识
+                        let longitude = res.lng; // 经度
+                        let latitude = res.lat; // 纬度
+                        let address = ""; // 所属地址
 
+                        let result = await reqArrive(
+                            JSON.stringify({ id, longitude, latitude, address })
+                        );
+                        // 返回createSaleSheet=1，需弹窗显示随销单生成提示；
+                        if (result?.createSaleSheet == 1) {
+                            vue.$store.commit("button/changeArriveTipsShow", true);
+                        } else {
+                            vue.apiResponse(result, "#app", () => {
+                                // 操作成功刷新页面并跳转到沃推荐
+                                vue.operationSuccessRefresh(true);
+                            });
+                        }
+                    }
+                    var code = unicomFunc();
+                    if (code == 0) {
+                        // 调用hbuilderx定位
+                        getLocationHbuilder()
+                            .then(async (res) => {
+                                vue.$toast(`hbuilderx-经度：${res.lng}; 纬度：${res.lat}`);
+                                console.log("hbuilderx-定位数据", res);
+                                // 提交经纬度给后台
+                                submitLocation(res)
+
+                            })
+                            .catch((error) => {
+                                console.log("hbuilderx-定位error+", error);
+                                vue.$toast("hbuilderx" + error);
+                            });
+                    } else {
+                        // 调用联通网络内部定位
+                        function getlnglatCallBack(location) {
+                            // 获取经纬度
+                            let arr = location.split(",");
+                            let info = {
+                                lat: arr[0], // 纬度
+                                lng: arr[1], // 经度
+                            };
+                            return info;
+                        }
+                        // 联通网络
+                        if (code == 1) {
+                            // ios
+                            const location = getLngAndLat();
+                            let res = getlnglatCallBack(location);
+                            // 提交经纬度给后台
+                            submitLocation(res)
+                        } else if (code == 2) {
+                            // android
+                            const location = region.getLngAndLat();
+                            let res = getlnglatCallBack(location);
+                            // 提交经纬度给后台
+                            submitLocation(res)
+                        }
+                    }
+
+                })
+                .catch(() => {
+                    // on cancel
+                });
+            break
         case ('unFocusToday'):
             // 发送今日不关注请求
             let unFocusTodayResult = await reqUnFocusToday(JSON.stringify({ id: buttonInfo.id }))

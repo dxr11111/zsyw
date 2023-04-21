@@ -77,6 +77,7 @@ export default new Vuex.Store({
             state.loginNo = ""
 
             localStorage.removeItem('userName')
+            localStorage.removeItem('loginNo')
             localStorage.removeItem('userPwd')
             localStorage.removeItem('account')
         },
@@ -87,6 +88,7 @@ export default new Vuex.Store({
         GETLOGININFO(state, result) {
             // 存入用户登录信息
             state.loginInfo = result
+            state.loginNo = result.loginNo
             setItem('loginInfo', result)
             setItem('loginNo', result.loginNo)
 

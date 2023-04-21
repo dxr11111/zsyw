@@ -21,7 +21,9 @@
           <p>{{ setAgain ? "请再次绘制解锁图案" : "请绘制解锁图案" }}</p>
           <div
             class="guide"
-            :style="{ display: tooEasy || !isFit ? 'block' : 'none' }"
+            :style="{
+              display: tooEasy || !isFit ? 'block' : 'none',
+            }"
           >
             <p class="guide-tips">
               {{
@@ -50,15 +52,19 @@
   </div>
 </template>
 <script>
-import { getItem } from "@/utils/public/sessionStorage";
+import { getItem, setItem } from "@/utils/public/sessionStorage";
+import { reqgetLogin } from "@/http/index";
+import { jumpServerCode } from "@/utils/public/jumpServerCode";
+
 export default {
+  name: "GesturesPass",
   props: {
     // 设置或验证手势密码页面设置true或者false
     setOrCheck: {
       type: Boolean,
       default: true,
     },
-    // 密码
+    // 手势登录密码
     passWord: {
       type: Array,
       default: [],
@@ -75,7 +81,7 @@ export default {
   data() {
     return {
       // isLoginInfo: false,
-      userName: getItem("loginNo") || "",
+      userName: localStorage.getItem("userName") || "",
       moreListShow: false, // 控制更多组件
 
       pointerArr: [], // 绘制路径
@@ -442,30 +448,78 @@ export default {
           }
         } else {
           // 验证手势页面
-          if (_this.puts.length >= 4) {
-            _this.tooEasy = false;
-            if (JSON.stringify(_this.puts) == JSON.stringify(_this.passWord)) {
-              _this.$toast("密码解锁成功");
-              // _this.$router.push("/main")
-              _this.login();
-            } else {
-              _this.$toast("密码错误, 请重新输入");
+          // 先判断五次验证手势密码的机会是否用完
+          let loginNo = localStorage.getItem("loginNo");
+          let loginType = JSON.parse(localStorage.getItem("loginType")) || []; // 获取存储所有用户的手势密码
+          loginType.forEach((e) => {
+            if (e.loginNo == loginNo) {
+              if (
+                e.hasOwnProperty("gestPasswordError") &&
+                e.gestPasswordError >= 5
+              ) {
+                // 用户输入手势密码已经超过五次
+                _this.$toast({
+                  message:
+                    "您的手势登录错误已达最大次数，请点击“更多->切换账号”，输入账号密码进行登录",
+                  duration: 3000,
+                });
+                _this.init(true);
+              } else {
+                if (_this.puts.length >= 4) {
+                  _this.tooEasy = false;
+                  if (
+                    JSON.stringify(_this.puts) == JSON.stringify(_this.passWord)
+                  ) {
+                    _this.$toast("密码解锁成功");
+                    // 清空手势登录验证错误次数
+                    e.gestPasswordError = 0;
+                    localStorage.setItem(
+                      "loginType",
+                      JSON.stringify(loginType)
+                    );
+
+                    _this.login();
+                  } else {
+                    _this.$toast("密码错误, 请重新输入");
+                    // 增加本地存储错误次数
+                    _this.addGestPasswordError();
+                  }
+                  console.log(
+                    "你输入的密码：",
+                    JSON.stringify(_this.puts),
+                    "实际密码：",
+                    JSON.stringify(_this.passWord)
+                  );
+                  _this.init(true);
+                } else if (_this.puts.length >= 1) {
+                  _this.$toast("密码错误，请至少连接四个点");
+                  // 增加本地存储错误次数
+                  _this.addGestPasswordError();
+                  // _this.tooEasy = true;
+                  _this.init(true);
+                }
+              }
             }
-            console.log(
-              "你输入的密码：",
-              JSON.stringify(_this.puts),
-              "实际密码：",
-              JSON.stringify(_this.passWord)
-            );
-            _this.init(true);
-          } else if (this.puts.length >= 1) {
-            // this.$toast('至少连接四个点，请重新绘制')
-            _this.tooEasy = true;
-            _this.init(true);
-          }
+          });
         }
         _this.puts = [];
       });
+    },
+    // 增加本地存储手势密码验证错误次数
+    addGestPasswordError() {
+      // 切换账号时，清空当前账号的手势密码及快捷标识
+      let loginNo = localStorage.getItem("loginNo");
+      let loginType = JSON.parse(localStorage.getItem("loginType")) || []; // 获取存储所有用户的手势密码
+      loginType.forEach((e) => {
+        if (e.loginNo == loginNo) {
+          if (e.hasOwnProperty("gestPasswordError")) {
+            e.gestPasswordError += 1;
+          } else {
+            e.gestPasswordError = 1;
+          }
+        }
+      });
+      localStorage.setItem("loginType", JSON.stringify(loginType));
     },
     async login() {
       let postData = {
@@ -474,13 +528,17 @@ export default {
         userToken: "",
         tokenId: "",
       };
-      let result = await this.$store.dispatch(
-        "getLoginInfo",
-        JSON.stringify(postData)
-      );
+
+      let result = await reqgetLogin(JSON.stringify(postData));
       console.log("登录结果", result);
       this.apiResponse(result, ".container", () => {
-        this.$router.push("/main");
+        // 登录成功 存入用户登录信息
+        this.$store.commit("GETLOGININFO", result);
+        // 存入用户密码
+        setItem("userPwd", localStorage.getItem("userPwd"));
+        // this.$router.push("/main");
+        // 判断用户在hbuilderx上登录后是否跳转到服务器
+        jumpServerCode(result, localStorage.getItem("userPwd"));
       });
     },
   },

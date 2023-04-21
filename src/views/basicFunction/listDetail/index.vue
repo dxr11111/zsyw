@@ -469,6 +469,7 @@ export default {
   name: "ListDetail",
   components: { PhoneIcon, Progress },
   mixins: [keepAliveMixin],
+  inject: ["reload"], // 注入刷新单个路由方法
   data() {
     return {
       refreshFlag: false, // 刷新标识
@@ -712,11 +713,7 @@ export default {
     // 刷新
     refreshFn() {
       // 刷新当前路由
-      this.$store.commit("removeThisPage", this.$options.name);
-      this.$router.replace({
-        path: "/refresh",
-      });
-
+      this.reload(this.$options.name);
       /* // 清空buttonList
       this.buttonList = [];
       this.buttonActions = [];

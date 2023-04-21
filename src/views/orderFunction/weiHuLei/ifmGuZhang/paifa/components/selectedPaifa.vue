@@ -3,22 +3,30 @@
     <MyHeader :name="headName" left="arrow-left" @goBackEv="goBack" />
     <div class="content">
       <van-collapse :lazy-render="false" v-model="activeNames">
-        <van-collapse-item
-          :title="item.name"
-          :name="item.name"
-          v-for="(item, index) in paifaList"
-          :key="index"
-        >
-          <div v-if="item.children.length > 0">
+        <div v-for="(item, index) in paifaList" :key="index">
+          <van-collapse-item
+            :title="item.name"
+            :name="item.name"
+            v-if="item.children.length > 0"
+          >
             <van-cell
-              class="bgc"
+              :class="bgColor(e)"
               v-for="(e, i) in item.children"
               :key="i"
-              @click="changeItem($event, e)"
+              @click="changeItem(e)"
               >{{ e.name }}</van-cell
             >
-          </div>
-        </van-collapse-item>
+          </van-collapse-item>
+          <!-- 没有子节点的item 无需使用折叠面板 -->
+          <template v-else>
+            <van-cell
+              class="bgc"
+              @click="changeItem(item)"
+              :class="bgColor(item)"
+              >{{ item.name }}</van-cell
+            >
+          </template>
+        </div>
       </van-collapse>
     </div>
     <div class="btn">
@@ -40,7 +48,7 @@
         type="info"
         block
         @click="
-          selectedList.length == 0 ? $toast('请选择派发部门') : (isOK = true)
+          selectList.length == 0 ? $toast('请选择派发部门') : (isOK = true)
         "
         >确定</van-button
       >
@@ -53,12 +61,12 @@
       />
       <van-button type="info" block @click="clickPF">确认</van-button>
     </van-popup>
-    <!-- 显示已选择的派发部门 -->
+    <!-- 显示已选择的派发部门弹出层 -->
     <van-popup v-model="isOK" style="border-radius: 5px">
       <div class="decp">
         <div>派发部门</div>
         <ul>
-          <li v-for="(item, index) in selectedList" :key="index">
+          <li v-for="(item, index) in selectList" :key="index">
             {{ index + 1 }}.{{ item.name }}<br />
             <span class="intro" v-if="item.instruction"
               >(执行要求：{{ item.instruction }})</span
@@ -83,20 +91,20 @@ export default {
   props: {
     isShow: {
       type: Boolean,
-      default: false
+      default: false,
     },
     list: {
       type: Array,
-      default: []
+      default: [],
     },
     wasPaifaNames: {
       type: Array,
-      default: []
+      default: [],
     },
     selectedList: {
       type: Array,
-      default: []
-    }
+      default: [],
+    },
   },
   data() {
     return {
@@ -104,117 +112,100 @@ export default {
       activeNames: [],
       paifaList: [], // 转换后的tree数组
       isClick: false, // 控制是否选择
-      // selectedList: [], // 选择的派发数据
-      intro: '', // 执行要求
+      selectList: JSON.parse(JSON.stringify(this.selectedList)), // 选择的派发数据
+      intro: "", // 执行要求
       currDec: null, // 当前点击的派发部门的数据
-      currDom: '', // 当前点击的event
       isOK: false, // 控制执行要求弹层
-    }
+    };
   },
+
   created() {
-    this.paifaList = this.list.filter(e => e.parentName == '-1')
-    this.paifaList.forEach(e => {
-      let arr = []
-      this.list.forEach(list => {
-        if (list.parentName == e.name) return arr.push(list)
-      })
-      e.children = arr
-    })
-    this.paifaList = this.removal(this.paifaList)
-    console.log('treeData', this.paifaList)
+    this.paifaList = this.list.filter((e) => e.parentName == "-1");
+    this.paifaList.forEach((e) => {
+      let arr = [];
+      this.list.forEach((list) => {
+        if (list.parentName == e.name) return arr.push(list);
+      });
+      e.children = arr;
+    });
+    this.paifaList = this.removal(this.paifaList);
+    console.log("treeData", this.paifaList);
   },
   methods: {
+    // 判断部门颜色 蓝色：已选择 红色：已派发
+    bgColor(item) {
+      let paifaFlag = this.wasPaifaNames.find((n) => n.name == item.name);
+      if (paifaFlag) {
+        return "redBg";
+      }
+      let selectedFlag = this.selectList.find((n) => n.name == item.name);
+      if (selectedFlag) {
+        return "blueBg";
+      }
+    },
     // 数组去重
     removal(arr) {
-      let newArr = []
+      let newArr = [];
       for (let i = 0; i < arr.length; i++) {
-        newArr.find(item => item.name == arr[i].name) ? newArr : newArr.push(arr[i])
+        newArr.find((item) => item.name == arr[i].name)
+          ? newArr
+          : newArr.push(arr[i]);
       }
-      return newArr
+      return newArr;
     },
     // 点击派发部门 -- 弹出层，确定之后，修改背景色和字体颜色，再次点击之后，就恢复之前的状态
-    changeItem(event, curr) {
-      console.log('event', event.currentTarget.childNodes)
-      console.log('当前点击的数据', curr)
-      if (event.currentTarget.style.backgroundColor == '' || event.currentTarget.style.backgroundColor == 'rgb(255, 255, 255)') {
-        this.isClick = true
-        this.currDec = curr
-        this.currDom = event.currentTarget
-      } else if (event.currentTarget.style.backgroundColor == 'rgb(88, 136, 226)') {
-        this.isClick = false
-        event.currentTarget.style.backgroundColor = 'rgb(255, 255, 255)' || ''
-        event.currentTarget.childNodes[0].style.color = "#000"
-        let currIndex = null
-        for (let i = 0; i < this.selectedList.length; i++) {
-          if (this.selectedList[i].name === curr.name) {
-            currIndex = i
+    changeItem(item) {
+      let paifaFlag = this.wasPaifaNames.find((n) => n.name == item.name);
+      let selectedFlag = this.selectList.find((n) => n.name == item.name); // 父组件传递过来的已选择
+      if (paifaFlag || selectedFlag) {
+        // 已派发或已选择
+        if (selectedFlag) {
+          // 已选择 → 取消选择
+          this.isClick = false;
+          let currIndex = null;
+          for (let i = 0; i < this.selectList.length; i++) {
+            if (this.selectList[i].name === item.name) {
+              currIndex = i;
+            }
           }
+          console.log("要删除的索引", currIndex);
+          this.selectList.splice(currIndex, 1);
         }
-        console.log('要删除的索引', currIndex)
-        this.selectedList.splice(currIndex, 1)
-        // console.log('filter', this.selectedList)
+      } else {
+        // 未派发也未选择
+        // 如果当前项不在已派发或是已选择里 → 跳出弹出层输入执行要求
+        this.isClick = true;
+        this.currDec = item;
       }
-      if (event.currentTarget.style.backgroundColor == 'red') return this.isClick = false
     },
     // 确认选择派发部门
     clickPF() {
-      console.log(this.currDec)
-      // this.currDom.target.parentNode.style.backgroundColor = "rgb(88, 136, 226)"
-      this.currDom.style.backgroundColor = "rgb(88, 136, 226)"
-      this.currDom.childNodes[0].style.color = "#fff"
-      // console.log('当前点击后的背景色', this.currDom.target.parentNode.style.backgroundColor)
-      console.log('当前点击后的', this.currDom)
-      this.selectedList.push({ ...this.currDec, instruction: this.intro })
-      console.log('选择的派发部门', this.selectedList)
-      this.isClick = false
-      this.intro = ''
+      this.selectList.push({ ...this.currDec, instruction: this.intro });
+      this.isClick = false;
+      this.intro = "";
     },
     confirm() {
-      this.$emit('update:isShow', true)
-      this.$emit('getSeclected', this.selectedList)
+      this.$emit("update:isShow", true);
+      this.$emit("getSeclected", this.selectList);
     },
     goBack() {
-      if (this.selectedList.length > 0) {
-        this.$dialog.confirm({
-          title: '提示',
-          message: '已选择派发部门，确认退出嘛',
-          confirmButtonColor: '#1989fa'
-        })
-          .then(() => {
-            this.$emit('update:isShow', true)
+      if (this.selectList.length > 0) {
+        this.$dialog
+          .confirm({
+            title: "提示",
+            message: "已选择派发部门，确认退出嘛",
+            confirmButtonColor: "#1989fa",
           })
-          .catch()
+          .then(() => {
+            this.$emit("update:isShow", true);
+          })
+          .catch();
       } else {
-        this.$emit('update:isShow', true)
+        this.$emit("update:isShow", true);
       }
-
-    }
-  },
-  watch: {
-    // 给已派发的部门添加背景色
-    activeNames() {
-      this.$nextTick(() => {
-        var cell = document.getElementsByClassName('bgc')
-        // console.log(cell)
-        for (let i = 0; i < cell.length; i++) {
-          const e = cell[i].innerText
-          // 接口返回的已选择的派发部门
-          var flag = this.wasPaifaNames.find(n => n.name == e)
-          if (flag) {
-            cell[i].style.backgroundColor = "red"
-            cell[i].childNodes[0].style.color = "#fff"
-          }
-          // 子页面选择的派发部门，父页面再次进入选择时，之前的也要渲染出来
-          var str = this.selectedList.find(n => n.name == e)
-          if (str) {
-            cell[i].style.backgroundColor = "rgb(88, 136, 226)"
-            cell[i].childNodes[0].style.color = "#fff"
-          }
-        }
-      })
     },
   },
-}
+};
 </script>
 
 <style scoped lang="less">
@@ -227,6 +218,18 @@ export default {
 }
 .content {
   padding-bottom: 120px;
+  .redBg {
+    background-color: red;
+    .van-cell__value {
+      color: #fff;
+    }
+  }
+  .blueBg {
+    background-color: rgb(88, 136, 226);
+    .van-cell__value {
+      color: #fff;
+    }
+  }
 }
 .btn {
   background-color: rgb(248, 247, 252);

@@ -890,7 +890,13 @@ export default {
       console.log("提交结果", result);
       this.apiResponse(result, ".ifmFuCe", () => {
         // 操作成功 返回上一个页面并刷新
-        this.$router.go(-1);
+        if (this.lowerSheetNo == -1) {
+          // 从工作台或详情过来的
+          this.$router.go(-1);
+        } else {
+          // 从审核页面过来的
+          this.$router.go(-2);
+        }
         // 只调用接口按钮操作成功 刷新工单详情/工作台
         this.operationSuccessRefresh(true);
       });

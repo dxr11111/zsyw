@@ -594,7 +594,7 @@ export default [
         name: 'Audit',
         component: () => import('@/views/orderFunction/weiHuLei/ifmGuZhang/audit'),
         meta: {
-            myKeepAlive: false,
+            myKeepAlive: true,
         }
     },
     {

@@ -29,29 +29,30 @@ const routes = [
         path: "/login",
         name: "Login",
         component: () => import('@/views/basicFunction/login'),
-        // component: Login,
         meta: {
             myKeepAlive: false,
             index: 2,
         },
-    },
-    {
-        // 密码登录
-        path: "/passLogin",
-        name: "PassLogin",
-        component: () => import("@/views/basicFunction/login/passLogin"),
-        meta: {
-            myKeepAlive: false,
-        },
-    },
-    {
-        // 手势快捷登录
-        path: "/gestPassLogin",
-        // name: "GestPassLogin",
-        component: () => import("@/views/basicFunction/login/gestPassLogin.vue"),
-        meta: {
-            myKeepAlive: false,
-        },
+        children: [
+            {
+                // 账号密码登录
+                path: "passLogin",
+                name: "PassLogin",
+                component: () => import("@/views/basicFunction/login/passLogin"),
+                meta: {
+                    myKeepAlive: false,
+                },
+            },
+            {
+                // 手势快捷登录
+                path: "gestPassLogin",
+                name: "GestPassLogin",
+                component: () => import("@/views/basicFunction/login/gestPassLogin.vue"),
+                meta: {
+                    myKeepAlive: false,
+                },
+            },
+        ],
     },
 
     {
@@ -94,7 +95,7 @@ router.beforeEach((to, from, next) => {
     store.commit("CLEARCANCEL");
 
     // 不需要判断有没有登录信息 直接放行
-    let nextRoute = ["Qrcode", "Login", "PassLogin", "UniNetLogin", "UniNetLoginHome"];
+    let nextRoute = ["Qrcode", "Login", "PassLogin", "GestPassLogin", "UniNetLogin", "UniNetLoginHome"];
     if (nextRoute.includes(to.name)) return next();
 
     // 如果任务权限和工单权限都没有，则无法进入工作台

@@ -3,8 +3,10 @@ import _this from '@/main'
 export const unicomFunc = function () {
   var flag = -1
   if (_this.$store.state.projectFlag == 1) {
+    // 本地
     flag = 0
   } else {
+    // 联通网络
     const UA = window.navigator.userAgent.toLowerCase()
     // console.log('UA', UA);
     const isIos = (UA && /iphone|ipad|ipod|ios/.test(UA)) || false

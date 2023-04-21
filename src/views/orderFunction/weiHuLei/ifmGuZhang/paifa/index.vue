@@ -102,7 +102,7 @@ export default {
   },
   methods: {
     async submit() {
-      if (this.selectList.length == 0) return this.$$toast("请先选择派发部门");
+      if (this.selectList.length == 0) return this.$toast("请选择派发部门");
       // 公共参数
       let params = {
         id: Number(this.$route.query.id),
@@ -142,14 +142,14 @@ export default {
     },
     // 接收子组件数据
     async getSeclected(data) {
-      // 完全包含维护中心、接入网支撑网格
       console.log("子传父", data);
       this.selectList = data;
       this.specialList = [];
+      // 名称包含"维护中心"或者包含“接入网支撑网格”的派发部门调用查询工程师接口
       this.selectList.forEach((e) => {
-        var str = e.name.split(".")[1];
-        if (str === "维护中心" || str === "接入网支撑网格")
+        if (e.name.includes("维护中心") || e.name.includes("接入网支撑网格")) {
           this.specialList.push(e);
+        }
       });
       console.log("特殊列表", this.specialList);
       if (this.specialList.length > 0) {
@@ -182,11 +182,9 @@ export default {
         // 派发部门有的会对应多个工作组，find找到第一个满足元素之后会停止查找
         this.paifaAllList.forEach((item) => {
           if (item.paifaFlowNode.groupId == e) {
-            console.log(item);
             this.wasPaifaNames.push({ name: item.paifaFlowNode.groupName });
           }
         });
-        console.log("已派发部门", this.wasPaifaNames);
         // this.wasPaifaNames.push({ name: curr })
       });
       // 给数组去重，如果派发部门名字一样，只显示一个
@@ -195,6 +193,7 @@ export default {
         newArr.find((i) => i.name == e.name) ? newArr : newArr.push(e);
       });
       this.wasPaifaNames = newArr;
+      console.log("已派发部门", this.wasPaifaNames);
     },
   },
 };

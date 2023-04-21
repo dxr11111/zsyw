@@ -93,6 +93,9 @@ requests.interceptors.response.use(res => {
     if (error.response?.status == 500) {
         vue.$toast('Request failed with status code 500')
     }
+    if (error.response?.status == 404) {
+        vue.$toast('Request failed with status code 404')
+    }
     // 响应失败隐藏loading
     reqNum--
     if (reqNum <= 0) {

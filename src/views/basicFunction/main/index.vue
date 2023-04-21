@@ -11,6 +11,10 @@
     </keep-alive>
     <router-view v-if="!$route.meta.myKeepAlive" /> -->
 
+    <!-- Home页需要使用plus获取设备信息 安卓要等main页面加载完才能触发plus ready，再跳转Home页之前显示加载提示 -->
+    <!-- 加载提示 -->
+    <MyLoading v-if="isLoading" />
+
     <!-- 底部tab栏 -->
     <div
       class="bottomTabbar"
@@ -73,9 +77,15 @@ import { reqQueryClientNotice } from "@/http/index";
 import { mapGetters } from "vuex";
 import { judgeTaskSheetPermissions } from "@/utils/public/common";
 
+import { reqCheckVersion } from "@/http/index";
+import { version } from "@/utils/public/uniformConfig";
+import { compareVersion } from "@/utils/public/checkUpdatesVersion";
+import MyLoading from "@/components/myLoading";
+
 export default {
   name: "Main",
   mixins: [keepAliveMixin],
+  components: { MyLoading },
 
   data() {
     return {
@@ -92,6 +102,8 @@ export default {
       exclude: "",
       refreshHome: false,
       refreshWorkBench: false,
+
+      isLoading: false,
     };
   },
   computed: {
@@ -199,10 +211,33 @@ export default {
       }, 200);
     },
     // 将hbuilderx跳转过来的登录参数存储
-    hbuilderxParams() {
+    async hbuilderxParams() {
       console.log("当前的路由对象", this.$route);
       if (Object.values(this.$route.query).length > 0) {
+        // 检测当前版本是否为最新版本 是→说明后台没有更新代码 不是→重新加载页面（防止使用旧版本页面）
+        /* let result = await reqCheckVersion(JSON.stringify({}));
+        this.apiResponse(result, "#app", () => {
+          // 成功
+          let curtVersion = result.curtVersion;
+          // 比较当前版本和后台返回的版本
+          console.log(
+            "当前记录的版本号：",
+            version,
+            "后台返回的版本号：",
+            curtVersion
+          );
+          const flag = compareVersion(version, curtVersion);
+          if (!flag) {
+            // 当前版本小
+            console.log("重新加载服务");
+            window.location.reload(); // 重新加载
+            return;
+          }
+        });
+        console.log("版本号一致，无需重新加载"); */
+        this.isLoading = true;
         // 将登录信息和密码进行解码
+        // 将hbuilderx跳转过来的参数存储
         let loginInfo = JSON.parse(
           decodeURIComponent(window.atob(this.$route.query.loginInfo))
         );
@@ -215,22 +250,49 @@ export default {
         // 手势登录需要用
         localStorage.setItem("userPwd", password);
 
+        // 拿到登录信息后并且等待安卓触发完plusready后跳转到Home页
+        // ios上plus是一直存在的，不涉及等ready事件。但安卓上还是需要等plus ready。在安卓环境中，通常情况下需要html页面解析完成后才会让5+ API生效
+        if (window.plus) {
+          this.isLoading = false;
+          // 获取公告内容
+          this.getNotice();
+          this.$router.push({ name: "Home" });
+        } else {
+          console.log("没有获取到window.plus");
+          document.addEventListener(
+            "plusready",
+            () => {
+              this.isLoading = false;
+              // 获取公告内容
+              this.getNotice();
+              this.$router.push({ name: "Home" });
+            },
+            false
+          );
+        }
+
         // 判断用户是否有任务权限和工单权限
         judgeTaskSheetPermissions(loginInfo.userIds);
       } else {
+        // 获取公告内容
+        this.getNotice();
+        this.$router.push({ name: "Home" });
         // 判断用户是否有任务权限和工单权限
         judgeTaskSheetPermissions(this.getLoginInfo?.userIds);
       }
     },
+
+    // 获取公告内容
+    getNotice() {
+      // 是否展示公告内容 30分钟请求一次 1800000
+      this.timer && clearInterval(this.timer); // 判断定时器是否存在，若存在就关掉
+      this.showNotice();
+      this.timer = setInterval(this.showNotice, 1800000);
+    },
   },
   created() {
-    // 将hbuilderx跳转过来的参数存储
+    // 判断是否从hbuilderx跳转过来
     this.hbuilderxParams();
-
-    // 是否展示公告内容 30分钟请求一次 1800000
-    this.timer && clearInterval(this.timer); // 判断定时器是否存在，若存在就关掉
-    this.showNotice();
-    this.timer = setInterval(this.showNotice, 1800000);
   },
   beforeDestroy() {
     clearInterval(this.timer);

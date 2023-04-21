@@ -16,7 +16,7 @@ export const checkUpdates = async () => {
         // 比较当前版本和后台返回的版本
         const flag = compareVersion(version, curtVersion);
         if (flag) {
-            // 当前版本大
+            // 当前版本大或一样大
             // 判断当前所在路由是Home还是My
             if (that.$route.name == "My") {
                 // curtVersion<=手机当前版本，则表示最新版无需更新，这时弹个提示框，内容为“您当前的版本是最新版”，点击确定，关闭提示框。

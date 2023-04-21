@@ -197,17 +197,20 @@ export default {
     },
     // 判断是否展示每日学习
     async judgEveryDayStudy() {
-      // 判断今日是否已经学习 → 查看是否有当日本地日期存储
+      // 判断今日是否已经学习 → 查看是否有当前登录人当日本地日期存储
+      let study = 0; // 1:已学习
       let currenDay = this.getDateTime();
       let currentLoginNo = getItem("loginNo");
-      let storageDay = "";
-      let storageLoginNo = "";
       if (localStorage.getItem("everyDayStudy")) {
+        // 查看everyDayStudy是否存在登录人信息
         let everyDayStudy = JSON.parse(localStorage.getItem("everyDayStudy"));
-        storageDay = everyDayStudy.time;
-        storageLoginNo = everyDayStudy.loginNo;
+        for (let item of everyDayStudy) {
+          // 判断同一登录人今日是否学习
+          if (item.loginNo == currentLoginNo && item.time == currenDay)
+            study = 1;
+        }
       }
-      if (!(currenDay == storageDay && currentLoginNo == storageLoginNo)) {
+      if (study == 0) {
         // 未学习 → 发起请求
         let result = await reqEveryDayStudy(JSON.stringify({}));
         console.log("每日学习结果", result);
@@ -225,16 +228,23 @@ export default {
     },
     // 关闭每日学习
     closeEveryDayStudy() {
-      // 用户自行点击关闭按钮，本地记录当天已学标识  存储格式：everyDayStudy:{日期,用户名}
+      // 用户自行点击关闭按钮，本地记录当天已学标识  存储格式：everyDayStudy:[{日期,用户名}]
       this.everyDayStudyShow = false;
       let time = this.getDateTime();
-      localStorage.setItem(
-        "everyDayStudy",
-        JSON.stringify({
-          time,
-          loginNo: getItem("loginNo"),
-        })
-      );
+      let everyDayStudy =
+        JSON.parse(localStorage.getItem("everyDayStudy")) || [];
+      // 查看学习记录里是否有当前登录人之前学习日期 → 覆盖今天日期
+      for (let item of everyDayStudy) {
+        if (item.loginNo == getItem("loginNo")) {
+          item.time = time;
+          localStorage.setItem("everyDayStudy", JSON.stringify(everyDayStudy));
+          return;
+        }
+      }
+
+      // 新增一条学习记录
+      everyDayStudy = [...everyDayStudy, { time, loginNo: getItem("loginNo") }];
+      localStorage.setItem("everyDayStudy", JSON.stringify(everyDayStudy));
     },
     // 倒计时
     countDownTimer() {

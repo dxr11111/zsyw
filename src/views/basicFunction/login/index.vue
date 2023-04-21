@@ -1,54 +1,48 @@
 <template>
   <div class="loginContainer">
-    <PassLogin v-if="pageType == 'index'" />
-    <GestLogin v-if="pageType == 'gest'" />
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
 export default {
   name: "Login",
-  components: {
-    PassLogin: () => import("./passLogin.vue"),
-    GestLogin: () => import("./gestPassLogin.vue"),
-  },
+
   data() {
     return {
-      pageType: "index",
-      prevName: "",
-      loginTypeCode: JSON.parse(localStorage.getItem("loginTypeCode") || "[]"), // 所有账号的快捷登录设置
+      loginType: JSON.parse(localStorage.getItem("loginType")) || [], // 所有账号的快捷登录设置
     };
   },
-  created() {
-    console.log(this.prevName);
-    if (this.prevName == null || this.prevName == "") {
+  methods: {
+    // 判断进入手势登录页面还是账号密码登录页面
+    judgeLoginType() {
       let loginNo = localStorage.getItem("loginNo");
-      console.log("进入判断loginNo:", loginNo);
-      let code = -1;
+      let code = 0;
       if (loginNo) {
-        this.loginTypeCode.forEach((e) => {
+        this.loginType.forEach((e) => {
           if (e.loginNo == loginNo) {
             code = e.typeCode;
           }
         });
         console.log("登录类型", code);
-        if (code == 0 || code == -1) {
-          this.pageType = "index";
+        if (code == 0) {
+          // 进入账号密码登录页
+          this.$router.push({ name: "PassLogin" });
         } else if (code == 1) {
-          this.pageType = "gest";
+          // 进入手势密码登录页
+          this.$router.push({ name: "GestPassLogin" });
         } else if (code == 2) {
-          this.pageType = "fing";
+          // 进入指纹登录页
         }
       } else {
-        this.passLogin = "index";
+        // 进入账号密码登录页
+        this.$router.push({ name: "PassLogin" });
       }
-    }
+    },
   },
-  beforeRouteEnter(to, form, next) {
-    next((vm) => {
-      console.log("登录页路由form", form);
-      vm.prevName = form.name;
-    });
+  created() {
+    // 判断进入手势登录页面还是账号密码登录页面
+    this.judgeLoginType();
   },
 };
 </script>

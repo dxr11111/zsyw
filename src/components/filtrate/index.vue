@@ -152,7 +152,9 @@
         </div>
         <div class="field" v-if="showAcceptTime">
           <!-- 重保单是制表时间，其余是受理时间 -->
-          <div class="label">{{ ifmSysId == 5 ? "制表时间" : "受理时间" }}</div>
+          <div class="label">
+            {{ ifmSysId == 5 && isTask == 0 ? "制表时间" : "受理时间" }}
+          </div>
           <div class="position" style="flex: 1" @click="showTime = true">
             <input
               readonly
@@ -382,9 +384,11 @@
         </div>
         <!-- 类别 -->
         <div class="field" v-if="showSpecProdType">
-          <div class="label">{{ ifmCode == 4 ? "专业" : "类别" }}</div>
+          <div class="label">
+            {{ ifmCode == 4 && isTask == 0 ? "专业" : "类别" }}
+          </div>
           <!-- 支撑单 -->
-          <template v-if="ifmCode == 4">
+          <template v-if="ifmCode == 4 && isTask == 0">
             <div style="flex: 1" class="position" @click="showSpecProd = true">
               <input
                 readonly
@@ -420,7 +424,7 @@
             </div>
           </template>
           <!-- 重保单 -->
-          <div class="opts" v-if="ifmCode == 5">
+          <div class="opts" v-if="ifmCode == 5 && isTask == 0">
             <div
               class="opt"
               :class="item.id == specProdType ? 'active' : ''"
@@ -654,6 +658,9 @@ export default {
       switch (this.code) {
         // 新装机单
         case 10:
+          this.isClickActionDom = true; // 恢复成按钮点击式
+          this.actionTypeLabel = "施工动作";
+
           // this.sortList.list.splice(2, 1, { id: 2, name: "预约时间", status: 0 })
           this.showAcceptTime = true;
           this.showActionType = true;
@@ -672,6 +679,8 @@ export default {
           break;
         // 修机单
         case 1:
+          this.isClickActionDom = true; // 恢复成按钮点击式
+
           // this.sortList.list.splice(2, 1, { id: 2, name: "预约时间", status: 0 })
           this.showService = true;
           this.showActionType = true;
@@ -790,6 +799,7 @@ export default {
             }
             // 在任务下面点筛选内的ifm工单
             if (this.isTask == 1) {
+              this.balkNoLabel = "受理单号";
               // 包含故障单和预警单内容
               this.acceptTitlePlace =
                 "标题/申告电话/类别/号码/联系人/电话/正反向...";

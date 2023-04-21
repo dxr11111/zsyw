@@ -1,5 +1,5 @@
 <template>
-  <!-- 任务回复弹出层 -->
+  <!-- 上站弹出层 -->
   <div class="location">
     <van-popup v-model="show">
       <p class="tips">提示</p>
@@ -22,18 +22,23 @@
 </template>
 
 <script>
-import { mapState } from "vuex"
-import { unicomFunc } from '@/utils/public/unicomApp'
-import { GoSiteApi } from '@/http/button'
-import { getLocationH5, getLocation } from "@/utils/public/positionLoaction"
+import { mapState } from "vuex";
+import { unicomFunc } from "@/utils/public/unicomApp";
+import { GoSiteApi } from "@/http/button";
+import {
+  getLocationH5,
+  getLocation,
+  getLocationHbuilder,
+} from "@/utils/public/positionLoaction";
 export default {
   name: "Location",
   data() {
     return {
       show: true,
-      message: "上站操作只能提交一次，系统将记录经纬度坐标和地址，请确认到达指定地点后再操作，操作成功之后将无法修改或重复提交",
+      message:
+        "上站操作只能提交一次，系统将记录经纬度坐标和地址，请确认到达指定地点后再操作，操作成功之后将无法修改或重复提交",
       loc: {},
-    }
+    };
   },
   computed: {
     ...mapState("button", ["getLocalPopup"]),
@@ -60,119 +65,134 @@ export default {
     //   if (!_this.loc) {
     //     console.log('定位超时')
     //   }
-    // }, 6000) // 6s为推荐值，业务调用方可根据自己的需求设置改时间，不建议太短 
+    // }, 6000) // 6s为推荐值，业务调用方可根据自己的需求设置改时间，不建议太短
   },
   methods: {
     updateAdress() {
-      const _this = this
+      const _this = this;
       return new Promise((resolve, reject) => {
         AMap.plugin(["AMap.Geolocation", "AMap.Geocoder"], function () {
           var geocoder = new AMap.Geocoder({
             // city: "", //城市设为北京，默认：“全国”
-            radius: 1000 //范围，默认：500
-          })
-          var lnglat = [_this.loc.lng, _this.loc.lat]
+            radius: 1000, //范围，默认：500
+          });
+          var lnglat = [_this.loc.lng, _this.loc.lat];
           geocoder.getAddress(lnglat, function (status, result) {
-            if (status === 'complete' && result.regeocode) {
-              console.log('高德-查询地址成功', result.regeocode)
-              resolve(result.regeocode.formattedAddress)
+            if (status === "complete" && result.regeocode) {
+              console.log("高德-查询地址成功", result.regeocode);
+              resolve(result.regeocode.formattedAddress);
             } else {
-              console.log('高德-根据经纬度查询地址失败', result)
-              reject(result)
+              console.log("高德-根据经纬度查询地址失败", result);
+              reject(result);
             }
-          })
-        })
-      })
+          });
+        });
+      });
     },
     // 重置参数
     resetFinishTask() {
       this.$store.commit("button/changeLocalPopup", {
-        code: '', // 判断是哪个操作
+        code: "", // 判断是哪个操作
         isShow: false,
-        id: -1
-      })
+        id: -1,
+      });
     },
     // 确定
     confirmFn() {
-      this.show = false
-      this.$dialog.confirm({
-        title: '提示',
-        message: '确认上站操作嘛？',
-        getContainer: '#app',
-        className: 'confirmDialog',
-      })
+      this.show = false;
+      this.$dialog
+        .confirm({
+          title: "提示",
+          message: "确认上站操作嘛？",
+          getContainer: "#app",
+          className: "confirmDialog",
+        })
         .then(async () => {
-          var code = unicomFunc()
-          console.log('调用标识', code)
+          var code = unicomFunc();
+          console.log("调用标识", code);
           if (code == 0) {
+            // 调用hbuilderx定位
+            getLocationHbuilder()
+              .then((res) => {
+                this.$toast(`hbuilderx-经度：${res.lng}; 纬度：${res.lat}`);
+                console.log("hbuilderx-定位数据", res);
+                if (res.lat) {
+                  this.loc = res;
+                }
+                // 将获取到的位置信息发送给后台
+                this.sendLocation();
+                this.resetFinishTask();
+              })
+              .catch((error) => {
+                console.log("hbuilderx-定位error+", error);
+                this.$toast("hbuilderx" + error);
+                this.resetFinishTask();
+              });
 
-            // setTimeout(() => {
-            //   getLocation().then(res => {
-            //     vue.$toast(`高德-经度：${res.lng}; 纬度：${res.lat}`)
-            //     console.log('高德-定位结果', res)
-            //     this.loc = res
-            //   }).catch(error => {
-            //     vue.$toast('高德' + error)
-            //     console.log('高德-定位错误信息', error)
-            //   })
-            // }, 3000)
-            getLocationH5().then(res => {
-              this.$toast(`h5-经度：${res.lng}; 纬度：${res.lat}`)
-              console.log('h5-定位数据', res)
-              if (res.lat) {
+            /* setTimeout(() => {
+              getLocation().then(res => {
+                vue.$toast(`高德-经度：${res.lng}; 纬度：${res.lat}`)
+                console.log('高德-定位结果', res)
                 this.loc = res
-              }
-            }).catch((error) => {
-              console.log('h5-定位error+', error)
-              this.$toast('h5' + error)
-            })
-
-
-          } else if (code == 1) {
-            // console.log(11111111111111111111);
-            getLngAndLat()
-            this.loc = getlnglatCallBack()
-          } else if (code == 2) {
-            region.getLngAndLat()
-            this.loc = getlnglatCallBack()
-            // console.log(222222222222222);
-          }
-          function getlnglatCallBack(location) {
-            //处理逻辑
-            var arr = location.split(',')
-            var info = {
-              lng: arr[0],
-              lat: arr[1]
+              }).catch(error => {
+                vue.$toast('高德' + error)
+                console.log('高德-定位错误信息', error)
+              })
+            }, 3000) */
+            /* getLocationH5()
+              .then((res) => {
+                this.$toast(`h5-经度：${res.lng}; 纬度：${res.lat}`);
+                console.log("h5-定位数据", res);
+                if (res.lat) {
+                  this.loc = res;
+                }
+              })
+              .catch((error) => {
+                console.log("h5-定位error+", error);
+                this.$toast("h5" + error);
+              }); */
+          } else {
+            function getlnglatCallBack(location) {
+              // 获取经纬度
+              let arr = location.split(",");
+              let info = {
+                lat: arr[0], // 纬度
+                lng: arr[1], // 经度
+              };
+              return info;
             }
-            // console.log('121212121212');
-            return info
-          }
-
-          let data, params = {}
-          // 上站操作
-          if (this.loc.lat) {
-            if (this.getLocalPopup.code == 'goSite') {
-              params = {
-                id: this.getLocalPopup.id,
-                posX: this.loc.lng, // 经度
-                posY: this.loc.lat, // 纬度
-                address: this.loc.address || ''
-              }
-              console.log('参数', params)
-              data = await GoSiteApi(JSON.stringify(params))
-            }
-            if (data.operationSuccessFlag) {
-              this.$toast.success(data.successMessage)
-              this.operationSuccessRefresh(true)
-            } else {
-              this.$toast.fail(data.errorMessage)
+            // 联通网络
+            if (code == 1) {
+              // ios
+              const location = getLngAndLat();
+              this.loc = getlnglatCallBack(location);
+            } else if (code == 2) {
+              // android
+              const location = region.getLngAndLat();
+              this.loc = getlnglatCallBack(location);
             }
           }
-          this.resetFinishTask()
         })
         .catch(() => {
           // on cancel
-        })
+        });
+    },
+    // 将获取到的位置信息发送给后台
+    async sendLocation() {
+      if (this.getLocalPopup.code == "goSite") {
+        let params = {};
+        params = {
+          id: this.getLocalPopup.id,
+          posX: this.loc.lng, // 经度
+          posY: this.loc.lat, // 纬度
+          address: "",
+        };
+        console.log("发送的定位参数", params);
+        let result = await GoSiteApi(JSON.stringify(params));
+        this.apiResponse(result, "#app", () => {
+          this.operationSuccessRefresh(true);
+        });
+      }
     },
   },
   // destroyed() {

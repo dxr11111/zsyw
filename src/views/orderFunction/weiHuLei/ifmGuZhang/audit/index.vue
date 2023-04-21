@@ -1,6 +1,6 @@
 <template>
   <div class="audit">
-    <MyHeader :name="headName" left="arrow-left" @goBackEv="$router.go(-1)" />
+    <MyHeader :name="headName" left="arrow-left" @goBackEv="goBackFn" />
     <van-collapse v-model="activeNames" v-if="auditList.length > 0">
       <van-collapse-item
         :name="String(index + 1)"
@@ -62,8 +62,14 @@ import {
   UpdateAuditSheetApi,
   RejectAuditSheetApi,
 } from "@/http/button";
+import { matchButton } from "@/utils/public/button";
+import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
+import { mapState } from "vuex";
+
 export default {
   name: "Audit",
+  mixins: [keepAliveMixin],
+
   data() {
     return {
       headName: `审核(${this.$route.query.orderId})`,
@@ -77,14 +83,24 @@ export default {
         rejectKX: "驳回",
         rejectCG: "驳回",
         audit: "审核通过",
+        ifmZhuanPai: "转派",
       },
       rejectFlag: -1, // 1：代维驳回，2：客响驳回。
     };
+  },
+  computed: {
+    ...mapState("home", ["listDetail"]),
   },
   created() {
     this.getAuditSheet(false);
   },
   methods: {
+    // 回退
+    goBackFn() {
+      this.$router.go(-1);
+      // 返回到列表详情/工作台 → 销毁整个初诊页面
+      this.$store.commit("removeThisPage", this.$options.name);
+    },
     // 点击按钮
     clickButton(btn, sheetNo) {
       // 判断点击的哪一种按钮
@@ -115,6 +131,10 @@ export default {
         case "audit":
           // 审核通过
           this.updateAudit(sheetNo);
+          break;
+        case "ifmZhuanPai":
+          // 转派
+          matchButton(this.listDetail, "ifmZhuanPai");
           break;
       }
     },
@@ -179,7 +199,7 @@ export default {
       if (bool) {
         // 如果查询没有数据，返回详情页
         if (this.auditList.length == 0) {
-          this.$router.go(-1);
+          this.goBackFn();
           // 刷新工单详情/工作台
           this.operationSuccessRefresh(true);
         }

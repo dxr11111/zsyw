@@ -8,7 +8,7 @@ export default [
     meta: {
       myKeepAlive: true,
     },
-    redirect: "/main/home",
+    // redirect: "/main/home",
     children: [
       {
         path: "home",
@@ -32,7 +32,8 @@ export default [
         // 工作台
         path: "workBench",
         name: "WorkBench",
-        component: WorkBench,
+        // component: () => import("@/views/basicFunction/main/workbench"),
+        component: WorkBench, // 无法使用懒加载，否则切换到工作台加载太慢
         meta: {
           myKeepAlive: true,
           parentPath: '/main',

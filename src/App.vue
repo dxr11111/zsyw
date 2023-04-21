@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <keep-alive :include="keepPages">
-      <router-view></router-view>
+      <router-view v-if="refreshing"></router-view>
     </keep-alive>
 
     <!-- 装机单回复-强制回单posCodeSign弹出层 -->
@@ -58,6 +58,7 @@ export default {
       // 路由过渡
       // transitionName: '',
       // isTransition: false,
+      refreshing: true, // 控制路由刷新
     };
   },
   computed: {
@@ -103,8 +104,21 @@ export default {
         } */
     //#endregion
   },
+  provide() {
+    return {
+      reload: this.onReload,
+    };
+  },
 
   methods: {
+    //刷新单个路由
+    onReload(removeName) {
+      this.$store.commit("removeThisPage", removeName);
+      this.refreshing = false;
+      this.$nextTick(() => {
+        this.refreshing = true;
+      });
+    },
     // 判断移动端还是pc端
     isMobile() {
       let flag = navigator.userAgent.match(
@@ -212,7 +226,8 @@ export default {
       });
     },
   },
-  created() {
+  created() {},
+  mounted() {
     // 跳转到服务端
     // this.testSkip();
 

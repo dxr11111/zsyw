@@ -1,6 +1,8 @@
 /** 
 * 获取经纬度和地址并返回信息
 */
+
+
 // 高德-收费
 export const getLocation = function () {
   return new Promise((resolve, reject) => {
@@ -120,3 +122,42 @@ export const getLocationH5Test = function () {
   });
 }
 
+// hbuilderx-h5获取经纬度信息
+export const getLocationHbuilder = function () {
+  return new Promise((resolve, reject) => {
+    if (window.plus) {
+      plus.geolocation.getCurrentPosition(
+        function (p) {
+          console.log(
+            "Geolocation\n纬度:" +
+            p.coords.latitude +
+            "\n经度:" +
+            p.coords.longitude +
+            "\n海拔:" +
+            p.coords.altitude
+          );
+
+          /* alert(
+            "Geolocation\n纬度:" +
+            p.coords.latitude +
+            "\n经度:" +
+            p.coords.longitude +
+            "\n海拔:" +
+            p.coords.altitude
+          ); */
+          let location = {}
+          location.lat = p.coords.latitude
+          location.lng = p.coords.longitude
+          resolve(location)
+        },
+        function (e) {
+          alert("Geolocation error: " + e.message);
+          console.log("Geolocation error: " + e.message);
+        }
+      );
+    } else {
+      reject('不支持当前地理位置信息获取')
+    }
+  })
+
+}

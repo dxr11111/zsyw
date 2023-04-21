@@ -15,13 +15,13 @@ export default {
   data() {
     return {
       loginNo: localStorage.getItem("loginNo"),
-      getPassData: JSON.parse(localStorage.getItem("gestPassword") || "[]"),
+      loginType: JSON.parse(localStorage.getItem("loginType")) || [], // 所有账号的快捷登录设置
       gestPass: [],
     };
   },
   created() {
-    if (this.getPassData.length > 0) {
-      this.getPassData.forEach((e) => {
+    if (this.loginType.length > 0) {
+      this.loginType.forEach((e) => {
         if (e.loginNo == this.loginNo) {
           this.gestPass = e.gestPassword;
         }

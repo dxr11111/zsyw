@@ -79,7 +79,8 @@
 import { getItem, setItem } from "@/utils/public/sessionStorage";
 import { mapGetters } from "vuex";
 import { version } from "@/utils/public/uniformConfig";
-import { reqgetLogin, reqGetOssWebUrl } from "@/http/index";
+import { reqgetLogin } from "@/http/index";
+import { jumpServerCode } from "@/utils/public/jumpServerCode";
 
 export default {
   name: "PassLogin",
@@ -160,33 +161,8 @@ export default {
             // 手势登录需要用
             localStorage.setItem("userPwd", this.password);
 
-            this.$router.push("/main");
-
-            // 实现hbuilderx跳转服务端，根据登录用户判断是否切换到服务端（类似跳转建设中台）
-            // 用userAppH5Type进行判断，=0时使用内部首页，=1时打开web首页
-            // window.plus 存在hbuilderx环境下
-            if (result.userAppH5Type == 0) {
-              this.$router.push("/main");
-            } else {
-              // 确保通过web跳转首页的安全性 url地址加密
-              // http://132.91.203.144:7002/jwyWeb/#/main
-              let ossWebUrl = await reqGetOssWebUrl(JSON.stringify({}));
-              console.log("获取服务器地址", ossWebUrl);
-              this.apiResponse(ossWebUrl, ".login", () => {
-                let url = ossWebUrl.ossWebUrl;
-                // base64编码 window.btoa() 无法对中文进行编码，使用encodeURIComponent将中文汉字转为URL编码
-                // base64解码 window.atob()
-                let encodePassword = window.btoa(this.password);
-                let encodeLoginInfo = window.btoa(
-                  encodeURIComponent(JSON.stringify(result))
-                );
-
-                console.log("编码后的登录信息", encodeLoginInfo);
-                console.log("编码后的登录密码", encodePassword);
-
-                window.location.href = `${url}/#/main?userPwd=${encodePassword}&loginInfo=${encodeLoginInfo}`;
-              });
-            }
+            // 判断用户在hbuilderx上登录后是否跳转到服务器
+            jumpServerCode(result, this.password);
           });
         } catch (error) {
           console.log("登录响应失败信息", error);
@@ -200,18 +176,6 @@ export default {
       this.loginNo = localStorage.getItem("account") || getItem("loginNo");
       this.isLoginInfo = true;
     }
-    // 密码登录还是手势登录，未跳转
-    // let getPassData = JSON.parse(localStorage.getItem('gestPassword') || '[]')
-    // let loginNo = localStorage.getItem('loginNo')
-    // console.log(loginNo, getPassData);
-    // if (getPassData.length > 0 && loginNo) {
-    //   getPassData.forEach(e => {
-    //     if (e.loginNo == loginNo && e.gestPassword?.length > 0) {
-    //       console.log(5555555555);
-    //       return this.$router.push('/gestPassLogin')
-    //     }
-    //   })
-    // }
     // 查看本地存储是否有用户登录信息，有则在更多显示切换账号
     this.checkLoginInfo();
   },
