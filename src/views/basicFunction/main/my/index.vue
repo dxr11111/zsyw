@@ -170,11 +170,24 @@ export default {
       // removeItem('loginNo')
       removeItem("userPwd");
 
-      this.$router.push("/login");
       // 清空路由缓存
       this.$store.commit("changeKeepPages", "index");
       // 清空公告id
       this.$store.commit("home/changeLastNoticeId", -1);
+
+      // this.$router.push("/login");
+      // 测试是否能退回hbuilder
+      // 关闭iframe标签嵌入web页地址
+      if (this.$store.state.ossWeb.isShow) {
+        console.log("11111111关闭iframe");
+
+        this.$store.commit("changeOssWeb", {
+          isShow: false,
+          webUrl: "",
+        });
+      } else {
+        this.$router.push("/login");
+      }
     },
     async getPhoneNumber() {
       let data = await GetPhoneNumberApi(JSON.stringify({}));
@@ -210,8 +223,6 @@ export default {
     },
   },
   activated() {
-    console.log(this.$router);
-    console.log(this.$route);
     this.checked = getItem("loginInfo").pushStatus == 0 ? true : false;
     this.userName = getItem("loginInfo").userName; // 登录人姓名
     this.loginNo = getItem("loginInfo").loginNo; // 登录账号

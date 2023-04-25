@@ -130,8 +130,6 @@ export default {
     },
     // 点击登录
     async onSubmit(values) {
-      console.log("获取跳转服务器前的地址", window.location.href);
-
       if (this.loginNo == "" && this.password == "") {
         this.$toast("请输入账号和密码");
       } else if (this.loginNo == "") {

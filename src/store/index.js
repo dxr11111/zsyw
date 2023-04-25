@@ -49,10 +49,21 @@ export default new Vuex.Store({
             version: '', // 版本号
             content: '', // 更新内容
             downLoadURL: '', // 下载链接
-        }
+        },
+
+        // hbuilderx专用
+        ossWeb: {
+            isShow: false,
+            webUrl: '',
+        },
 
     },
     mutations: {
+        // hbuilderx专用
+        changeOssWeb(state, result) {
+            state.ossWeb = result
+        },
+
         changeAddHead(state, result) {
             state.addHead = result
             setItem('addHead', result)

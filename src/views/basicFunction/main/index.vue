@@ -76,10 +76,6 @@ import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
 import { reqQueryClientNotice } from "@/http/index";
 import { mapGetters } from "vuex";
 import { judgeTaskSheetPermissions } from "@/utils/public/common";
-
-import { reqCheckVersion } from "@/http/index";
-import { version } from "@/utils/public/uniformConfig";
-import { compareVersion } from "@/utils/public/checkUpdatesVersion";
 import MyLoading from "@/components/myLoading";
 
 export default {
@@ -103,7 +99,7 @@ export default {
       refreshHome: false,
       refreshWorkBench: false,
 
-      isLoading: false,
+      isLoading: false, // 当页面还未进入Home页，保持加载状态
     };
   },
   computed: {
@@ -214,28 +210,7 @@ export default {
     async hbuilderxParams() {
       console.log("当前的路由对象", this.$route);
       if (Object.values(this.$route.query).length > 0) {
-        // 检测当前版本是否为最新版本 是→说明后台没有更新代码 不是→重新加载页面（防止使用旧版本页面）
-        /* let result = await reqCheckVersion(JSON.stringify({}));
-        this.apiResponse(result, "#app", () => {
-          // 成功
-          let curtVersion = result.curtVersion;
-          // 比较当前版本和后台返回的版本
-          console.log(
-            "当前记录的版本号：",
-            version,
-            "后台返回的版本号：",
-            curtVersion
-          );
-          const flag = compareVersion(version, curtVersion);
-          if (!flag) {
-            // 当前版本小
-            console.log("重新加载服务");
-            window.location.reload(); // 重新加载
-            return;
-          }
-        });
-        console.log("版本号一致，无需重新加载"); */
-        this.isLoading = true;
+        // this.isLoading = true;
         // 将登录信息和密码进行解码
         // 将hbuilderx跳转过来的参数存储
         let loginInfo = JSON.parse(
@@ -250,10 +225,15 @@ export default {
         // 手势登录需要用
         localStorage.setItem("userPwd", password);
 
+        // iframe无法获取到window.plus
+        this.$router.push({ name: "Home" });
+        console.log("1111111111111111", window.plus);
+
+        return;
         // 拿到登录信息后并且等待安卓触发完plusready后跳转到Home页
         // ios上plus是一直存在的，不涉及等ready事件。但安卓上还是需要等plus ready。在安卓环境中，通常情况下需要html页面解析完成后才会让5+ API生效
         if (window.plus) {
-          this.isLoading = false;
+          // this.isLoading = false;
           // 获取公告内容
           this.getNotice();
           this.$router.push({ name: "Home" });
@@ -262,7 +242,7 @@ export default {
           document.addEventListener(
             "plusready",
             () => {
-              this.isLoading = false;
+              // this.isLoading = false;
               // 获取公告内容
               this.getNotice();
               this.$router.push({ name: "Home" });
@@ -276,7 +256,10 @@ export default {
       } else {
         // 获取公告内容
         this.getNotice();
-        this.$router.push({ name: "Home" });
+        // 判断是否是第一次进入Main，是→进入Home 不是→说明是在其他页面刷新浏览器，则不强制进入Home
+        if (this.$route.params.fromName == "Login") {
+          this.$router.push({ name: "Home" });
+        }
         // 判断用户是否有任务权限和工单权限
         judgeTaskSheetPermissions(this.getLoginInfo?.userIds);
       }

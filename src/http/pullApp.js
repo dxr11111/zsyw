@@ -6,7 +6,7 @@ export const appUrl = {
     // 待做：光路维护
 }
 
-// 建设中台地址
+// 建设中台地址 前缀：VUE_APP_JS = 'http://202.106.86.115:7064/xmgk'
 export const jsUrl = {
     xmgk: '/#/project/?bmc_login_name=', // 项目管控
     fwsgk: '/#/workbench/?bmc_login_name=', // 服务商管控

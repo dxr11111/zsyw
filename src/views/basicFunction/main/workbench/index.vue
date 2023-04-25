@@ -1105,6 +1105,10 @@ export default {
         // 筛选选中的任务种类
         // 改变selectSysId → 自动调用任务看板
         this.selectSysId = sysIds;
+        if (sysIds > -1) {
+          // 任务筛选了任务种类
+          this.badgeNum += 1;
+        }
       } else {
         // 选中工单 → 重新获取工单看板
         this.$refs.departmentOrder.getOrderNum();
@@ -1507,6 +1511,7 @@ export default {
           font-size: 14px;
           justify-content: flex-start;
           .item {
+            white-space: nowrap;
             height: 20px;
             padding: 5px 10px;
             margin-top: 10px;

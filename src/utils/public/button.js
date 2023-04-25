@@ -321,7 +321,7 @@ export const matchButton = async (buttonInfo, buttonId) => {
                         })
                             .then(() => {
                                 // 提交经纬度给后台
-                                async function submitLocation() {
+                                async function submitLocation(res) {
                                     let params = {
                                         id: buttonInfo.id,
                                         posX: res.lng, // 经度
@@ -338,11 +338,11 @@ export const matchButton = async (buttonInfo, buttonId) => {
                                 if (code == 0) {
                                     // 调用hbuilderx定位
                                     getLocationHbuilder()
-                                        .then(async (res) => {
-                                            vue.$toast(`hbuilderx-经度：${res.lng}; 纬度：${res.lat}`);
-                                            console.log("hbuilderx-定位数据", res);
+                                        .then(async (result) => {
+                                            vue.$toast(`hbuilderx-经度：${result.lng}; 纬度：${result.lat}`);
+                                            console.log("hbuilderx-定位数据", result);
                                             // 提交经纬度给后台
-                                            submitLocation(res)
+                                            submitLocation(result)
                                         })
                                         .catch((error) => {
                                             console.log("hbuilderx-定位error+", error);
@@ -364,15 +364,15 @@ export const matchButton = async (buttonInfo, buttonId) => {
                                     if (code == 1) {
                                         // ios
                                         const location = getLngAndLat();
-                                        let res = getlnglatCallBack(location);
+                                        let result = getlnglatCallBack(location);
                                         // 提交经纬度给后台
-                                        submitLocation(res)
+                                        submitLocation(result)
                                     } else if (code == 2) {
                                         // android
                                         const location = region.getLngAndLat();
-                                        let res = getlnglatCallBack(location);
+                                        let result = getlnglatCallBack(location);
                                         // 提交经纬度给后台
-                                        submitLocation(res)
+                                        submitLocation(result)
                                     }
                                 }
                             })
@@ -509,7 +509,7 @@ export const matchButton = async (buttonInfo, buttonId) => {
                 })
                 .then(async () => {
                     // 提交经纬度给后台
-                    async function submitLocation() {
+                    async function submitLocation(res) {
                         let id = buttonInfo.id; // 工单唯一标识
                         let longitude = res.lng; // 经度
                         let latitude = res.lat; // 纬度
@@ -532,11 +532,11 @@ export const matchButton = async (buttonInfo, buttonId) => {
                     if (code == 0) {
                         // 调用hbuilderx定位
                         getLocationHbuilder()
-                            .then(async (res) => {
-                                vue.$toast(`hbuilderx-经度：${res.lng}; 纬度：${res.lat}`);
-                                console.log("hbuilderx-定位数据", res);
+                            .then(async (result) => {
+                                vue.$toast(`hbuilderx-经度：${result.lng}; 纬度：${result.lat}`);
+                                console.log("hbuilderx-定位数据", result);
                                 // 提交经纬度给后台
-                                submitLocation(res)
+                                submitLocation(result)
 
                             })
                             .catch((error) => {
@@ -558,15 +558,15 @@ export const matchButton = async (buttonInfo, buttonId) => {
                         if (code == 1) {
                             // ios
                             const location = getLngAndLat();
-                            let res = getlnglatCallBack(location);
+                            let result = getlnglatCallBack(location);
                             // 提交经纬度给后台
-                            submitLocation(res)
+                            submitLocation(result)
                         } else if (code == 2) {
                             // android
                             const location = region.getLngAndLat();
-                            let res = getlnglatCallBack(location);
+                            let result = getlnglatCallBack(location);
                             // 提交经纬度给后台
-                            submitLocation(res)
+                            submitLocation(result)
                         }
                     }
 

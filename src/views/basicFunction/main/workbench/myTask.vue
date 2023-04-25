@@ -72,6 +72,7 @@ export default {
     // 获取任务看板数
     async getTaskNum(sysId) {
       let sysIds = [];
+      let userType = 0; // IFM: 0:代维，1：客响
       if (sysId) {
         if (sysId == -1) {
           sysIds = getHasTaskListSysId(this.getLoginInfo?.userIds);
@@ -79,7 +80,15 @@ export default {
       } else {
         sysIds = getHasTaskListSysId(this.getLoginInfo?.userIds);
       }
-      let postData = { sysIds };
+
+      // 取userIds里sysId=3的userType
+      for (let userId of this.getLoginInfo?.userIds) {
+        if (userId.sysId == 3) {
+          userType = userId.userType;
+          break;
+        }
+      }
+      let postData = { sysIds, userType };
       let result = await reqTaskSum(JSON.stringify(postData));
       console.log("获取任务看板数", result);
       this.apiResponse(result, ".myTask", () => {

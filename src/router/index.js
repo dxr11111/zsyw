@@ -6,6 +6,7 @@ Vue.use(VueRouter);
 import { Notify, Toast } from "vant";
 
 import { getItem } from "@/utils/public/sessionStorage";
+
 import store from "@/store";
 
 import basic from "./moudles/basic";
@@ -98,18 +99,7 @@ router.beforeEach((to, from, next) => {
     let nextRoute = ["Qrcode", "Login", "PassLogin", "GestPassLogin", "UniNetLogin", "UniNetLoginHome"];
     if (nextRoute.includes(to.name)) return next();
 
-    // 如果任务权限和工单权限都没有，则无法进入工作台
-    if (to.name == 'WorkBench') {
-        // 如果从建设中台返回，说明用户有工单权限
-        if (!getItem("jsMiddlePlatformFlag")?.isLocation) {
-            // 防止建设中台返回时页面会做刷新导致此时用户没有任务和工单权限会直接跳转首页
-            // 当用户不是从建设中台返回时，再做判断
-            if (router.app.$options.store.state.workBench.taskSheetPermissions.hasTaskList == 0 && router.app.$options.store.state.workBench.taskSheetPermissions.hasSheetList == 0) {
-                Toast('您没有任务和部门工单的操作权限')
-                return next('/main/home')
-            }
-        }
-    }
+
 
     console.log('路由前往的地方', to)
     // 当由hbuilderx跳转到服务器上时，不要拦截
@@ -121,6 +111,28 @@ router.beforeEach((to, from, next) => {
             Notify("请登录");
             return next("/login");
         } else {
+            // 如果任务权限和工单权限都没有，则无法进入工作台
+            if (to.name == 'WorkBench') {
+                // 如果从建设中台返回，说明用户有工单权限
+                if (!getItem("jsMiddlePlatformFlag")?.isLocation) {
+                    // 防止建设中台返回时页面会做刷新导致此时用户没有任务和工单权限会直接跳转首页
+                    // 当用户不是从建设中台返回时，再做判断
+                    // 拿不到$store里的值，因此在这也做一次权限判断，判断用户是否有任务权限和工单权限
+                    let userIds = getItem('loginInfo')?.userIds
+                    let hasTaskList, hasSheetList = 0
+                    // 只要有一个item hasSheetList=1就表示有工单权限，hasTaskList=1表示有任务权限
+                    for (let item of userIds) {
+                        if (item.hasTaskList == 1) hasTaskList = 1
+                        if (item.hasSheetList == 1) hasSheetList = 1
+                        if (hasSheetList && hasTaskList) break;
+                    }
+
+                    if (hasTaskList == 0 && hasSheetList == 0) {
+                        Toast('您没有任务和部门工单的操作权限')
+                        return next('/main/home')
+                    }
+                }
+            }
             next();
         }
     }

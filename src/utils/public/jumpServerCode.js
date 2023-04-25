@@ -5,10 +5,11 @@ export const jumpServerCode = async (result, password) => {
     // 实现hbuilderx跳转服务端，根据登录用户判断是否切换到服务端（类似跳转建设中台）
     // 用userAppH5Type进行判断，=0时使用内部首页，=1时打开web首页
     // window.plus 存在hbuilderx环境下
-    if (window.plus) {
+    if (true) {
         if (result.userAppH5Type == 0) {
-            vue.$router.push("/main");
+            vue.$router.push({ name: 'Main', params: { fromName: 'Login' } });
         } else {
+            console.log("获取跳转服务器前的地址", window.location.href);
             // 确保通过web跳转首页的安全性 url地址加密
             // http://132.91.203.144:7002/jwyWeb/#/main
             let ossWebUrl = await reqGetOssWebUrl(JSON.stringify({}));
@@ -22,15 +23,21 @@ export const jumpServerCode = async (result, password) => {
                     encodeURIComponent(JSON.stringify(result))
                 );
 
-                console.log("编码后的登录信息", encodeLoginInfo);
-                console.log("编码后的登录密码", encodePassword);
 
-                // 跳转参数加时间戳
-                const Version = new Date().getTime().toString().match(/.*(.{8})/)[1] // 截取时间戳后八位
-                window.location.href = `${url}/#/main?time=${Version}&userPwd=${encodePassword}&loginInfo=${encodeLoginInfo}`;
+                // console.log("编码后的登录信息", encodeLoginInfo);
+                // console.log("编码后的登录密码", encodePassword);
+
+                // 开启iframe标签嵌入web页地址
+                vue.$store.commit('changeOssWeb', {
+                    isShow: true,
+                    webUrl: `${url}/#/main?userPwd=${encodePassword}&loginInfo=${encodeLoginInfo}`
+                })
+
+
+                // window.location.href = `${url}/#/main?userPwd=${encodePassword}&loginInfo=${encodeLoginInfo}`;
             });
         }
     } else {
-        vue.$router.push("/main");
+        vue.$router.push({ name: 'Main', params: { fromName: 'Login' } });
     }
 }
