@@ -160,6 +160,10 @@ export default {
 
     // 退出登录
     async logout() {
+      // web页面退回hbuilder
+      // 通知Main页面放回hbuilder
+      this.$emit("logOut");
+      return;
       await LogoutApi(JSON.stringify({}));
       // console.log(data);
       // 退出账号时，清空当前账号的手势密码及快捷标识
@@ -175,16 +179,12 @@ export default {
       // 清空公告id
       this.$store.commit("home/changeLastNoticeId", -1);
 
-      // this.$router.push("/login");
-      // 测试是否能退回hbuilder
-      // 关闭iframe标签嵌入web页地址
       if (this.$store.state.ossWeb.isShow) {
-        console.log("11111111关闭iframe");
-
-        this.$store.commit("changeOssWeb", {
-          isShow: false,
-          webUrl: "",
-        });
+        // 退回hbuilder
+        // 防止下次进入web页面时工作台滚动轴下拉导致页面错位
+        this.$store.commit("workBench/CHANGEMAINSCROLLTOP", 0);
+        console.log("告诉父页面关闭web页面并清除父页面登录信息");
+        window.top.postMessage({ flag: 2 }, "*");
       } else {
         this.$router.push("/login");
       }

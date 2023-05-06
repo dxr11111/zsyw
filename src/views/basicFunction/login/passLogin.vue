@@ -1,6 +1,7 @@
 <template>
   <div class="login">
     <div class="welcome">
+      <!-- <img :src="imgUrl" :style="{ width: '100%', height: '100%' }" /> -->
       <div class="radius"></div>
     </div>
     <div class="content">
@@ -102,6 +103,9 @@ export default {
       resetMobile: "",
       // 当前版本号
       curtVersion: version,
+
+      // 测试public下存放图片，打包后可替换
+      // imgUrl: "static/images_tool/login-bg.png",
     };
   },
   computed: {

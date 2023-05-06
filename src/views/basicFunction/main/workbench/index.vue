@@ -1257,6 +1257,15 @@ export default {
           this.headTextMargin = "0px 12px 20px"; // 改变头部样式
           this.headHeight = "140px";
           this.$store.commit("changeProjectFlag", 2);
+        } else {
+          // 建维优
+          // 判断是否是在hbuilder环境下，添加头部距离（从建设中台返回工作台会刷新页面，此时头部距离重置了）
+          // 重新判断是否要添加头部距离
+          if (window.plus) {
+            this.$store.commit("changeAddHead", true);
+            this.headHeight = "140px";
+            this.headTextMargin = "40px 12px 20px";
+          }
         }
         this.isTask = 0; // 防止获取任务看板数
         setItem("jsMiddlePlatformFlag", {

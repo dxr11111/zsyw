@@ -102,6 +102,8 @@ export default {
           }
         });
         localStorage.setItem("loginType", JSON.stringify(this.loginType));
+        this.postLoginType(); // 如果是web页面，通知hbuilderx存储手势密码
+
         this.quickLoginCode = 0;
       }
     },
@@ -126,13 +128,17 @@ export default {
         if (this.gestChecked && this.gestPass.length > 0) {
           this.quickLoginCode = 1;
           // 存储手势密码，如果是同一个账号就覆盖之前的密码
-          this.loginType.forEach((item) => {
+          for (let item of this.loginType) {
             if (item.loginNo == this.loginNo) {
               item.gestPassword = this.gestPass;
+              item.typeCode = 1;
               localStorage.setItem("loginType", JSON.stringify(this.loginType));
+              this.postLoginType(); // 如果是web页面，通知hbuilderx存储手势密码
+
               return;
             }
-          });
+          }
+
           // 新增一条
           this.loginType.push({
             loginNo: this.loginNo,
@@ -140,6 +146,7 @@ export default {
             typeCode: 1,
           });
           localStorage.setItem("loginType", JSON.stringify(this.loginType));
+          this.postLoginType(); // 如果是web页面，通知hbuilderx存储手势密码
         } else {
           this.quickLoginCode = 0;
         }
@@ -159,6 +166,20 @@ export default {
     goBackEv() {
       console.log(this.gestChecked, this.fingChecked, this.quickLoginCode);
       this.$router.go(-1);
+    },
+    // 通知hbuilderx存储手势密码
+    postLoginType() {
+      if (this.$store.state.ossWeb.isShow) {
+        // 如果是web页面，通知hbuilderx存储手势密码
+        console.log("通知hbuilderx存储手势密码");
+        window.top.postMessage(
+          {
+            flag: 3,
+            loginType: JSON.stringify(this.loginType),
+          },
+          "*"
+        );
+      }
     },
   },
 };

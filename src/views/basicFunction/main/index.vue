@@ -4,7 +4,7 @@
     <!-- <router-view /> -->
     <!-- 缓存路由 -->
     <keep-alive :exclude="exclude">
-      <router-view v-if="refreshing"></router-view>
+      <router-view v-if="refreshing" @logOut="logOut"></router-view>
     </keep-alive>
     <!-- <keep-alive :max="3">
       <router-view v-if="$route.meta.myKeepAlive" />
@@ -73,6 +73,7 @@
 <script>
 import { setItem } from "@/utils/public/sessionStorage";
 import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
+import { judgeDeviceType } from "@/utils/public/judgeDeviceType";
 import { reqQueryClientNotice } from "@/http/index";
 import { mapGetters } from "vuex";
 import { judgeTaskSheetPermissions } from "@/utils/public/common";
@@ -138,6 +139,12 @@ export default {
     },
   },
   methods: {
+    // 退回hbuilder
+    logOut() {
+      console.log("11111111111111111退回hbuilder");
+
+      this.$router.go(-2);
+    },
     // 关闭公告栏
     closeNotice() {
       // 如果用户手工点击右上角关闭，则该公告ID内容当次登录不展示，
@@ -225,31 +232,46 @@ export default {
         // 手势登录需要用
         localStorage.setItem("userPwd", password);
 
-        // iframe无法获取到window.plus
-        this.$router.push({ name: "Home" });
-        console.log("1111111111111111", window.plus);
+        // 将web页面的ossWeb设置为true
+        this.$store.commit("changeOssWeb", {
+          isShow: true,
+          webUrl: "",
+        });
 
-        return;
-        // 拿到登录信息后并且等待安卓触发完plusready后跳转到Home页
-        // ios上plus是一直存在的，不涉及等ready事件。但安卓上还是需要等plus ready。在安卓环境中，通常情况下需要html页面解析完成后才会让5+ API生效
-        if (window.plus) {
-          // this.isLoading = false;
-          // 获取公告内容
-          this.getNotice();
-          this.$router.push({ name: "Home" });
-        } else {
-          console.log("没有获取到window.plus");
-          document.addEventListener(
-            "plusready",
-            () => {
-              // this.isLoading = false;
-              // 获取公告内容
-              this.getNotice();
-              this.$router.push({ name: "Home" });
-            },
-            false
-          );
-        }
+        console.log("进入web页面");
+        // 告诉父页面获取plus对象（iframe里无法获取plus对象，通过postMessage传过来）
+        window.top.postMessage({ flag: 1 }, "*");
+        const that = this;
+        window.addEventListener("message", function (e) {
+          console.log("父页面的plus对象", e.data);
+          let plus = JSON.parse(e.data.plus);
+          // 将父页面plus对象挂载到iframe的window对象上
+          window.plus = plus;
+
+          // 拿到登录信息后并且等待安卓触发完plusready后跳转到Home页
+          // ios上plus是一直存在的，不涉及等ready事件。但安卓上还是需要等plus ready。在安卓环境中，通常情况下需要html页面解析完成后才会让5+ API生效
+          if (window.plus) {
+            // this.isLoading = false;
+            // 重新获取plus设备信息赋给vuex内的clientId，mobileType
+            judgeDeviceType();
+            // 根据设备信息判断是否要需要addHead
+            // 获取公告内容
+            that.getNotice();
+            that.$router.push({ name: "Home" });
+          } /* else {
+            console.log("没有获取到window.plus");
+            document.addEventListener(
+              "plusready",
+              () => {
+                // this.isLoading = false;
+                // 获取公告内容
+                that.getNotice();
+                that.$router.push({ name: "Home" });
+              },
+              false
+            );
+          } */
+        });
 
         // 判断用户是否有任务权限和工单权限
         judgeTaskSheetPermissions(loginInfo.userIds);

@@ -28,13 +28,14 @@ export const jumpServerCode = async (result, password) => {
                 // console.log("编码后的登录密码", encodePassword);
 
                 // 开启iframe标签嵌入web页地址
-                vue.$store.commit('changeOssWeb', {
-                    isShow: true,
-                    webUrl: `${url}/#/main?userPwd=${encodePassword}&loginInfo=${encodeLoginInfo}`
-                })
+                // hbuilderx专用
+                /*  vue.$store.commit('changeOssWeb', {
+                     isShow: true,
+                     webUrl: `${url}/#/main?userPwd=${encodePassword}&loginInfo=${encodeLoginInfo}`
+                 }) */
 
 
-                // window.location.href = `${url}/#/main?userPwd=${encodePassword}&loginInfo=${encodeLoginInfo}`;
+                window.location.href = `${url}/#/main?userPwd=${encodePassword}&loginInfo=${encodeLoginInfo}`;
             });
         }
     } else {

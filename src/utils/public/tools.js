@@ -696,6 +696,30 @@ export const matchTools = async (toolInfo) => {
       let result = JSON.stringify({
         NATIVE_MENU_BUNDLE,
       }); */
+
+      // 获取用户token
+      let zuserIds = _this.$store.getters.getLoginInfo.userIds
+      let zaccountId = ''
+      let zappCode = ''
+      let zappKey = ''
+      for (let item of zuserIds) {
+        if (item.sysId == 102) {
+          zaccountId = item.accountId
+          zappCode = item.appCode
+          zappKey = item.appKey
+          break
+        }
+      }
+      // 对获取到的token进行解码
+      let tokenResult = await reqQueryUniToken(
+        JSON.stringify({ appCode: zappCode, appKey: zappKey, accountId: zaccountId })
+      );
+      console.log('资源核查获取到的用户token', tokenResult)
+
+      let decode = decodeURI(tokenResult.token)
+      console.log('解码后的的用户token', decode)
+      let NATIVE_MENU_BUNDLE = JSON.stringify({ TOKEN_ID: decode })
+      console.log('NATIVE_MENU_BUNDLE', NATIVE_MENU_BUNDLE)
       // 检测app是否安装
       if (window.plus) {
         if (plus.runtime.isApplicationExist({ pname: 'com.hfvast.rsc', action: 'zzhc://' })) {
@@ -704,7 +728,8 @@ export const matchTools = async (toolInfo) => {
           if (plus.os.name == 'Android') {
             plus.runtime.launchApplication(
               {
-                pname: 'com.hfvast.rsc'
+                pname: 'com.hfvast.rsc',
+                extra: { 'NATIVE_MENU_BUNDLE': NATIVE_MENU_BUNDLE }
               },
               function (e) {
                 console.log('Open system default browser failed: ' + e.message);

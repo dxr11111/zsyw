@@ -349,7 +349,17 @@
           placement="top-end"
           get-container=".listDetail"
         >
-          <van-grid clickable :border="false" column-num="1">
+          <!-- 箭头标识 -->
+          <div class="arrowDown">
+            <van-icon name="arrow-down" v-if="arrowShow" />
+          </div>
+          <van-grid
+            ref="vanGrid"
+            clickable
+            :border="false"
+            column-num="1"
+            :style="{ maxHeight: gridMaxHeight + 'px' }"
+          >
             <van-grid-item
               v-for="(action, index) in buttonActions"
               :key="index"
@@ -357,12 +367,15 @@
               @click="selectButton(action)"
             />
           </van-grid>
+          <!-- <van-icon name="arrow-down" v-if="arrowShow" /> -->
+
           <template #reference>
             <van-button
               plain
               type="info"
               v-if="buttonList?.length > 4"
               class="more"
+              @click="moreFn"
             >
               更多
               <van-icon :name="moreIcon" />
@@ -499,6 +512,9 @@ export default {
       moreIcon: "arrow-down",
       // 通过 actions 属性来定义菜单选项
       buttonActions: [],
+      // 按钮更多区域的高度
+      gridMaxHeight: 500,
+      arrowShow: false, // 箭头是否显示
       treatProcessActiveNames: [], // 处理过程折叠面板激活名称
       treaetProcessCollapseShow: false, // 处理过程是否折叠显示
       // 基站定位
@@ -631,7 +647,8 @@ export default {
         let jsonparam =
           '{"oprtype":"circuit_route","param":"' + circuitNumber + '"}';
         // 编码
-        jsonparam = escape(jsonparam);
+        // jsonparam = escape(jsonparam);
+        jsonparam = encodeURI(jsonparam);
         let url = prefix + jsonparam;
         console.log("资源核查网址", url);
         this.$router.push({
@@ -936,6 +953,19 @@ export default {
         this.goBackFn();
       }
     },
+    moreFn() {
+      // 打开更多按钮时
+      if (!this.buttonPopover) {
+        setTimeout(() => {
+          // 获取van-grid元素的高度，如果为设置的max-height高度，则表示van-grid-item数量较多，显示上下箭头
+          console.log("vanGrid高度", this.$refs.vanGrid.$el.clientHeight);
+          console.log("vanGrid最大高度高度", this.gridMaxHeight);
+          if (this.$refs.vanGrid.$el.clientHeight >= this.gridMaxHeight) {
+            this.arrowShow = true;
+          }
+        });
+      }
+    },
     // 获取标识字段及颜色
     getTag(sheetLogo) {
       // e.g. 1,svip|2,测速
@@ -1033,6 +1063,8 @@ export default {
   created() {
     // 获取列表详情
     this.getListDetail();
+    // 设置更多区域的高度最大为页面高度的80%
+    this.gridMaxHeight = document.documentElement.clientHeight * 0.8;
   },
   activated() {
     console.log("listDetail已激活");
@@ -1435,7 +1467,6 @@ export default {
           width: 90%;
         }
       }
-
       /deep/.van-popover__content {
         // position: fixed;
         // bottom: 60px;
@@ -1443,9 +1474,19 @@ export default {
       }
     }
   }
+  .arrowDown {
+    z-index: 1;
+    width: 100%;
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(50, 50, 51, 0.12);
+  }
   .van-grid {
     width: 100px;
-    max-height: 500px;
+    // max-height: 500px;
     overflow: auto;
     .van-grid-item {
       border-bottom: 1px solid #e0e0e0;

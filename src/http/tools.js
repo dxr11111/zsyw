@@ -1,6 +1,6 @@
 import requests from './request'
 
-// 请求基站运维感知url
+// 请求用户的token
 export const reqQueryUniToken = (postData) => {
   return requests({ method: 'post', url: '/queryUniToken', data: `data=${postData}` })
 }

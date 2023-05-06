@@ -38,9 +38,8 @@ import Location from "@/views/orderFunction/publicOrder/getLocation.vue";
 import ArriveTips from "@/views/orderFunction/publicOrder/arriveTips.vue";
 import CheckUpdatesVersion from "@/views/orderFunction/publicRoute/checkUpdatesVersion.vue";
 import { mapState } from "vuex";
-import judgeProject from "./utils/public/judgeProject";
-
-import { reqGetOssWebUrl } from "@/http/index";
+import judgeProject from "@/utils/public/judgeProject";
+import { judgeDeviceType } from "@/utils/public/judgeDeviceType";
 
 export default {
   name: "App",
@@ -158,38 +157,7 @@ export default {
     },
     // H5 plus事件处理
     dedecmsok() {
-      console.log("开始读取设备信息");
-      console.log("系统的名称", plus.os.name); // Android iOS
-      console.log("系统的版本信息", plus.os.version);
-
-      //imei 设备的国际移动设备身份码
-      // console.log("设备身份码:" + plus.device.imei);
-
-      //model 获取设备的型号信息，如果设备不支持则返回空字符串。
-      console.log("设备型号信息:" + plus.device.model);
-
-      //vendor 获取设备的生产厂商信息，如果设备不支持则返回空字符串。
-      console.log("设备厂商信息:" + plus.device.vendor);
-
-      if (plus.os.name === "iOS") {
-        // ios
-        this.$store.commit("changeClientId", 10);
-        this.$store.commit("changeMobileType", 2);
-      } else if (plus.os.name === "Android") {
-        // android
-        this.$store.commit("changeClientId", 9);
-        this.$store.commit("changeMobileType", 1);
-      }
-
-      //getInfo: 获取设备信息
-      plus.device.getInfo({
-        success: function (e) {
-          console.log("getDeviceInfo success: " + JSON.stringify(e));
-        },
-        fail: function (e) {
-          console.log("getDeviceInfo failed: " + JSON.stringify(e));
-        },
-      });
+      judgeDeviceType();
     },
 
     // 判断是否要增加头部高度
@@ -216,21 +184,9 @@ export default {
         localStorage.setItem("Addhead", true);
       } */
     },
-
-    async testSkip() {
-      let ossWebUrl = await reqGetOssWebUrl(JSON.stringify({}));
-      console.log("获取服务器地址", ossWebUrl);
-      this.apiResponse(ossWebUrl, ".login", () => {
-        let url = ossWebUrl.ossWebUrl;
-        window.location.href = `${url}/#/login`;
-      });
-    },
   },
   created() {},
   mounted() {
-    // 跳转到服务端
-    // this.testSkip();
-
     // 浏览器判断移动端还是pc端
     // this.isMobile();
 
