@@ -71,6 +71,15 @@ const routes = [
             myKeepAlive: true,
         },
     },
+    {
+        //测试页面
+        path: '/test',
+        name: 'Test',
+        component: () => import('@/views/orderFunction/publicRoute/test'),
+        meta: {
+            myKeepAlive: false,
+        },
+    },
     // {
     //     // 欢迎页
     //     path: "/welcome",
@@ -96,7 +105,7 @@ router.beforeEach((to, from, next) => {
     store.commit("CLEARCANCEL");
 
     // 不需要判断有没有登录信息 直接放行
-    let nextRoute = ["Qrcode", "Login", "PassLogin", "GestPassLogin", "UniNetLogin", "UniNetLoginHome"];
+    let nextRoute = ["LoginPrivacy", "Qrcode", "Login", "PassLogin", "GestPassLogin", "UniNetLogin", "UniNetLoginHome"];
     if (nextRoute.includes(to.name)) return next();
 
 

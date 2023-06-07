@@ -15,7 +15,7 @@
         <span v-if="rightText" class="rightText" @click="clickRight">{{
           rightText
         }}</span>
-        <van-icon :name="right" size="18" @click="clickRight" v-else />
+        <van-icon :name="right" @click="clickRight" v-else />
       </template>
     </van-nav-bar>
   </header>
@@ -27,7 +27,7 @@ export default {
   props: ["name", "right", "left", "rightText"],
   data() {
     return {
-      headerHeight: "48px",
+      headerHeight: "12.8vw", // 48px
       headTextMargin: "",
     };
   },
@@ -49,8 +49,8 @@ export default {
     ) {
       // 获取头部尺寸
       if (this.$store.state.addHead) {
-        this.headerHeight = "78px";
-        this.headTextMargin = "30px";
+        this.headerHeight = "20.8vw"; // 78px
+        this.headTextMargin = "8vw"; // 30px
       }
     }
   },
@@ -65,7 +65,7 @@ header {
   // background-color: @nav-bar-background-color;
   .van-nav-bar {
     // margin-top: 30px;
-    height: 48px;
+    height: 12.8vw;
     z-index: 100;
     position: fixed;
     top: 0;
@@ -76,9 +76,15 @@ header {
     .van-icon-search:before {
       color: #fff;
     }
+    .van-icon {
+      width: 30px;
+      height: 30px;
+      line-height: 30px;
+    }
     .van-icon,
     .rightText {
       color: #fff;
+      font-size: 18px;
     }
   }
 }

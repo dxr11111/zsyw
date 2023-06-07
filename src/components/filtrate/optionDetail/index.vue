@@ -43,7 +43,7 @@ export default {
   },
   data() {
     return {
-      selectList: this.selectedList || [], // 多选时的数组
+      selectList: JSON.parse(JSON.stringify(this.selectedList)) || [], // 多选时的数组
     };
   },
   mounted() {
@@ -112,6 +112,7 @@ export default {
       this.$emit("rejectSeleted", this.selectList);
     },
     cancel() {
+      this.selectList.splice(0, this.selectList.length);
       this.$emit("clickCancel");
     },
   },

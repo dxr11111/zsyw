@@ -2,6 +2,15 @@ import WorkBench from '@/views/basicFunction/main/workbench'
 
 export default [
   {
+    // url无法打开错误页面
+    path: "/urlError",
+    name: 'UrlError',
+    component: () => import("@/views/basicFunction/error"),
+    meta: {
+      myKeepAlive: false,
+    },
+  },
+  {
     path: "/main",
     name: "Main",
     component: () => import("@/views/basicFunction/main"),
@@ -42,6 +51,15 @@ export default [
     ]
   },
   {
+    // 登录页隐私协议
+    path: "/loginPrivacy",
+    name: 'LoginPrivacy',
+    component: () => import("@/views/basicFunction/login/loginPrivacy"),
+    meta: {
+      myKeepAlive: false,
+    },
+  },
+  {
     // 登录页安装二维码
     path: "/qrcode",
     name: 'Qrcode',
@@ -65,7 +83,7 @@ export default [
     name: "Search",
     component: () => import("@/views/basicFunction/main/home/components/search.vue"),
     meta: {
-      myKeepAlive: false,
+      myKeepAlive: true,
     },
   },
   {

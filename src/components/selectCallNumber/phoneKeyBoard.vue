@@ -27,13 +27,7 @@
             <div class="key-cell" data-num="9">9</div>
           </div>
           <div class="key-row">
-            <div
-              class="key-cell"
-              data-num="*"
-              :style="{ fontSize: '40px', lineHeight: '68px' }"
-            >
-              *
-            </div>
+            <div class="key-cell star" data-num="*">*</div>
             <div class="key-cell" data-num="0">0</div>
             <div class="key-cell" data-num="#">#</div>
           </div>
@@ -48,7 +42,7 @@
             </div>
             <div class="key-clear" @click="handleDeleteKey">
               <!-- <i class="iconfont icon-cuowu"></i> -->
-              <img src="./images/icon.png" alt="" :style="'width:20px'" />
+              <img src="./images/icon.png" alt="" />
             </div>
           </div>
         </div>
@@ -156,6 +150,10 @@ export default {
             border: 1px solid @theme-color;
             color: @theme-color;
           }
+          .star {
+            font-size: 40px;
+            line-height: 68px;
+          }
         }
         .icon {
           position: relative;
@@ -172,10 +170,16 @@ export default {
             right: 100px;
             margin-left: 20px;
             color: #3e3838;
+            img {
+              width: 20px;
+            }
           }
         }
         .van-checkbox {
           margin: 20px auto 0;
+          /deep/.van-checkbox__label {
+            font-size: 14px;
+          }
         }
       }
     }

@@ -9,7 +9,7 @@
           name="content_frame"
           :src="src"
           frameborder="0"
-          scrolling="no"
+          scrolling="yes"
         ></iframe>
       </div>
     </template>

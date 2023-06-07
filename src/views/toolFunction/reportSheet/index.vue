@@ -122,7 +122,7 @@ export default {
       ],
       getTableInfo: "",
       // 表格的margin-top
-      mT: "margin-top:90px",
+      mT: "margin-top:24vw",
     };
   },
   methods: {
@@ -164,8 +164,8 @@ export default {
       this.reportType = item.reportType;
       // 将表格margin-top值增大
       if (item.name == "室分日报" || item.name == "宏站报表")
-        this.mT = "margin-top:130px";
-      else this.mT = "margin-top:90px";
+        this.mT = "margin-top:34.6vw"; // 130px
+      else this.mT = "margin-top:24vw"; // 90px
       // 触发请求
       this.getTable();
     },
@@ -222,7 +222,7 @@ export default {
             }
             // 默认请求室分日报数据
             this.reportType = "1";
-            this.mT = "margin-top:130px";
+            this.mT = "margin-top:34.6vw";
             this.isShowSF = true;
             this.sfType = "4";
           } else if (this.company === "1") {

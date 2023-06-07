@@ -1,5 +1,5 @@
 <template>
-  <div style="background: #f8f7fc; height: 100%">
+  <div class="jzIPRANCircuit" style="background: #f8f7fc; height: 100%">
     <!-- 拉远RRU 和 IPRAN电路列表按钮功能 -->
     <div v-if="isShow == 'index'">
       <MyHeader :name="headName" left="arrow-left" @goBackEv="goBack" />

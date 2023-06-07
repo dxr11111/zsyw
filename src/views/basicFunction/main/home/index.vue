@@ -3,13 +3,17 @@
     <div>
       <div class="topWrap">
         <div class="top" :style="{ paddingTop: topPaddingTop }">
+          <!-- ios添加定位显示 -->
+          <!-- v-if="$store.state.clientId == 10" -->
+          <template>
+            <div class="location">
+              <i class="iconfont icon-weizhi"></i>
+              <span>{{ currentLocation || "未获取到当前位置" }}</span>
+            </div>
+          </template>
+
           <div class="search" @click="$router.push('/search')">
-            <van-icon
-              style="margin-right: 8px"
-              name="search"
-              size="18"
-              color="#000"
-            />
+            <van-icon style="margin-right: 8px" name="search" color="#000" />
             <span>多功能搜索栏（搜工具、搜工单）</span>
           </div>
         </div>
@@ -41,7 +45,7 @@
           <div class="title">个人工作台</div>
           <div class="right" @click="goWorkBenchTask">
             详情
-            <van-icon name="arrow" size="12" color="#BCBEC4" />
+            <van-icon name="arrow" color="#BCBEC4" />
           </div>
         </div>
         <div
@@ -61,7 +65,7 @@
           <!-- 目前只展示了工具，工单展示后，要传工单的参数 -->
           <div class="right" @click="goMore">
             更多
-            <van-icon name="arrow" size="12" color="#BCBEC4" />
+            <van-icon name="arrow" color="#BCBEC4" />
           </div>
         </div>
         <div class="func-item">
@@ -132,6 +136,12 @@ export default {
     };
   },
 
+  computed: {
+    // 当前位置
+    currentLocation() {
+      return this.$store.state.h5Loaction.address;
+    },
+  },
   created() {
     // 获取头部尺寸
     if (this.$store.state.addHead) {
@@ -193,7 +203,15 @@ export default {
   methods: {
     // 点击检查更新
     checkUpdates() {
-      checkUpdates();
+      // 只在登录页跳转首页的时候做更新提示，刷新首页不提示
+      // 记录提示标识
+      if (getItem("checkUpdatesFlag")) {
+        // 刷新首页，已检查更新,无需再次检查
+      } else {
+        // 第一次进入首页
+        setItem("checkUpdatesFlag", true);
+        checkUpdates();
+      }
     },
     // 判断是否展示每日学习
     async judgEveryDayStudy() {
@@ -272,9 +290,14 @@ export default {
 
     // 点击工作台每个看板
     goTaskList(curr) {
-      this.$router.push({ name: "WorkBench" });
-      // 存储到session
-      setItem("taskId", Number(curr.condition));
+      // 判断用户没有任务权限时，禁止进入个人工作台
+      if (this.$store.state.workBench.taskSheetPermissions.hasTaskList == 0) {
+        this.$toast("您没有任务的操作权限");
+      } else {
+        this.$router.push({ name: "WorkBench" });
+        // 存储到session
+        setItem("taskId", Number(curr.condition));
+      }
     },
     // 点击工作台详情跳转到工作台的任务页面
     goWorkBenchTask() {
@@ -431,6 +454,7 @@ export default {
 </script>
 
 <style scoped lang="less">
+/* prettier-ignore */
 .topWrap {
   height: 188px;
   .top {
@@ -444,8 +468,28 @@ export default {
     // padding-top: 35px;
     // padding-top: 50px;
     box-sizing: border-box;
+    .location {
+      width: 326px;
+      margin: 0 auto;
+      color: #fff;
+      text-align: left;
+      margin-bottom: 5px;
+      .iconfont {
+        margin-right: 5px;
+        vertical-align: middle;
+      }
+      span {
+        display: inline-block;
+        width: 90%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+        font-size: 14px;
+      }
+    }
     .search {
-      width: 327px;
+      width: 326px;
       height: 32px;
       background: #ffffff;
       border-radius: 4px;
@@ -454,6 +498,10 @@ export default {
       font-size: 14px;
       box-sizing: border-box;
       text-align: start;
+      .van-icon {
+        vertical-align: middle;
+        font-size: 18px;
+      }
     }
   }
 }
@@ -524,6 +572,11 @@ export default {
   padding: 15px;
   background-color: #fff;
   margin-bottom: 15px;
+  .right {
+    .van-icon-arrow {
+      font-size: 12px;
+    }
+  }
 
   .work-item {
     display: inline-block;
@@ -548,6 +601,9 @@ export default {
 .function {
   padding: 15px;
   background-color: #fff;
+  .van-icon-arrow {
+    font-size: 12px;
+  }
   .func-item {
     display: flex;
     flex-direction: row;

@@ -134,7 +134,10 @@ export default {
 <style scoped lang="less">
 .jsMiddlePlatform {
   position: relative;
+  /* prettier-ignore */
   .platformBg {
+    max-height: 750PX;
+    overflow: auto;
     z-index: 100;
     position: absolute;
     width: 94%;

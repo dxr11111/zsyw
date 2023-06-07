@@ -14,7 +14,7 @@
       height="0"
       frameborder="0"
       style="display: none"
-      scrolling="no"
+      scrolling="yes"
       src="https://apis.map.qq.com/tools/geolocation?key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=myapp"
     >
     </iframe>
@@ -23,7 +23,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { unicomFunc } from "@/utils/public/unicomApp";
+import { unicomFunc, getProjectLocation } from "@/utils/public/unicomApp";
 import { GoSiteApi } from "@/http/button";
 import {
   getLocationH5,
@@ -108,7 +108,32 @@ export default {
           className: "confirmDialog",
         })
         .then(async () => {
-          var code = unicomFunc();
+          // 提交经纬度给后台
+          this.loc = this.$store.state.h5Loaction;
+          if (this.loc.longitude) {
+            this.$toast(`经度：${result.longitude}; 纬度：${result.latitude}`);
+            this.sendLocation();
+            this.resetFinishTask();
+          } else {
+            this.$toast("提交经纬度失败！");
+            this.resetFinishTask();
+          }
+
+          /* // 根据不同环境获取经纬度信息发送给后台
+          getProjectLocation()
+            .then((result) => {
+              this.loc = result;
+              // 将获取到的位置信息发送给后台
+              this.$toast(`hbuilderx-经度：${result.lng}; 纬度：${result.lat}`);
+              this.sendLocation();
+              this.resetFinishTask();
+            })
+            .catch((error) => {
+              this.$toast(error);
+              this.resetFinishTask();
+            }); */
+
+          /* var code = unicomFunc();
           console.log("调用标识", code);
           if (code == 0) {
             // 调用hbuilderx定位
@@ -128,29 +153,6 @@ export default {
                 this.$toast("hbuilderx" + error);
                 this.resetFinishTask();
               });
-
-            /* setTimeout(() => {
-              getLocation().then(res => {
-                vue.$toast(`高德-经度：${res.lng}; 纬度：${res.lat}`)
-                console.log('高德-定位结果', res)
-                this.loc = res
-              }).catch(error => {
-                vue.$toast('高德' + error)
-                console.log('高德-定位错误信息', error)
-              })
-            }, 3000) */
-            /* getLocationH5()
-              .then((res) => {
-                this.$toast(`h5-经度：${res.lng}; 纬度：${res.lat}`);
-                console.log("h5-定位数据", res);
-                if (res.lat) {
-                  this.loc = res;
-                }
-              })
-              .catch((error) => {
-                console.log("h5-定位error+", error);
-                this.$toast("h5" + error);
-              }); */
           } else {
             function getlnglatCallBack(location) {
               // 获取经纬度
@@ -171,7 +173,7 @@ export default {
               const location = region.getLngAndLat();
               this.loc = getlnglatCallBack(location);
             }
-          }
+          } */
         })
         .catch(() => {
           // on cancel
@@ -185,9 +187,9 @@ export default {
           id: this.getLocalPopup.id,
           posX: this.loc.lng, // 经度
           posY: this.loc.lat, // 纬度
-          address: "",
+          address: this.loc.address,
         };
-        console.log("发送的定位参数", params);
+        console.log("上站发送的定位参数", params);
         let result = await GoSiteApi(JSON.stringify(params));
         this.apiResponse(result, "#app", () => {
           this.operationSuccessRefresh(true);

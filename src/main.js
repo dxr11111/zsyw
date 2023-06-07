@@ -58,9 +58,9 @@ new Vconsole()
 // process.env.NODE_ENV === 'test' ? new Vconsole() : '' */
 
 // 指定组件的渲染和观察期间未捕获错误的处理函数。这个处理函数被调用时, 可获取错误信息和 Vue 实例
-Vue.config.errorHandler = function (err, vm, info) {
+/* Vue.config.errorHandler = function (err, vm, info) {
   console.log('通过vue errorHandler捕获的错误: ', '错误发生在 ' + info, '错误为', err)
-}
+} */
 
 window.addEventListener('error', (err) => {
   // 说明是资源加载报错
@@ -71,7 +71,7 @@ window.addEventListener('error', (err) => {
       tagName: err.target.tagName
     }
     console.log('资源加载出错，自动重新加载', log) // 进行上报
-    Toast('资源加载出错，自动重新加载')
+    // Toast('资源加载出错，自动重新加载')
     window.location.reload() // 重新加载 服务器代码版本更新 → 获取不到静态资源
   } else {
     // js 执行报错

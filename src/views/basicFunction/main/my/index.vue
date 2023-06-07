@@ -1,5 +1,5 @@
 <template>
-  <div class="bgc">
+  <div class="my">
     <div>
       <div class="topWrap">
         <div class="top">
@@ -19,7 +19,7 @@
         </div>
       </div>
       <div>
-        <van-cell
+        <!-- <van-cell
           :value="quickLoginType"
           is-link
           @click="$router.push('/quickLogin')"
@@ -28,7 +28,7 @@
             <img src="./images/quick-login.png" alt="" />
             <span class="custom-title">快捷登录</span>
           </template>
-        </van-cell>
+        </van-cell> -->
         <van-cell is-link>
           <template #title>
             <img src="./images/message.png" alt="" />
@@ -74,12 +74,32 @@
             <span class="custom-title">检查更新</span>
           </template>
         </van-cell>
+        <van-cell is-link @click="goPrivacy">
+          <template #title>
+            <img src="./images/update-phoneNumber.png" alt="" />
+            <span class="custom-title">隐私政策</span>
+          </template>
+        </van-cell>
         <van-cell is-link @click="logout">
           <template #title>
             <img src="./images/logout.png" alt="" />
             <span class="custom-title">退出</span>
           </template>
         </van-cell>
+
+        <!-- <van-cell is-link @click="testAppAlive">
+          <template #title>
+            <img src="./images/logout.png" alt="" />
+            <span class="custom-title">测试应用保活</span>
+          </template>
+        </van-cell> -->
+
+        <!-- <van-cell is-link @click="testNotification">
+          <template #title>
+            <img src="./images/logout.png" alt="" />
+            <span class="custom-title">测试通知生成</span>
+          </template>
+        </van-cell> -->
       </div>
 
       <!-- 意见反馈 -->
@@ -114,6 +134,7 @@ import {
   LogoutApi,
   GetPhoneNumberApi,
 } from "@/http/index";
+import myNJS from "@/utils/public/myNJS";
 export default {
   name: "My",
   mixins: [keepAliveMixin],
@@ -147,6 +168,56 @@ export default {
     this.getPhoneNumber();
   },
   methods: {
+    // 去隐私政策页面
+    goPrivacy() {
+      this.$router.push({
+        name: "LoginPrivacy",
+      });
+    },
+    // 测试生成通知
+    testNotification() {
+      let notifyObj = myNJS.aOSNotify("通知来了", "这是一条自定义的提醒", {
+        params1: "params1",
+        params2: "params2",
+        params3: "params3",
+        params4: "params4",
+      });
+    },
+    // 调用当前时间
+    getCurrentTime() {
+      var d = new Date();
+      var hour = d.getHours(); //得到小时数
+      var minute = d.getMinutes(); //得到分钟数
+      var second = d.getSeconds(); //得到秒数
+      return { hour, minute, second };
+    },
+    // 测试应用保活
+    testAppAlive() {
+      let that = this;
+      for (let i = 0; i <= 6000; i++) {
+        (function (i, that) {
+          // 过一秒再进入下次循环
+          setTimeout(() => {
+            let timeObj = that.getCurrentTime();
+            let time = `${timeObj.hour}:${timeObj.minute}:${timeObj.second}`;
+            if (parseInt(timeObj.second) % 10 == 0) {
+              console.log("当前时间", i, time);
+            }
+            if (timeObj.minute == "40") {
+              console.log("停止循环");
+              return;
+            }
+          }, i * 1000);
+        })(i, that);
+      }
+      console.log(
+        "最后时间",
+        new Date(+new Date() + 8 * 3600 * 1000)
+          .toJSON()
+          .substr(0, 19)
+          .replace("T", " ")
+      );
+    },
     // 点击意见反馈
     feedBackFn() {
       this.showMess = true;
@@ -160,10 +231,6 @@ export default {
 
     // 退出登录
     async logout() {
-      // web页面退回hbuilder
-      // 通知Main页面放回hbuilder
-      this.$emit("logOut");
-      return;
       await LogoutApi(JSON.stringify({}));
       // console.log(data);
       // 退出账号时，清空当前账号的手势密码及快捷标识
@@ -173,18 +240,20 @@ export default {
       removeItem("loginInfo");
       // removeItem('loginNo')
       removeItem("userPwd");
+      // 清除检查更新标识
+      removeItem("checkUpdatesFlag");
 
       // 清空路由缓存
       this.$store.commit("changeKeepPages", "index");
       // 清空公告id
       this.$store.commit("home/changeLastNoticeId", -1);
+      // 清除工作台mainSrollTop  防止下次进入web页面时工作台滚动轴下拉导致页面错位
+      this.$store.commit("workBench/CHANGEMAINSCROLLTOP", 0);
 
-      if (this.$store.state.ossWeb.isShow) {
-        // 退回hbuilder
-        // 防止下次进入web页面时工作台滚动轴下拉导致页面错位
-        this.$store.commit("workBench/CHANGEMAINSCROLLTOP", 0);
-        console.log("告诉父页面关闭web页面并清除父页面登录信息");
-        window.top.postMessage({ flag: 2 }, "*");
+      if (this.$store.state.ossWebShow) {
+        // web页面退回hbuilder
+        // 通知Main页返回hbuilder
+        this.$emit("logOut");
       } else {
         this.$router.push("/login");
       }
@@ -250,107 +319,110 @@ export default {
 </script>
 
 <style scoped lang="less">
-.topWrap {
-  height: 283px;
-  .top {
-    z-index: 100;
-    position: fixed;
-    top: 0;
-    width: 100%;
+.my {
+  background-color: @bg-color;
+  .topWrap {
     height: 283px;
-    background-image: url("@/assets/images/common/my-top.png");
-    background-size: cover;
-    background-position: center;
-    .title {
-      display: flex;
-      justify-content: center;
-      color: #fff;
-      padding: 13px;
-      padding-top: 40px;
-      box-sizing: border-box;
-      margin-bottom: 20px;
-      div {
-        font-size: 17px;
-        font-weight: 500;
+    .top {
+      z-index: 100;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 283px;
+      background-image: url("@/assets/images/common/my-top.png");
+      background-size: cover;
+      background-position: center;
+      .title {
+        display: flex;
+        justify-content: center;
+        color: #fff;
+        padding: 13px;
+        padding-top: 40px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+        div {
+          font-size: 17px;
+          font-weight: 500;
+        }
+      }
+      .avatar {
+        width: 64px;
+        line-height: 64px;
+        border-radius: 32px;
+        // border: 3px solid rgba(255, 255, 255, 0.2);
+        background: #ffffff;
+        font-size: 32px;
+        font-weight: bold;
+        color: #03449a;
+        margin: auto;
+        margin-bottom: 8px;
+      }
+      .info {
+        color: #fff;
+        font-size: 14px;
+        margin: auto;
+        .username {
+          font-size: 16px;
+          font-weight: 500;
+          margin-top: 5px;
+        }
+        .count {
+          margin-top: 3px;
+        }
       }
     }
-    .avatar {
-      width: 64px;
-      line-height: 64px;
-      border-radius: 32px;
-      // border: 3px solid rgba(255, 255, 255, 0.2);
-      background: #ffffff;
-      font-size: 32px;
-      font-weight: bold;
-      color: #03449a;
-      margin: auto;
-      margin-bottom: 8px;
-    }
-    .info {
-      color: #fff;
-      font-size: 14px;
-      margin: auto;
-      .username {
-        font-size: 16px;
-        font-weight: 500;
-        margin-top: 5px;
-      }
-      .count {
-        margin-top: 3px;
-      }
+  }
+  ::v-deep .van-cell {
+    line-height: 30px;
+    &::after {
+      border: none;
     }
   }
-}
-::v-deep .van-cell {
-  line-height: 30px;
-  &::after {
-    border: none;
+  .mess-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 10px auto;
   }
-}
-.mess-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 10px auto;
-}
-.mess-input {
-  padding: 0px;
-  margin-bottom: 12px;
-  font-size: 14px;
-  /deep/.van-cell__title {
-    flex: 1;
-    margin-right: 0;
+  .mess-input {
+    padding: 0px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    /deep/.van-cell__title {
+      flex: 1;
+      margin-right: 0;
+    }
+    /deep/.van-cell__value {
+      flex: 3;
+      padding: 0 4px;
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+    }
   }
-  /deep/.van-cell__value {
-    flex: 3;
-    padding: 0 4px;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
+  .describe {
+    margin-bottom: 10px;
+    font-size: 12px;
+    text-align: left;
+    color: red;
   }
-}
-.describe {
-  margin-bottom: 10px;
-  font-size: 12px;
-  text-align: left;
-  color: red;
-}
 
-::v-deep .van-button--block {
-  width: 80%;
-  margin: auto;
-  border-radius: 15px;
-}
-::v-deep .van-popup {
-  width: 80%;
-  padding: 12px;
-}
-::v-deep .van-cell__title {
-  text-align: left;
-  .custom-title {
-    vertical-align: middle;
+  ::v-deep .van-button--block {
+    width: 80%;
+    margin: auto;
+    border-radius: 15px;
   }
-}
-img {
-  width: 24px;
-  height: 24px;
+  ::v-deep .van-popup {
+    width: 80%;
+    padding: 12px;
+  }
+  ::v-deep .van-cell__title {
+    text-align: left;
+    .custom-title {
+      vertical-align: middle;
+    }
+  }
+  img {
+    width: 24px;
+    height: 24px;
+  }
 }
 </style>

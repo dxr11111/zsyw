@@ -51,17 +51,29 @@ export default new Vuex.Store({
             downLoadURL: '', // 下载链接
         },
 
-        // hbuilderx专用
-        ossWeb: {
-            isShow: false,
-            webUrl: '',
+        // 判断当前是否是hbuilder跳转的web页面
+        ossWebShow: false,
+
+        // 记录系统定位的结果
+        h5Loaction: {
+            longitude: "", // 经度
+            latitude: "", // 纬度
+            address: "", // 具体位置
         },
+
+        // 位置信息监听器标识
+        watchPositionFlag: false,
 
     },
     mutations: {
-        // hbuilderx专用
+        changeWatchPositionFlag(state, result) {
+            state.watchPositionFlag = result
+        },
+        changeH5Location(state, result) {
+            state.h5Loaction = result
+        },
         changeOssWeb(state, result) {
-            state.ossWeb = result
+            state.ossWebShow = result
         },
 
         changeAddHead(state, result) {

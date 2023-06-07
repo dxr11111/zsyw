@@ -1,6 +1,9 @@
 import _this from "@/main";
 import { reqQueryUniToken } from "@/http/tools";
 import { appUrl } from '@/http/pullApp'
+import { getItem } from "@/utils/public/sessionStorage"
+import { unicomFunc, skipThirdApp } from '@/utils/public/unicomApp'
+import { judgeUrlError } from '@/utils/public/judgeUrlError'
 
 // 申告类别 -- 申告内容
 export const declarationList = [
@@ -720,33 +723,45 @@ export const matchTools = async (toolInfo) => {
       console.log('解码后的的用户token', decode)
       let NATIVE_MENU_BUNDLE = JSON.stringify({ TOKEN_ID: decode })
       console.log('NATIVE_MENU_BUNDLE', NATIVE_MENU_BUNDLE)
-      // 检测app是否安装
-      if (window.plus) {
-        if (plus.runtime.isApplicationExist({ pname: 'com.hfvast.rsc', action: 'zzhc://' })) {
-          console.log("应用已安装");
-          // 判断平台调用app
-          if (plus.os.name == 'Android') {
-            plus.runtime.launchApplication(
-              {
-                pname: 'com.hfvast.rsc',
-                extra: { 'NATIVE_MENU_BUNDLE': NATIVE_MENU_BUNDLE }
-              },
-              function (e) {
+
+      // 根据不同项目跳转第三方app
+      skipThirdApp('com.hfvast.rsc', 'zzhc://', { 'NATIVE_MENU_BUNDLE': NATIVE_MENU_BUNDLE })
+
+      /* // 判断是建维优还是联通网络
+      var code = unicomFunc();
+      if (code == 0) {
+        // 建维优
+        // 检测app是否安装
+        if (window.plus) {
+          if (plus.runtime.isApplicationExist({ pname: 'com.hfvast.rsc', action: 'zzhc://' })) {
+            console.log("应用已安装");
+            // 判断平台调用app
+            if (plus.os.name == 'Android') {
+              plus.runtime.launchApplication(
+                {
+                  pname: 'com.hfvast.rsc',
+                  extra: { 'NATIVE_MENU_BUNDLE': NATIVE_MENU_BUNDLE }
+                },
+                function (e) {
+                  console.log('Open system default browser failed: ' + e.message);
+                }
+              );
+            } else if (plus.os.name == 'iOS') {
+              plus.runtime.launchApplication({ action: 'zzhc://' }, function (e) {
                 console.log('Open system default browser failed: ' + e.message);
-              }
-            );
-          } else if (plus.os.name == 'iOS') {
-            plus.runtime.launchApplication({ action: 'zzhc://' }, function (e) {
-              console.log('Open system default browser failed: ' + e.message);
-            });
+              });
+            }
+          } else {
+            console.log("应用未安装");
+            _this.$toast('应用未安装')
           }
         } else {
-          console.log("应用未安装");
-          _this.$toast('应用未安装')
+          _this.$toast('当前是浏览器环境，无法监测app是否安装')
         }
-      } else {
-        _this.$toast('当前是浏览器环境，无法监测app是否安装')
       }
+      else {
+        // 联通网络
+      } */
 
 
       break;
@@ -793,6 +808,20 @@ export const matchTools = async (toolInfo) => {
     case "gmbm":
       // 光猫绑码
       _this.$router.push({ path: "/toolGmbm" });
+      break;
+    case "zhjk":
+      // 综合监控
+      // window.location.href = appUrl.zhjk;
+      let zhjkPrefix = appUrl.zhjk;
+      let loginNo = getItem('loginNo')
+      console.log('综合监控地址', zhjkPrefix + loginNo)
+      // 打开不url则跳转到错误页面
+      let flag = judgeUrlError((zhjkPrefix + loginNo), "综合监控")
+      if (flag) {
+        window.location.href = zhjkPrefix + loginNo;
+      }
+
+
       break;
     default:
       _this.$toast('该账号暂不支持此功能')

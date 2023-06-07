@@ -1,7 +1,7 @@
 /** 
 * 获取经纬度和地址并返回信息
 */
-
+import vue from '@/main';
 
 // 高德-收费
 export const getLocation = function () {
@@ -122,42 +122,114 @@ export const getLocationH5Test = function () {
   });
 }
 
+// hbuilderx-h5监听经纬度信息
+export const watchLocationHbuilder = function () {
+  return new Promise((resolve, reject) => {
+    var watchId = plus.geolocation.watchPosition(
+      function (p) {
+        vue.$store.commit('changeWatchPositionFlag', true) // 开启位置监听
+        let address = (p?.address?.city || "") + (p?.address?.district || "") + (p?.address?.street || "") + (p?.address?.streetNum || "") + (p?.address?.poiName || "")
+        /*  console.log(
+           "Geolocation\n纬度:" +
+           p.coords.latitude +
+           "\n经度:" +
+           p.coords.longitude +
+           "\n完整地址描述信息:" +
+           p.addresses +
+           "\n地址信息:" +
+           address
+ 
+         ); */
+        // 安卓获取不到address，使用高德api将经纬度转为地址信息(逆向地理编码)
+        if (plus.os.name === "Android") {
+          AMap.plugin('AMap.Geocoder', function () {
+            var geocoder = new AMap.Geocoder({
+              radius: 30 // 以给定坐标为中心点，单位：米, 范围0- 3000
+            });
+            var lnglat = [p.coords.longitude, p.coords.latitude];//这里是需要转化的经纬度
+
+            geocoder.getAddress(lnglat, function (status, result) {
+              if (status === 'complete' && result.info === 'OK') {
+                // result为对应的地理位置详细信息
+                address = result.regeocode.formattedAddress
+              }
+            });
+          })
+        }
+
+
+        let location = {}
+        location.longitude = p.coords.longitude; // 经度
+        location.latitude = p.coords.latitude; // 纬度
+        location.address = address
+        // 将WGS-84坐标系坐标系转换为GCJ-02坐标系（高德）
+        let gps = [p.coords.longitude, p.coords.latitude]; // 需要转换的gps类型的坐标
+        //参数说明:需要转换的坐标，需要转换的坐标类型，转换成功后的回调函数
+        AMap.convertFrom(gps, "gps", function (status, result) {
+          if (result.info === "ok") {
+            location.longitude = result.locations[0].lng; // 经度
+            location.latitude = result.locations[0].lat; // 纬度
+            console.log("GCJ-02坐标系", location.longitude, location.latitude, new Date(+new Date() + 8 * 3600 * 1000)
+              .toJSON()
+              .substr(0, 19)
+              .replace("T", " "));
+            resolve(location)
+            // 将位置信息放在vuex内，供其他需要定位的功能获取
+            vue.$store.commit('changeH5Location', location)
+          }
+        });
+      }, function (e) {
+        reject("监听位置变化信息失败： " + e.message);
+        plus.geolocation.clearWatch(watchId); // 关闭监听设备位置信息
+        vue.$store.commit('changeWatchPositionFlag', false)
+
+      }, { 'enableHighAccuracy': true, 'maximumAge': 60000 });
+    // iOS端不支持设置maximumAge这个参数，定位回调是由系统根据设备移动方向及速度等因素自动触发的
+  })
+
+}
+
 // hbuilderx-h5获取经纬度信息
 export const getLocationHbuilder = function () {
   return new Promise((resolve, reject) => {
-    if (window.plus) {
-      plus.geolocation.getCurrentPosition(
-        function (p) {
-          console.log(
-            "Geolocation\n纬度:" +
-            p.coords.latitude +
-            "\n经度:" +
-            p.coords.longitude +
-            "\n海拔:" +
-            p.coords.altitude
-          );
+    plus.geolocation.getCurrentPosition(
+      function (p) {
+        let address = (p?.address?.city || "") + (p?.address?.district || "") + (p?.address?.street || "") + (p?.address?.streetNum || "") + (p?.address?.poiName || "")
+        console.log(
+          "Geolocation\n纬度:" +
+          p.coords.latitude +
+          "\n经度:" +
+          p.coords.longitude +
+          "\n完整地址描述信息:" +
+          p.addresses +
+          "\n地址信息:" +
+          address
 
-          /* alert(
-            "Geolocation\n纬度:" +
-            p.coords.latitude +
-            "\n经度:" +
-            p.coords.longitude +
-            "\n海拔:" +
-            p.coords.altitude
-          ); */
-          let location = {}
-          location.lat = p.coords.latitude
-          location.lng = p.coords.longitude
-          resolve(location)
-        },
-        function (e) {
-          alert("Geolocation error: " + e.message);
-          console.log("Geolocation error: " + e.message);
-        }
-      );
-    } else {
-      reject('不支持当前地理位置信息获取')
+        );
+        let location = {}
+        location.longitude = p.coords.longitude; // 经度
+        location.latitude = p.coords.latitude; // 纬度
+        location.address = address
+        // 将WGS-84坐标系坐标系转换为GCJ-02坐标系（高德）
+        let gps = [p.coords.longitude, p.coords.latitude]; // 需要转换的gps类型的坐标
+        //参数说明:需要转换的坐标，需要转换的坐标类型，转换成功后的回调函数
+        AMap.convertFrom(gps, "gps", function (status, result) {
+          if (result.info === "ok") {
+            location.longitude = result.locations[0].lng; // 经度
+            location.latitude = result.locations[0].lat; // 纬度
+            console.log("GCJ-02坐标系", location.longitude, location.latitude);
+            resolve(location)
+            // 将位置信息放在vuex内，供其他需要定位的功能获取
+            vue.$store.commit('changeH5Location', location)
+          }
+        });
+      },
+      function (e) {
+        reject("获取位置信息失败：" + e.message);
+        console.log("获取位置信息失败：" + e.message);
+      }, {
     }
+    );
   })
 
 }

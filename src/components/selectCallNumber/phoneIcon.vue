@@ -4,8 +4,6 @@
     <div
       class="ys-float-btn"
       :style="{
-        width: itemWidth + 'px',
-        height: itemHeight + 'px',
         left: left + 'px',
         top: top + 'px',
       }"
@@ -36,17 +34,12 @@ export default {
       clientHeight: 0,
       left: 0,
       top: 0,
+
+      iconWidth: 40,
+      iconHeight: 40,
     };
   },
   props: {
-    itemWidth: {
-      type: Number,
-      default: 40,
-    },
-    itemHeight: {
-      type: Number,
-      default: 40,
-    },
     gapWidth: {
       type: Number,
       default: 10,
@@ -64,7 +57,10 @@ export default {
   created() {
     this.clientWidth = document.documentElement.clientWidth;
     this.clientHeight = document.documentElement.clientHeight;
-    this.left = this.clientWidth - this.itemWidth - this.gapWidth;
+    // 图片宽高：40
+    this.iconWidth = this.iconHeight = (40 / 3.75) * (this.clientWidth / 100);
+    // this.iconWidth = (40 / 3.75) * (this.clientWidth / 100);
+    this.left = this.clientWidth - this.iconWidth - this.gapWidth;
     this.top = this.clientHeight * this.coefficientHeight;
   },
   mounted() {
@@ -82,8 +78,8 @@ export default {
           e.stopPropagation();
           if (e.targetTouches.length === 1) {
             let touch = e.targetTouches[0];
-            this.left = touch.clientX - this.itemWidth / 2;
-            this.top = touch.clientY - this.itemHeight / 2;
+            this.left = touch.clientX - this.iconWidth / 2; // 计算vw
+            this.top = touch.clientY - this.iconHeight / 2;
           }
         }
         // false
@@ -93,15 +89,15 @@ export default {
         this.$emit("iconMove", "auto");
         e.stopPropagation();
         div.style.transition = "all 0.3s";
-        /*        if (this.left > this.clientWidth / 2) {
-                   this.left = this.clientWidth - this.itemWidth - this.gapWidth;
-               } else {
-                   this.left = this.gapWidth;
-               } */
+        /*  if (this.left > this.clientWidth / 2) {
+          this.left = this.clientWidth - this.iconWidth - this.gapWidth;
+        } else {
+          this.left = this.gapWidth;
+        } */
         if (this.top <= 36) {
           this.top = 36 + this.gapWidth;
         } else {
-          let bottom = this.clientHeight - 50 - this.itemHeight - this.gapWidth;
+          let bottom = this.clientHeight - 50 - this.iconHeight - this.gapWidth;
           if (this.top >= bottom) {
             this.top = bottom;
           }
@@ -133,6 +129,9 @@ export default {
  
 <style lang="less" scoped>
 .ys-float-btn {
+  width: 40px;
+  height: 40px;
+
   z-index: 1000;
   position: fixed;
   bottom: 80px;

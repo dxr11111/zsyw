@@ -9,7 +9,11 @@
       }"
     >
       <!-- 今日数据汇总 -->
-      <div class="dataSummary" ref="dataSummary">
+      <div
+        class="dataSummary"
+        ref="dataSummary"
+        :style="{ top: dataSummaryTop }"
+      >
         <div class="numList numList1">
           <ul>
             <li
@@ -46,13 +50,14 @@ import { reqTaskSum } from "@/http";
 import { getHasTaskListSysId } from "@/utils/public/common";
 export default {
   name: "MyTask",
-  props: ["showDataSummary", "selectSysId"],
+  props: ["showDataSummary", "selectSysId", "bottomSpace"],
   data() {
     return {
       dataSummaryBgHeight: "", // div-dataSummaryBg高度
       upSum: [],
       downSum: [],
       dataSummaryBgDisplay: "block", // dataSummaryBg是否显示
+      dataSummaryTop: "", // 负top距离
     };
   },
   computed: {
@@ -130,7 +135,14 @@ export default {
     // 获取任务看板数
     this.getTaskNum();
   },
-  mounted() {},
+  mounted() {
+    // 设置dataSummary上移的距离
+    console.log("111111111", this.bottomSpace);
+
+    this.dataSummaryTop =
+      -(this.bottomSpace / (document.documentElement.clientWidth / 100)) + "vw";
+    console.log("222222222", this.dataSummaryTop);
+  },
 };
 </script>
 
@@ -141,7 +153,7 @@ export default {
     background-color: #f3f4f5;
     .dataSummary {
       position: absolute;
-      top: -30px;
+      // top: -30px;
       left: 50%;
       transform: translateX(-50%);
       width: 90%;
@@ -162,6 +174,7 @@ export default {
             margin: 0px 5px;
             flex: 0 0 23%;
             .num {
+              font-size: 14px;
               font-weight: 600;
             }
             .name {

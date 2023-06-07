@@ -68,79 +68,85 @@
           </div>
         </div>
         <!-- 故障主处理部门选择是-显示 -->
-        <template v-if="isMainDept == '1'">
-          <div class="region">
-            <!-- 故障恢复时间 -->
-            <DateTimePicker
-              label="故障恢复时间"
-              placeholder="请选择故障恢复时间（必填）"
-              type="3"
-              @getExcludeTime="getExcludeTime"
-            />
-          </div>
-          <!-- 故障原因 -->
-          <div class="region">
-            <van-field
-              label="故障原因"
-              :value="faultReasonLevel1Name"
-              @click="faultReasonLevel1Show = true"
-              placeholder="请选择故障原因"
-              is-link
-              arrow-direction="down"
-              readonly
-              class="textRight"
-            />
-            <van-action-sheet
-              v-model="faultReasonLevel1Show"
-              :actions="faultReasonLevel1Actions"
-              cancel-text="取消"
-              close-on-click-action
-              @select="selectFaultReasonLevel1"
-            />
-          </div>
-          <!-- 子故障原因 -->
-          <div class="region">
-            <van-field
-              label="子故障原因"
-              :value="faultReasonLevel2Name"
-              @click="faultReasonLevel2Show = true"
-              placeholder="请选择子故障原因"
-              is-link
-              arrow-direction="down"
-              readonly
-              class="textRight"
-              v-if="faultReasonLevel2Actions.length > 0"
-            />
-            <van-action-sheet
-              v-model="faultReasonLevel2Show"
-              :actions="faultReasonLevel2Actions"
-              cancel-text="取消"
-              close-on-click-action
-              @select="selectFaultReasonLevel2"
-            />
-          </div>
-          <!-- 子故障原因 -->
-          <div class="region">
-            <van-field
-              label="子故障原因"
-              :value="faultReasonLevel3Name"
-              @click="faultReasonLevel3Show = true"
-              placeholder="请选择子故障原因"
-              is-link
-              arrow-direction="down"
-              readonly
-              class="textRight"
-              v-if="faultReasonLevel3Actions.length > 0"
-            />
-            <van-action-sheet
-              v-model="faultReasonLevel3Show"
-              :actions="faultReasonLevel3Actions"
-              cancel-text="取消"
-              close-on-click-action
-              @select="selectFaultReasonLevel3"
-            />
-          </div>
-        </template>
+        <div class="region" v-if="isMainDept == '1'">
+          <!-- 故障恢复时间 -->
+          <DateTimePicker
+            label="故障恢复时间"
+            placeholder="请选择故障恢复时间（必填）"
+            type="3"
+            @getExcludeTime="getExcludeTime"
+          />
+        </div>
+      </template>
+      <!-- 故障原因 -->
+      <!-- 专业选择宽带时，显示故障原因 -->
+      <div
+        class="region"
+        v-if="(isMainDept == '1' && hasWorkType == false) || balkSubSortId == 5"
+      >
+        <van-field
+          label="故障原因"
+          :value="faultReasonLevel1Name"
+          @click="faultReasonLevel1Show = true"
+          placeholder="请选择故障原因"
+          is-link
+          arrow-direction="down"
+          readonly
+          class="textRight"
+        />
+        <van-action-sheet
+          v-model="faultReasonLevel1Show"
+          :actions="faultReasonLevel1Actions"
+          cancel-text="取消"
+          close-on-click-action
+          @select="selectFaultReasonLevel1"
+        />
+      </div>
+      <template v-if="isMainDept == '1' && hasWorkType == false">
+        <!-- 子故障原因 -->
+        <div class="region">
+          <van-field
+            label="子故障原因"
+            :value="faultReasonLevel2Name"
+            @click="faultReasonLevel2Show = true"
+            placeholder="请选择子故障原因"
+            is-link
+            arrow-direction="down"
+            readonly
+            class="textRight"
+            v-if="faultReasonLevel2Actions.length > 0"
+          />
+          <van-action-sheet
+            v-model="faultReasonLevel2Show"
+            :actions="faultReasonLevel2Actions"
+            cancel-text="取消"
+            close-on-click-action
+            @select="selectFaultReasonLevel2"
+          />
+        </div>
+        <!-- 子故障原因 -->
+        <div class="region">
+          <van-field
+            label="子故障原因"
+            :value="faultReasonLevel3Name"
+            @click="faultReasonLevel3Show = true"
+            placeholder="请选择子故障原因"
+            is-link
+            arrow-direction="down"
+            readonly
+            class="textRight"
+            v-if="faultReasonLevel3Actions.length > 0"
+          />
+          <van-action-sheet
+            v-model="faultReasonLevel3Show"
+            :actions="faultReasonLevel3Actions"
+            cancel-text="取消"
+            close-on-click-action
+            @select="selectFaultReasonLevel3"
+          />
+        </div>
+      </template>
+      <template v-if="hasWorkType == false">
         <!-- 是否需要分公司配合 -->
         <div class="region" v-if="showFgsCoordinate == 1">
           <div class="selectButton">
@@ -509,7 +515,7 @@
           </div>
         </template>
       </template>
-      <template v-else>
+      <template v-if="hasWorkType == true">
         <!-- 解决方案一 -->
         <div class="region">
           <van-field
@@ -1469,6 +1475,13 @@ export default {
           if (isMainDeptId.includes(result.balkSubSortId)) {
             this.mainDeptShow = true;
             // 故障类型-获取故障主处理部门选择是下的故障原因下拉菜单
+            if (result.balkReason.length > 0) {
+              this.balkReason = result.balkReason;
+              this.getFaultReasonPullDown(this.balkReason);
+            }
+          }
+          if (result.balkSubSortId == 5) {
+            // 专业选择宽带时，显示故障原因
             if (result.balkReason.length > 0) {
               this.balkReason = result.balkReason;
               this.getFaultReasonPullDown(this.balkReason);

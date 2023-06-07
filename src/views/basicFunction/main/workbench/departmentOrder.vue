@@ -9,7 +9,11 @@
       }"
     >
       <!-- 今日数据汇总 -->
-      <div class="dataSummary" ref="dataSummary">
+      <div
+        class="dataSummary"
+        ref="dataSummary"
+        :style="{ top: dataSummaryTop }"
+      >
         <!-- 选择工作组 -->
         <div class="workGroup" @click="clickSelectGroup">
           <span class="name">{{ groupName }}</span>
@@ -95,7 +99,7 @@ import { reqSheetReportSum, reqChangeDefaultGroup } from "@/http";
 
 export default {
   name: "DepartmentOrder",
-  props: ["workOrderDetail", "showDataSummary"],
+  props: ["workOrderDetail", "showDataSummary", "bottomSpace"],
   data() {
     return {
       dataSummaryBgHeight: "", // div-dataSummaryBg高度
@@ -116,6 +120,7 @@ export default {
       // cutBigBoard: {}, // 截取sheetSumInfoList首位
 
       dataSummaryBgDisplay: "block", // dataSummaryBg是否显示
+      dataSummaryTop: "", // 负top距离
     };
   },
   computed: {
@@ -344,6 +349,13 @@ export default {
     // 将组件高度传给父组件
     // this.dataSummaryBgHeight = (this.$refs.dataSummary.clientHeight - 76)
     // this.$emit('getBgHeight', this.dataSummaryBgHeight)
+
+    // 设置dataSummary上移的距离
+    console.log("111111111", this.bottomSpace);
+
+    this.dataSummaryTop =
+      -(this.bottomSpace / (document.documentElement.clientWidth / 100)) + "vw";
+    console.log("222222222", this.dataSummaryTop);
   },
   created() {
     // 获取工单看板数
@@ -361,7 +373,7 @@ export default {
     background-color: #f3f4f5;
     .dataSummary {
       position: absolute;
-      top: -30px;
+      // top: -30px; // 注意不能遮挡到上面的字（head背景图的高度-header高度-headText高度）
       left: 50%;
       transform: translateX(-50%);
       width: 90%;

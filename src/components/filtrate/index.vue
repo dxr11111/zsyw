@@ -460,7 +460,7 @@
       :list="optsList"
       :topObj="optsTitle"
       :selectedList="selectedList"
-      @clickCancel="currShowPage = 'index'"
+      @clickCancel="clickCancel"
       @rejectSeleted="rejectSeleted"
     />
   </div>
@@ -1027,6 +1027,10 @@ export default {
         }
       }
     },
+    // 取消选择
+    clickCancel() {
+      this.currShowPage = "index";
+    },
     // 接收选项子组件的数据
     rejectSeleted(data) {
       this.currShowPage = "index";
@@ -1055,6 +1059,7 @@ export default {
       if (this.ifmCode == 1 || this.isTask == 1) {
         if (this.currItem !== item.name) {
           this.selectedList = [];
+          this.specProdType = "";
         }
         this.currItem = item.name;
         if (item.name !== "全部") {

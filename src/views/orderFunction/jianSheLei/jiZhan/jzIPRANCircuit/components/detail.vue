@@ -1,11 +1,7 @@
 <template>
-  <div>
-    <MyHeader
-      :name="headName"
-      left="arrow-left"
-      @goBackEv="$router.go(-1)"
-    />
-    <van-tabs v-model="active" swipeable>
+  <div class="jzIPRANCircuitDetail">
+    <MyHeader :name="headName" left="arrow-left" @goBackEv="$router.go(-1)" />
+    <van-tabs v-model="active" swipeable sticky :offset-top="tabMarginTop">
       <van-tab title="全程路由">
         <template v-if="currData.quanChengLuYouList?.length > 0">
           <div
@@ -112,17 +108,23 @@
 
 <script>
 export default {
-  name: 'JzIPRANCircuitDeatil',
+  name: "JzIPRANCircuitDeatil",
   data() {
     return {
       headName: "电路信息",
       active: 0,
       openIntNature: false,
       openVpn: false,
-      currData: this.$route.query.currData || {}
+      currData: this.$route.query.currData || {},
+      tabMarginTop: "", // tab栏margin-top
     };
   },
   methods: {},
+  mounted() {
+    document.querySelector(".jzIPRANCircuitDetail").scrollTop = 0;
+    this.tabMarginTop =
+      document.querySelector("header").offsetHeight - 1 + "px";
+  },
 };
 </script>
 
@@ -165,7 +167,7 @@ export default {
   }
 }
 ::v-deep .van-cell__title {
-    margin-right: 6px;
+  margin-right: 6px;
   text-align: left;
   -webkit-flex: none;
   -webkit-box-flex: none;

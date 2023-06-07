@@ -1,14 +1,5 @@
 export default [
   {
-    // test
-    path: "/test",
-    name: "Test",
-    component: () => import("@/views/orderFunction/publicRoute/test"),
-    meta: {
-      myKeepAlive: false,
-    },
-  },
-  {
     // 工具 - 智家工单看板
     path: "/zjgdBoard",
     name: "ZjgdBoard",

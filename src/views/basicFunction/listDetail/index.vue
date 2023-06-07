@@ -195,6 +195,7 @@
               <van-action-sheet
                 v-model="jizhanShow"
                 :actions="jizhanActions"
+                @select="selectJizhanLocation($event, $event, arr)"
                 cancel-text="取消"
                 close-on-click-action
               />
@@ -351,7 +352,8 @@
         >
           <!-- 箭头标识 -->
           <div class="arrowDown">
-            <van-icon name="arrow-down" v-if="arrowShow" />
+            <!-- <van-icon name="arrow-down" v-if="arrowShow" /> -->
+            <span v-if="arrowShow">可滑动查看更多</span>
           </div>
           <van-grid
             ref="vanGrid"
@@ -477,6 +479,7 @@ import Progress from "@/components/progress";
 import html2canvas from "html2canvas";
 import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
 import { cloudCall } from "@/utils/gdMethods/cloudCall";
+import { unicomFunc, skipMap } from "@/utils/public/unicomApp";
 
 export default {
   name: "ListDetail",
@@ -519,7 +522,10 @@ export default {
       treaetProcessCollapseShow: false, // 处理过程是否折叠显示
       // 基站定位
       jizhanShow: false,
-      jizhanActions: [{ name: "高德地图" }, { name: "百度地图" }],
+      jizhanActions: [
+        { name: "高德地图", id: 1 },
+        { name: "百度地图", id: 2 },
+      ],
       sysId: -1,
       tabMarginTop: "", // tab栏margin-top
 
@@ -600,6 +606,119 @@ export default {
     goBackFn() {
       this.$store.commit("removeThisPage", this.$options.name);
       this.$router.go(-1);
+    },
+    // 点击基站定位方式
+    selectJizhanLocation(action, index, arr) {
+      // 找到基站地址
+      let targetAddress = "";
+      let longitude = "";
+      let latitude = "";
+
+      for (let item of arr.value) {
+        if (item.name == "基站地址") {
+          targetAddress = item.content;
+          console.log("基站地址", targetAddress);
+        }
+        if (item.name == "经度") {
+          longitude = item.content;
+          console.log("经度", longitude);
+        }
+        if (item.name == "纬度") {
+          latitude = item.content;
+          console.log("纬度", latitude);
+        }
+      }
+      if (longitude == "0.0" && latitude == "0.0") {
+        return this.$toast('经纬度不能为"0.0"!!!');
+      }
+      // let code = unicomFunc();
+      if (action.id == 1) {
+        // 高德 pname:"com.autonavi.minimap" Scheme:"amapuri://route/plan/"
+        // 不设置起点经纬度则自动使用当前位置
+        // dlat：终点纬度 dlon：终点经度 dname：终点名称 dev：起终点是否偏移(0:lat 和 lon 是已经加密后的,不需要国测加密; 1:需要国测加密)
+        let androidUrl = `amapuri://route/plan/?sourceApplication=jwy&dlat=${latitude}&dlon=${longitude}&dname=${targetAddress}&dev=0&t=0`;
+        let iosUrl = `iosamap://path?sourceApplication=jwy&dlat=${latitude}&dlon=${longitude}&dname=${targetAddress}&dev=0&t=0`;
+        let unicomUrl = `androidamap://viewMap?sourceApplication=jwy&poiname=${targetAddress}&lat=${latitude}&lon=${longitude}&dev=0`;
+        // 根据不同项目调用高德地图
+        skipMap(
+          "com.autonavi.minimap",
+          "iosamap://",
+          androidUrl,
+          iosUrl,
+          unicomUrl
+        );
+        /* if (code == 0) {
+          // 建维优
+          // 检测app是否安装
+          if (window.plus) {
+            if (
+              plus.runtime.isApplicationExist({
+                pname: "com.autonavi.minimap",
+                action: "amapuri://route/plan/",
+              })
+            ) {
+              console.log("应用已安装");
+              // 判断平台调用app
+              if (plus.os.name == "Android") {
+                // 不设置起点经纬度则自动使用当前位置
+                // dlat：终点纬度 dlon：终点经度 dname：终点名称 dev：起终点是否偏移(0:lat 和 lon 是已经加密后的,不需要国测加密; 1:需要国测加密)
+                window.location.href = `amapuri://route/plan/?sourceApplication=jwy&dlat=${latitude}&dlon=${longitude}&dname=${targetAddress}&dev=0&t=0`;
+              } else if (plus.os.name == "iOS") {
+                window.location.href = `iosamap://path?sourceApplication=jwy&dlat=${latitude}&dlon=${longitude}&dname=${targetAddress}&dev=0&t=0`;
+              }
+            } else {
+              console.log("应用未安装");
+              this.$toast("应用未安装");
+            }
+          } else {
+            this.$toast("当前是浏览器环境，无法监测app是否安装");
+          }
+        } else {
+          // 联通网络
+        } */
+      } else if (action.id == 2) {
+        // 百度 pname:"com.baidu.BaiduMap" Scheme:"baidumap://map/direction"
+        // src	表示来源，用于统计，格式为：ios.companyName.appName 不传此参数，不保证服务
+        let androidUrl = `baidumap://map/direction?origin=我的位置&destination=name:${targetAddress}|latlng:${latitude},${longitude}&coord_type=gcj02&src=andr.lansoft.jwy`;
+        let iosUrl = `baidumap://map/direction?origin=我的位置&destination=name:${targetAddress}|latlng:${latitude},${longitude}&mode=driving&coord_type=gcj02&src=ios.lansoft.jwy`;
+        let unicomUrl = `baidumap://map/navi?query=${targetAddress}&src=andr.lansoft.jwy`;
+        // 根据不同项目调用百度地图
+        skipMap(
+          "com.baidu.BaiduMap",
+          "baidumap://",
+          androidUrl,
+          iosUrl,
+          unicomUrl
+        );
+        /* if (code == 0) {
+          // 检测app是否安装
+          if (window.plus) {
+            if (
+              plus.runtime.isApplicationExist({
+                pname: "com.baidu.BaiduMap",
+                action: "baidumap://map/direction",
+              })
+            ) {
+              console.log("应用已安装");
+
+              // 判断平台调用app
+              // src	表示来源，用于统计，格式为：ios.companyName.appName 不传此参数，不保证服务
+              if (plus.os.name == "Android") {
+                window.location.href = `baidumap://map/direction?origin=我的位置&destination=name:${targetAddress}|latlng:${latitude},${longitude}&coord_type=gcj02&src=andr.lansoft.jwy`;
+              } else if (plus.os.name == "iOS") {
+                window.location.href = `baidumap://map/direction?origin=我的位置&destination=name:${targetAddress}|latlng:${latitude},${longitude}&mode=driving&coord_type=gcj02&src=ios.lansoft.jwy`;
+              }
+            } else {
+              console.log("应用未安装");
+              this.$toast("应用未安装");
+            }
+          } else {
+            this.$toast("当前是浏览器环境，无法监测app是否安装");
+          }
+        } else {
+          // 联通网络
+        } */
+      }
     },
     //保存图片
     saveImage() {
@@ -713,6 +832,9 @@ export default {
 
     // 切换tab栏
     changeTab(name, title) {
+      // 滚轴置顶
+      document.querySelector(".listDetail").scrollTop = 0;
+
       this.tabKey = title;
       if (title == "处理过程" && this.treaetProcessCollapseShow) {
         // 处理过程下的内容为折叠面板展示
@@ -1483,6 +1605,10 @@ export default {
     transform: translateX(-50%);
     background-color: #fff;
     box-shadow: 0 2px 6px rgba(50, 50, 51, 0.12);
+    span {
+      font-size: 12px;
+      color: #d8d5d5;
+    }
   }
   .van-grid {
     width: 100px;

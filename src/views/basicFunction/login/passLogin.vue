@@ -58,6 +58,13 @@
           </div>
         </van-form>
         <div class="more" @click="moreFn">更多</div>
+        <!-- 我已阅读并同意《隐私条款》 -->
+        <div class="privacyBox">
+          <van-checkbox v-model="privacyChecked" shape="square"
+            >我已阅读并同意
+            <a href="" @click.prevent="clickPrivacy">《隐私条款》</a>
+          </van-checkbox>
+        </div>
       </div>
     </div>
     <!-- 底部logo 文字 -->
@@ -103,6 +110,7 @@ export default {
       resetMobile: "",
       // 当前版本号
       curtVersion: version,
+      privacyChecked: false,
 
       // 测试public下存放图片，打包后可替换
       // imgUrl: "static/images_tool/login-bg.png",
@@ -112,6 +120,13 @@ export default {
     ...mapGetters(["getLoginInfo"]),
   },
   methods: {
+    clickPrivacy(e) {
+      e.stopPropagation();
+      // 跳转至隐私条款
+      this.$router.push({
+        name: "LoginPrivacy",
+      });
+    },
     // 清空用户填入的用户名及密码
     clearLoginNo() {
       this.loginNo = "";
@@ -134,6 +149,11 @@ export default {
     },
     // 点击登录
     async onSubmit(values) {
+      // 判断是否为账号密码登录
+      if (!this.isLoginInfo) {
+        if (!this.privacyChecked)
+          return this.$toast("请选择同意隐私条款后再登录");
+      }
       if (this.loginNo == "" && this.password == "") {
         this.$toast("请输入账号和密码");
       } else if (this.loginNo == "") {
@@ -173,7 +193,22 @@ export default {
     },
   },
   mounted() {},
+  activated() {},
   created() {
+    console.log("创建密码登录页");
+    // ios从外链返回时，不触发路由钩子，因此使用pageshow
+    let isPageHide = false;
+    window.addEventListener("pageshow", function () {
+      if (isPageHide) {
+        console.log("登录页pageShow");
+        // 先刷新一下页面 再跳转(解决web返回hbuilder登录页ios登录页显示有问题)
+        window.location.reload(); //  这里需求是重新加载
+      }
+    });
+    window.addEventListener("pagehide", function () {
+      isPageHide = true;
+    });
+
     if (this.userName) {
       this.loginNo = localStorage.getItem("account") || getItem("loginNo");
       this.isLoginInfo = true;
@@ -251,6 +286,10 @@ export default {
     }
     .generalLogin {
       margin: 0 auto;
+      .privacyBox {
+        display: flex;
+        justify-content: center;
+      }
     }
     .van-form {
       margin-left: 38px;

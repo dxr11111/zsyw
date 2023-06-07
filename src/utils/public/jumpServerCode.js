@@ -5,7 +5,7 @@ export const jumpServerCode = async (result, password) => {
     // 实现hbuilderx跳转服务端，根据登录用户判断是否切换到服务端（类似跳转建设中台）
     // 用userAppH5Type进行判断，=0时使用内部首页，=1时打开web首页
     // window.plus 存在hbuilderx环境下
-    if (true) {
+    if (window.plus) {
         if (result.userAppH5Type == 0) {
             vue.$router.push({ name: 'Main', params: { fromName: 'Login' } });
         } else {
@@ -26,14 +26,6 @@ export const jumpServerCode = async (result, password) => {
 
                 // console.log("编码后的登录信息", encodeLoginInfo);
                 // console.log("编码后的登录密码", encodePassword);
-
-                // 开启iframe标签嵌入web页地址
-                // hbuilderx专用
-                /*  vue.$store.commit('changeOssWeb', {
-                     isShow: true,
-                     webUrl: `${url}/#/main?userPwd=${encodePassword}&loginInfo=${encodeLoginInfo}`
-                 }) */
-
 
                 window.location.href = `${url}/#/main?userPwd=${encodePassword}&loginInfo=${encodeLoginInfo}`;
             });

@@ -208,6 +208,11 @@ export const getHasTaskListSysId = (userIds) => {
 // 判断用户是否有任务权限和工单权限
 export const judgeTaskSheetPermissions = (userIds) => {
     console.log("判断用户是否有任务权限和工单权限");
+    // 重置一下权限，防止从有权限的账后退出登录后影响没有权限的账号
+    that.$store.commit("workBench/changeTaskSheetPermissions", {
+        hasTaskList: 0,
+        hasSheetList: 0,
+    });
     // 只要有一个item hasSheetList=1就表示有工单权限，hasTaskList=1表示有任务权限
     for (let item of userIds) {
         if (item.hasTaskList == 1) {

@@ -23,8 +23,7 @@ import {
     reqIfmDiagnoseQuery,
 } from '@/http/button'
 
-import { getLocation, getLocationH5, getLocationHbuilder } from './positionLoaction'
-import { unicomFunc } from './unicomApp'
+import { unicomFunc, getProjectLocation } from './unicomApp'
 import vue from '@/main'
 // 装机单回复前查询
 import { IomNewFinishQuery } from '@/utils/iomNew/finish'
@@ -324,9 +323,9 @@ export const matchButton = async (buttonInfo, buttonId) => {
                                 async function submitLocation(res) {
                                     let params = {
                                         id: buttonInfo.id,
-                                        posX: res.lng, // 经度
-                                        posY: res.lat, // 纬度
-                                        address: ""
+                                        posX: res.longitude, // 经度
+                                        posY: res.latitude, // 纬度
+                                        address: res.address
                                     }
                                     console.log('发送的定位参数', params)
                                     let result = await GoSiteApi(JSON.stringify(params))
@@ -334,7 +333,17 @@ export const matchButton = async (buttonInfo, buttonId) => {
                                         vue.operationSuccessRefresh(true)
                                     })
                                 }
-                                var code = unicomFunc();
+                                /* // 根据不同环境获取经纬度信息发送给后台
+                                getProjectLocation().then((result) => {
+                                    // 提交经纬度给后台
+                                    submitLocation(result)
+                                }) */
+
+                                // 提交经纬度给后台
+                                submitLocation(vue.$store.state.h5Loaction)
+
+
+                                /* var code = unicomFunc();
                                 if (code == 0) {
                                     // 调用hbuilderx定位
                                     getLocationHbuilder()
@@ -349,7 +358,6 @@ export const matchButton = async (buttonInfo, buttonId) => {
                                             vue.$toast("hbuilderx" + error);
                                         });
                                 } else {
-                                    // 调用联通网络内部定位
                                     // 调用联通网络内部定位
                                     function getlnglatCallBack(location) {
                                         // 获取经纬度
@@ -374,7 +382,7 @@ export const matchButton = async (buttonInfo, buttonId) => {
                                         // 提交经纬度给后台
                                         submitLocation(result)
                                     }
-                                }
+                                } */
                             })
                             .catch()
                     })
@@ -511,9 +519,9 @@ export const matchButton = async (buttonInfo, buttonId) => {
                     // 提交经纬度给后台
                     async function submitLocation(res) {
                         let id = buttonInfo.id; // 工单唯一标识
-                        let longitude = res.lng; // 经度
-                        let latitude = res.lat; // 纬度
-                        let address = ""; // 所属地址
+                        let longitude = res.longitude; // 经度
+                        let latitude = res.latitude; // 纬度
+                        let address = res.address; // 所属地址
 
                         let result = await reqArrive(
                             JSON.stringify({ id, longitude, latitude, address })
@@ -528,7 +536,15 @@ export const matchButton = async (buttonInfo, buttonId) => {
                             });
                         }
                     }
-                    var code = unicomFunc();
+                    /* // 根据不同环境获取经纬度信息发送给后台
+                    getProjectLocation().then((result) => {
+                        // 提交经纬度给后台
+                        submitLocation(result)
+                    }) */
+                    // 提交经纬度给后台
+                    submitLocation(vue.$store.state.h5Loaction)
+
+                    /* var code = unicomFunc();
                     if (code == 0) {
                         // 调用hbuilderx定位
                         getLocationHbuilder()
@@ -568,7 +584,7 @@ export const matchButton = async (buttonInfo, buttonId) => {
                             // 提交经纬度给后台
                             submitLocation(result)
                         }
-                    }
+                    } */
 
                 })
                 .catch(() => {

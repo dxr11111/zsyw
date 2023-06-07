@@ -47,7 +47,7 @@ module.exports = defineConfig({
       '/api': {
         target: 'http://132.91.203.143:7143', // oss 开发环境
         // target: 'http://123.57.243.135:7061', // 阿里地址
-        // target: 'http://202.106.86.115:7064/pom', // oss 生产环境
+        // target: 'http://202.106.86.115:7064', // oss 生产环境
         // 往服务器发送请求时去掉api这个前缀
         pathRewrite: { '^/api': '' },
         ws: true,
@@ -99,7 +99,7 @@ module.exports = defineConfig({
   chainWebpack: config => {
     // 改变标题
     config.plugin('html').tap(args => {
-      args[0].title = '北京建维优一体门户'
+      args[0].title = '北京掌上运维'
       return args
     })
     /* 压缩图片 */

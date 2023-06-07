@@ -41,11 +41,12 @@
           </div>
           <div class="function">
             <div class="func-item" id="items">
+              <!-- pointer-event:none;元素不会成为鼠标事件的target -->
+              <!-- :style="{ pointerEvents: e.isShow ? '' : 'none' }" -->
               <div
                 class="box-item"
                 v-for="(e, i) in item.toolsList"
                 :key="e.id"
-                :style="{ pointerEvents: e.isShow ? '' : 'none' }"
                 @click="clickTool(e, i, 'add')"
               >
                 <!-- <img @click="addTool(e)" :src="e.imgUrl" alt="" /> -->
@@ -425,8 +426,11 @@ export default {
           this.updateIconsStatus(this.jkToolsList, item.id, true);
         } else if (flag == "add") {
           // 其他面板-添加
-          this.toolsList.push(item);
-          item.isShow = false;
+          if (item.isShow) {
+            // 如果存在加号，可以添加至首页应用
+            this.toolsList.push(item);
+            item.isShow = false;
+          }
         }
       }
     },

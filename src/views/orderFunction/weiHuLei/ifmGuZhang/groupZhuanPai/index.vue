@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="groupZhuanPai">
     <MyHeader :name="headName" left="arrow-left" @goBackEv="$router.go(-1)" />
 
     <van-form @submit="onSubmit">
@@ -75,7 +75,7 @@
                 </tr>
               </table>
             </div>
-            <div v-else style="text-align: center">
+            <div v-else style="text-align: center; font-size: 16px">
               暂时没有查询到工程师信息~
             </div>
           </div>
@@ -92,76 +92,104 @@
 </template>
 
 <script>
-import { GetGroupPaiQueryApi, GroupPaiSaveApi } from '@/http/button'
+import { GetGroupPaiQueryApi, GroupPaiSaveApi } from "@/http/button";
 export default {
-  name: 'GroupZhuanPai',
+  name: "GroupZhuanPai",
   data() {
     return {
-      radio: '1',
+      radio: "1",
       showChoice: false,
       show: false,
-      dicValue: '', // 选择的专业信息
-      ngiValue: '', // 选择的在岗人员信息
+      dicValue: "", // 选择的专业信息
+      ngiValue: "", // 选择的在岗人员信息
       dicList: [], // 按专业列表
       dicNameList: [], // 按专业列表 -- 名称
-      engineerList: [] // 按在岗人员列表
-    }
+      engineerList: [], // 按在岗人员列表
+    };
   },
   computed: {
     headName() {
-      return `组内转派(${this.$route.query.orderId})`
+      return `组内转派(${this.$route.query.orderId})`;
     },
   },
   created() {
-    GetGroupPaiQueryApi(JSON.stringify({ id: Number(this.$route.query.id) })).then((res) => {
-      if (!res.operationSuccessFlag) return this.$toast.fail(res.errorMessage)
-      this.dicList = res.dicListItem
-      this.dicNameList = res.dicListItem.map(e => {
-        return { name: e.itemName }
-      })
-      this.engineerList = res.listEngineer
-    })
+    // 获取组内转派信息
+    this.getInfo();
   },
   methods: {
+    // 获取组内转派信息
+    async getInfo() {
+      let result = await GetGroupPaiQueryApi(
+        JSON.stringify({ id: Number(this.$route.query.id) })
+      );
+      console.log("组内转派信息", result);
+      this.apiResponse(result, ".groupZhuanPai", () => {
+        this.dicList = result.dicListItem;
+        this.dicNameList = result.dicListItem.map((e) => {
+          return { name: e.itemName };
+        });
+        if (this.dicNameList.length == 0)
+          this.dicNameList.push({ name: "暂时没有查询到专业信息~", id: 0 });
+        this.engineerList = result.listEngineer;
+      });
+
+      /* GetGroupPaiQueryApi(
+        JSON.stringify({ id: Number(this.$route.query.id) })
+      ).then((res) => {
+        if (!res.operationSuccessFlag)
+          return this.$toast.fail(res.errorMessage);
+        this.dicList = res.dicListItem;
+        this.dicNameList = res.dicListItem.map((e) => {
+          return { name: e.itemName };
+        });
+        this.engineerList = res.listEngineer;
+      }); */
+    },
+
     chooseType(v) {
-      v == 1 ? this.ngiValue = '' : this.dicValue = ''
+      v == 1 ? (this.ngiValue = "") : (this.dicValue = "");
     },
     async onSubmit() {
-      let params = {}
-      params.id = Number(this.$route.query.id)
-      params.disType = Number(this.radio)
-      if (this.radio == '1') {
-        if (this.dicValue == '') {
-          return this.$toast('请选择专业信息')
+      let params = {};
+      params.id = Number(this.$route.query.id);
+      params.disType = Number(this.radio);
+      if (this.radio == "1") {
+        if (this.dicValue == "") {
+          return this.$toast("请选择专业信息");
         }
-        params.specId = this.dicList.find(e => e.itemName == this.dicValue)?.itemId
+        params.specId = this.dicList.find(
+          (e) => e.itemName == this.dicValue
+        )?.itemId;
       } else {
-        if (this.ngiValue == '') {
-          return this.$toast('请选择在岗人员信息')
+        if (this.ngiValue == "") {
+          return this.$toast("请选择在岗人员信息");
         }
-        params.engineerId = this.engineerList.find(e => this.ngiValue == e.userName).userId
+        params.engineerId = this.engineerList.find(
+          (e) => this.ngiValue == e.userName
+        ).userId;
       }
-      console.log('组内转派参数', params)
-      let data = await GroupPaiSaveApi(JSON.stringify(params))
+      console.log("组内转派参数", params);
+      let data = await GroupPaiSaveApi(JSON.stringify(params));
       if (data.operationSuccessFlag) {
-        this.$toast.success(data.successMessage)
-        this.$router.go(-1)
+        this.$toast.success(data.successMessage);
+        this.$router.go(-1);
         // 接口按钮操作成功 刷新工单详情/工作台
-        this.operationSuccessRefresh(true)
+        this.operationSuccessRefresh(true);
       } else {
-        this.$toast.fail(data.errorMessage)
+        this.$toast.fail(data.errorMessage);
       }
     },
     onSelect(item) {
-      this.showChoice = false
-      this.dicValue = item.name
+      if (item.id == 0) return;
+      this.showChoice = false;
+      this.dicValue = item.name;
     },
     chooseSpec(name) {
-      this.show = false
-      this.ngiValue = name
-    }
+      this.show = false;
+      this.ngiValue = name;
+    },
   },
-}
+};
 </script>
 
 <style lang="less" scoped>
@@ -193,6 +221,6 @@ export default {
   justify-content: space-between;
 }
 .content {
-  padding: 15px 12px
+  padding: 15px 12px;
 }
 </style>

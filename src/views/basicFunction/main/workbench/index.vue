@@ -3,13 +3,18 @@
     <div class="static">
       <div class="head" ref="head" :style="{ height: headHeight }">
         <UniNetHeader
+          ref="header"
           name="北京掌上运维系统"
           left="arrow-left"
           bgColor="transparent"
           @goBackEv="goBack"
           v-if="$store.state.projectFlag == 2"
         />
-        <div class="headText" :style="{ margin: headTextMargin }">
+        <div
+          class="headText"
+          ref="headText"
+          :style="{ margin: headTextMargin }"
+        >
           <div class="left">
             <!-- 任务-显示用户名 -->
             <div class="userName" v-if="isTask == 1">
@@ -56,7 +61,9 @@
 
           <!-- 选择工单或任务 -->
           <div class="menu">
-            <span :class="isTask == 1 ? 'menuActive' : ''" @click="clickMenu(1)"
+            <span
+              :class="isTask == 1 ? 'menuActive' : 'workOrder'"
+              @click="clickMenu(1)"
               >我的任务</span
             >
             <span
@@ -98,6 +105,7 @@
           @getTaskType="getTaskType"
           :showDataSummary="showDataSummary"
           :selectSysId="selectSysId"
+          :bottomSpace="bottomSpace"
           ref="myTask"
         />
         <DepartmentOrder
@@ -108,6 +116,7 @@
           @clickKanBan="clickKanBan"
           :workOrderDetail="workOrderDetail"
           :showDataSummary="showDataSummary"
+          :bottomSpace="bottomSpace"
           ref="departmentOrder"
         />
       </template>
@@ -128,7 +137,11 @@
             sticky
             :offset-top="tabOffsetTop"
           >
-            <van-tab :title="tab.name" v-for="tab in tabList" :key="tab.id">
+            <van-tab
+              :title="tab.name"
+              v-for="(tab, tabIndex) in tabList"
+              :key="tab.id"
+            >
               <!-- <ContentList :name="tab.name" :taskType="tab.id" v-bind="$attrs" /> -->
               <div
                 class="contentList"
@@ -142,6 +155,7 @@
                   style="min-height: 100vh"
                 >
                   <van-list
+                    :class="`vanList${tabIndex}`"
                     v-model="isLoading"
                     :finished="isFinished"
                     :finished-text="finishText"
@@ -253,9 +267,11 @@ import JsMiddlePlatform from "./jsMiddlePlatform";
 import PhoneIcon from "@/components/selectCallNumber/phoneIcon.vue";
 import { mapGetters, mapState } from "vuex";
 import { throttle } from "@/utils/public/throttle";
+import { judgeDeviceType } from "@/utils/public/judgeDeviceType";
 import UniNetHeader from "@/components/myHeader/uniNet.vue";
 import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
 import { cloudCall } from "@/utils/gdMethods/cloudCall";
+import { nextTick } from "vue";
 
 export default {
   name: "WorkBench",
@@ -273,8 +289,10 @@ export default {
   data() {
     return {
       userName: localStorage.getItem("userName"),
-      headHeight: "110px", // 头部背景高度 浏览器110px 手机 140px
+      headHeight: "29.33vw", // 头部背景高度 浏览器:110px/29.33vw 手机:140px/37.33vw 平板:210px
       headTextMargin: "10px 12px 20px",
+      // 缩放看板标识
+      zoomFlag: false,
       refreshFlag: false, // 刷新标识
 
       showDataSummary: true,
@@ -299,6 +317,7 @@ export default {
 
       dataSummaryBgHeight: 40, //, div-dataSummaryBg高度 任务：40px 工单：30px
       firstDataSummaryBgHeight: 0, // 子组件传过来的高度
+      bottomSpace: "", // header底部空白距离，用于设置子组件departmentOrder的top距离
 
       // 请求传参
       listPostData: {
@@ -463,6 +482,32 @@ export default {
         this.tabOffsetTop = 30 + this.$refs.head.clientHeight;
         // 获取工单信息
         this.getWorkOrder();
+      }
+
+      // 切换文字后获取bottomSpace 联通网络多一个顶部header
+      if (this.$store.state.projectFlag == 2) {
+        console.log(
+          "头部背景高度:",
+          this.$refs.head.clientHeight,
+          "\n顶部标题高度",
+          this.$refs.header.$el.clientHeight,
+          "\n顶部文字高度",
+          this.$refs.headText.clientHeight
+        );
+        if (
+          this.$refs.head.clientHeight &&
+          this.$refs.header.$el.clientHeight &&
+          this.$refs.headText.clientHeight
+        ) {
+          this.bottomSpace =
+            this.$refs.head.clientHeight -
+            this.$refs.header.$el.clientHeight -
+            this.$refs.headText.clientHeight;
+        } else {
+          this.bottomSpace = 26; // 假设没取到高度，默认给26px
+        }
+      } else if (this.$store.state.projectFlag == 1) {
+        this.bottomSpace = 30; // 建维优默认给30px
       }
     },
     // 重置列表请求参数
@@ -1081,7 +1126,10 @@ export default {
           };
           this.contentList.push(listInfo);
         });
+        // 判断billList里最后一个元素距离顶部的距离+元素本身的高度是否大于手机高度 大于 → 缩放看板
+        this.getLastContentInfo();
       } else {
+        this.zoomFlag = false;
         this.listInfoLoadFail();
       }
     },
@@ -1129,15 +1177,19 @@ export default {
       let scrollTop = document.querySelector(".main").scrollTop;
 
       // let scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
-      if (scrollTop > 50) {
+      if (scrollTop > 50 && self.zoomFlag) {
+        // 判断列表内容是否单屏可展示 可展示 → 无需缩放看板
+        // 判断billList里最后一个元素距离顶部的距离+元素本身的高度是否大于手机高度 大于 → 缩放看板
+
         // 缩小头部背景高度 → 传值给子组件隐藏dataSummaryBg → 将dataSummaryBg传给父组件
         // 放在浏览器内的 初始高度：110px 缩小高度：80px
         // 放在hbuilderx内的 初始高度：140px 缩小高度：110px
+        // 放在平板内的 初始高度：210px 缩小高度：140px
 
         if (self.$store.state.addHead || self.$store.state.projectFlag == 2) {
-          self.headHeight = "110px";
+          self.headHeight = "29.33vw";
         } else {
-          self.headHeight = "80px";
+          self.headHeight = "21.33vw"; // 80px
         }
 
         self.showDataSummary = false;
@@ -1147,9 +1199,9 @@ export default {
       }
       if (scrollTop < 50) {
         if (self.$store.state.addHead || self.$store.state.projectFlag == 2) {
-          self.headHeight = "140px";
+          self.headHeight = "37.33vw";
         } else {
-          self.headHeight = "110px";
+          self.headHeight = "29.33vw";
         }
 
         self.showDataSummary = true;
@@ -1255,16 +1307,18 @@ export default {
         if (getItem("jsMiddlePlatformFlag").projectFlag == 2) {
           // 联通网络
           this.headTextMargin = "0px 12px 20px"; // 改变头部样式
-          this.headHeight = "140px";
+          this.headHeight = "37.33vw";
           this.$store.commit("changeProjectFlag", 2);
         } else {
           // 建维优
           // 判断是否是在hbuilder环境下，添加头部距离（从建设中台返回工作台会刷新页面，此时头部距离重置了）
           // 重新判断是否要添加头部距离
+          // hbuilderx判断设备机型
           if (window.plus) {
-            this.$store.commit("changeAddHead", true);
-            this.headHeight = "140px";
-            this.headTextMargin = "40px 12px 20px";
+            this.addHeadFn();
+          } else {
+            console.log("没有获取到window.plus");
+            document.addEventListener("plusready", this.addHeadFn, false);
           }
         }
         this.isTask = 0; // 防止获取任务看板数
@@ -1279,7 +1333,7 @@ export default {
         // 判断当前工作台是联通网络还是建维优
         if (this.$store.state.projectFlag == 2) {
           // 联通网络
-          this.headHeight = "140px";
+          this.headHeight = "37.33vw";
           this.headTextMargin = "0px 12px 20px"; // 改变头部样式
           this.isTask = 0;
           this.$nextTick(() => {
@@ -1291,6 +1345,7 @@ export default {
           if (this.taskSheetPermissions.hasTaskList) {
             // 默认选中我的任务
             this.isTask = 1;
+            this.bottomSpace = 30; // 建维优dataSummaryTop默认给30px
             await this.getTabList();
           } else {
             // 2.没有任务权限 → 判断是否有工单权限 → 有工单权限则默认选中工单,没有工单权限就无法进入工作台
@@ -1357,12 +1412,50 @@ export default {
         removeItem("jsMiddlePlatformFlag");
       }
     },
+
+    // 重新获取一遍机型，增加头部距离
+    addHeadFn() {
+      // 从建设中台点击的外部链接返回建设中台时，页面会刷新，此时重新判断addHead
+      judgeDeviceType();
+      if (this.$store.state.addHead) {
+        this.$store.commit("changeAddHead", true);
+        this.headHeight = "37.33vw";
+        this.headTextMargin = "40px 12px 20px";
+      }
+    },
+
+    // 获取最后一个contentInfo
+    getLastContentInfo() {
+      // console.log(`vanList${this.tabActive}`);
+      // 每一个tab栏下都有van-list 所以要区分van-list类名
+      let list = document.querySelector(`.vanList${this.tabActive}`);
+      this.$nextTick(() => {
+        let infoList = list.querySelectorAll(".userInfo");
+        let lastInfo = infoList[infoList.length - 1];
+        var offsetTop =
+          lastInfo.getBoundingClientRect().top +
+          document.documentElement.scrollTop;
+
+        let overallHeight = lastInfo.offsetHeight + offsetTop;
+        if (overallHeight + 100 >= document.documentElement.clientHeight) {
+          this.zoomFlag = true;
+          /*  console.log(
+            "需要缩放看板",
+            lastInfo,
+            overallHeight,
+            document.documentElement.clientHeight
+          ); */
+        } else {
+          this.zoomFlag = false;
+        }
+      });
+    },
   },
 
   created() {
     // 获取头部尺寸
     if (this.$store.state.addHead) {
-      this.headHeight = "140px";
+      this.headHeight = "37.33vw";
       this.headTextMargin = "40px 12px 20px";
     }
 
@@ -1448,6 +1541,7 @@ export default {
       // background-size: cover;
       background-size: 100% 100%;
       .headText {
+        height: 54px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -1460,11 +1554,15 @@ export default {
           align-items: center;
           width: 30%;
           .userName {
+            font-size: 16px;
             width: 100%;
             white-space: nowrap;
           }
           .van-popover__wrapper {
             .customize {
+              span {
+                font-size: 16px;
+              }
               .icon-xiajiantou {
                 margin-left: 5px;
               }
@@ -1481,6 +1579,7 @@ export default {
           margin-right: 60px;
           color: #9bbae3;
           .workOrder {
+            font-size: 16px;
             margin-top: 5px;
           }
           .menuActive {
@@ -1513,6 +1612,7 @@ export default {
         .title {
           text-align: left;
           font-weight: 600;
+          font-size: 16px;
         }
         .content {
           display: flex;

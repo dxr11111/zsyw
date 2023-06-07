@@ -17,6 +17,15 @@ export const reqQueryClientNotice = (postData) => {
   });
 };
 
+// 发送位置
+export const savePosition = (postData) => {
+  return requests({
+    method: "post",
+    url: "/savePosition",
+    data: `data=${postData}`,
+  });
+};
+
 // 我的 检查更新
 export const reqCheckVersion = (postData) => {
   return requests({

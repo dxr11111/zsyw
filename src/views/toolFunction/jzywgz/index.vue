@@ -12,7 +12,7 @@
       name="content_frame"
       :src="jzywUrl"
       frameborder="0"
-      scrolling="no"
+      scrolling="yes"
     ></iframe>
     <!-- <embed :src="jzywUrl" width="100%" height="100%" /> -->
   </div>

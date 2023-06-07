@@ -2,12 +2,22 @@
   <div class="bgc main">
     <div class="top">
       <van-icon @click="goBack" name="arrow-left" color="#fff" class="left" />
-      <van-search
+
+      <!-- <van-search
         v-model.trim="keyWord"
         placeholder="多功能搜索栏（搜工具、搜工单）"
         @search="onSearch"
         @clear="onCancel"
-      />
+      /> -->
+      <!-- 阻止默认行为，没有表达式 -->
+      <form @submit.prevent action="javascript:return true">
+        <van-search
+          v-model.trim="keyWord"
+          placeholder="多功能搜索栏（搜工具、搜工单）"
+          @search="onSearch"
+          @clear="onCancel"
+        />
+      </form>
     </div>
     <!-- 搜索历史 -->
     <div class="history clienttop" v-if="isShow">
@@ -66,119 +76,129 @@
 </template>
 
 <script>
-import { multiFunction } from "@/http/index"
-import { billList } from "@/utils/public/workIcons.js"
-import ContentInfo from "@/components/contentInfo"
-import { matchTools } from "@/utils/public/tools"
-import { getItem, setItem, removeItem } from "@/utils/public/sessionStorage"
+import { multiFunction } from "@/http/index";
+import { billList } from "@/utils/public/workIcons.js";
+import ContentInfo from "@/components/contentInfo";
+import { matchTools } from "@/utils/public/tools";
+import { getItem, setItem, removeItem } from "@/utils/public/sessionStorage";
+import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
 export default {
+  name: "Search",
   components: { ContentInfo },
+  mixins: [keepAliveMixin],
   data() {
     return {
       keyWord: "",
-      isShow: undefined,
+      isShow: false,
       historyList: getItem("historyList") || [], // 搜索历史
       rowInfos: [],
       toolsList: [],
       ifmSysIds: getItem("loginInfo").ifmSysIds,
       isEmpty: false,
-    }
+    };
   },
   mounted() {
-    window.addEventListener('scroll', this.updateScrollTop)
+    window.addEventListener("scroll", this.updateScrollTop);
   },
   watch: {
     keyWord(newValue, oldValue) {
-      if (newValue == "") return this.isShow = true
-      this.rowInfos = []
-      this.toolsList = []
+      if (newValue == "" && this.historyList.length > 0)
+        return (this.isShow = true);
+      this.rowInfos = [];
+      this.toolsList = [];
     },
   },
   created() {
-    if (this.historyList.length > 0) return (this.isShow = true)
+    if (this.historyList.length > 0) return (this.isShow = true);
   },
   methods: {
     updateScrollTop() {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
+      const scrollTop =
+        window.pageYOffset ||
+        document.documentElement.scrollTop ||
+        document.body.scrollTop;
       if (!this.keyWord) {
-        window.pageYOffset = 0
-        document.documentElement.scrollTop = 0
-        document.body.scrollTop = 0
+        window.pageYOffset = 0;
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
       }
-      console.log(scrollTop)
+      // console.log(scrollTop);
     },
     // 点击工具
     cilckTool(e) {
-      matchTools(e)
+      matchTools(e);
     },
     // 点击历史记录
     clickRecord(key) {
-      this.keyWord = key
-      this.onSearch(key)
+      this.keyWord = key;
+      this.onSearch(key);
     },
     // 搜索
     async onSearch(val) {
-      this.isShow = false
-      this.isEmpty = false
-      this.rowInfos = []
-      this.toolsList = []
-      if (val == "") return this.$toast("请输入搜索关键词")
-      this.saveHistory(val)
+      this.isShow = false;
+      this.isEmpty = false;
+      this.rowInfos = [];
+      this.toolsList = [];
+      if (val == "") return this.$toast("请输入搜索关键词");
+      this.saveHistory(val);
       let data = await multiFunction(
         JSON.stringify({ keyWord: val, ifmSysIds: this.ifmSysIds })
-      )
-      console.log(data)
+      );
+      console.log(data);
       // 工单列表
-      let content = data.rowInfos
+      let content = data.rowInfos;
       if (content.length > 0) {
         // 有数据
         // 第一个数组 标题信息 ； 第二个数组 展开信息
         content.forEach((rowInfo) => {
           // 获取列表文本
-          let info = rowInfo.colData.replace(/\s+/g, "")
-          info = JSON.parse(info)
-          info[0].push(this.rowInfos.length + 1)
+          let info = rowInfo.colData.replace(/\s+/g, "");
+          info = JSON.parse(info);
+          info[0].push(this.rowInfos.length + 1);
           // 只取按钮前四项
           // let buttonList = content.buttonList?.slice(0, 4)
           let listInfo = {
             info: info,
-            button: rowInfo.buttonList.length > 4 ? rowInfo.buttonList?.slice(0, 4) : rowInfo.buttonList,
+            button:
+              rowInfo.buttonList.length > 4
+                ? rowInfo.buttonList?.slice(0, 4)
+                : rowInfo.buttonList,
             ...rowInfo,
-          }
-          this.rowInfos.push(listInfo)
-        })
+          };
+          this.rowInfos.push(listInfo);
+        });
       }
       // 工具列表
-      this.toolsList = data.toolsList
+      this.toolsList = data.toolsList;
       if (this.toolsList.length > 0) {
         this.toolsList.forEach((e) => {
           billList.forEach((tool) => {
             if (tool.toolId == e.id) {
-              e.imgUrl = tool.url
+              e.imgUrl = tool.url;
             }
-          })
-        })
+          });
+        });
       }
-      console.log(this.toolsList)
+      console.log(this.toolsList);
       if (content.length == 0 && this.toolsList.length == 0) {
-        this.isEmpty = true
+        this.isEmpty = true;
       }
     },
     // 保存搜索历史
     saveHistory(val) {
-      const set = new Set(this.historyList)
-      set.delete(val)
-      set.add(val)
-      this.historyList = Array.from(set)
+      const set = new Set(this.historyList);
+      set.delete(val);
+      set.add(val);
+      this.historyList = Array.from(set);
       // 保存到本地存储
       // let list = [{ loginNo: getItem('loginInfo').loginNo, historyList: this.historyList }]
       // setItem('historyList', list)
-      setItem("historyList", this.historyList)
+      setItem("historyList", this.historyList);
     },
     // 删除单个搜索记录
     delHistory(index) {
-      this.historyList.splice(index, 1)
-      setItem("historyList", this.historyList)
+      this.historyList.splice(index, 1);
+      setItem("historyList", this.historyList);
     },
     // 删除全部历史记录
     removeAll() {
@@ -188,25 +208,26 @@ export default {
           confirmButtonColor: "#1989fa",
         })
         .then(() => {
-          this.historyList = []
-          removeItem("historyList", "[]")
+          this.historyList = [];
+          removeItem("historyList", "[]");
         })
-        .catch()
+        .catch();
     },
     onCancel() {
-      this.isShow = true
-      this.keyWord = ""
-      this.rowInfos = []
-      this.toolsList = []
+      this.isShow = true;
+      this.keyWord = "";
+      this.rowInfos = [];
+      this.toolsList = [];
     },
     goBack() {
-      this.$router.go(-1)
-      this.keyWord = ""
+      this.$router.go(-1);
+      this.keyWord = "";
+      this.$store.commit("removeThisPage", this.$options.name); // 删除当前页面路由
     },
   },
   destroyed() {
-    window.removeEventListener('scroll', this.updateScrollTop)
-  }
+    window.removeEventListener("scroll", this.updateScrollTop);
+  },
 };
 </script>
 
@@ -230,6 +251,10 @@ export default {
   .left {
     width: 30px;
     line-height: 102px;
+  }
+  form {
+    width: 100%;
+    display: flex;
   }
   .van-search {
     flex: 1;

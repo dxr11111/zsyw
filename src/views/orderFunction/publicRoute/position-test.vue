@@ -21,7 +21,7 @@
       height="0"
       frameborder="0"
       style="display: none"
-      scrolling="no"
+      scrolling="yes"
       src="https://apis.map.qq.com/tools/geolocation?key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=myapp"
     >
     </iframe>

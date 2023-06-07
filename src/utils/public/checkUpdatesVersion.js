@@ -12,6 +12,7 @@ export const checkUpdates = async () => {
         let minVersion = result.minVersion;
         let downLoadURL = result.downLoadURL;
         let content = result.content;
+        console.log('后台返回版本:', curtVersion, '当前版本:', version)
 
         // 比较当前版本和后台返回的版本
         const flag = compareVersion(version, curtVersion);

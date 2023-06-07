@@ -118,6 +118,8 @@ import { getItem } from "@/utils/public/sessionStorage";
 import { mapGetters } from "vuex";
 import UniNetHeader from "@/components/myHeader/uniNet.vue";
 import { keepAliveMixin } from "@/utils/mixins/routerKeepAlive";
+import { getProjectLocation } from "@/utils/public/unicomApp";
+import { savePosition } from "@/http/index";
 
 export default {
   name: "UniNetLoginHome",
@@ -161,6 +163,7 @@ export default {
       sysIds: [],
       ifmSysIds: [],
       toolList: [], // 工具列表
+      positionTimer: null, // 位置信息计时器
     };
   },
   computed: {
@@ -345,10 +348,42 @@ export default {
         }
       }
     },
+    // 定时发送位置信息
+    timingSendPosition() {
+      // 联通网络
+      // 1分钟请求一次 60000
+      this.positionTimer && clearInterval(this.positionTimer); // 判断定时器是否存在，若存在就关掉
+      this.realSendLocation();
+      this.positionTimer = setInterval(this.realSendLocation, 60000);
+    },
+    // 实时发送位置信息 → 联通网络获取定位
+    realSendLocation() {
+      console.log(
+        "测试是否一分钟获取一次定位",
+        new Date(+new Date() + 8 * 3600 * 1000)
+          .toJSON()
+          .substr(0, 19)
+          .replace("T", " ")
+      );
+
+      getProjectLocation().then(async (result) => {
+        let location = result;
+        // 获取到有效位置信息再发送给后台
+        if (result.longitude) {
+          // 将位置信息放在vuex内，供其他需要定位的功能获取（如上站）
+          this.$store.commit("changeH5Location", location);
+          await savePosition(JSON.stringify(location));
+          console.log("发送给后台定位信息", location);
+        }
+      });
+    },
   },
   created() {
     // 获取展示工单权限
     this.getOrderAuthority();
+    // caowq11
+    // 定时上传位置
+    if (getItem("loginNo") == "caowq11") this.timingSendPosition();
   },
 };
 </script>
